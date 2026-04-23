@@ -239,7 +239,7 @@ function Section({
           <p className="mt-5 text-muted leading-relaxed">{body}</p>
         </div>
         {imageCard ? (
-          <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+          <div className="overflow-hidden rounded-lg border border-zinc-200 shadow-sm">
             {img}
           </div>
         ) : (
