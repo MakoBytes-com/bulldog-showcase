@@ -25,8 +25,10 @@ export function Footer() {
     <footer className="mt-auto bg-brand-950 text-white/85">
       <Container className="py-14 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
         <div className="min-w-0">
-          <Logo size="md" onDark className="mb-4" />
-          <p className="mt-4 text-sm text-white/75">
+          <div className="inline-block bg-white rounded-md px-4 py-3">
+            <Logo size="md" />
+          </div>
+          <p className="mt-5 text-sm text-white/75">
             Family-owned ADT Authorized Dealer. Since {SITE.foundedYear}, we&rsquo;ve proudly
             helped protect {SITE.homesProtected} homes and families across Texas and Florida.
           </p>

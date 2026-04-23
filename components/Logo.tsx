@@ -4,8 +4,6 @@ import { cn } from "@/lib/utils";
 type Props = {
   className?: string;
   size?: "xs" | "sm" | "md" | "lg";
-  /** For use on dark backgrounds — swaps in a white variant when we ship one. For now the same logo renders fine over dark. */
-  onDark?: boolean;
 };
 
 const HEIGHT_CLASS: Record<NonNullable<Props["size"]>, string> = {
@@ -15,21 +13,17 @@ const HEIGHT_CLASS: Record<NonNullable<Props["size"]>, string> = {
   lg: "h-14",
 };
 
-/** Official Bulldog Security Service logomark. 305×71 source. */
-export function Logo({ className, size = "md", onDark = false }: Props) {
+/** Official Bulldog Security Service logomark (ADT Authorized Dealer). 305×71 source.
+ * Designed for light backgrounds — on dark surfaces, wrap in a white card. */
+export function Logo({ className, size = "md" }: Props) {
   return (
     <Image
       src="/images/bulldog-logo.png"
-      alt="Bulldog Security Service"
+      alt="Bulldog Security Service — ADT Authorized Dealer"
       width={305}
       height={71}
       priority
-      className={cn(
-        "w-auto",
-        HEIGHT_CLASS[size],
-        onDark ? "brightness-0 invert" : "",
-        className,
-      )}
+      className={cn("w-auto", HEIGHT_CLASS[size], className)}
     />
   );
 }

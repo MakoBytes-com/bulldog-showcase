@@ -11,7 +11,7 @@ export default function HomePage() {
   return (
     <>
       {/* ───── HERO ─────────────────────────────────────────────── */}
-      <section className="relative h-[68vh] min-h-[540px] w-full overflow-hidden bg-brand-950 text-white">
+      <section className="relative h-[calc(100vh-5rem)] min-h-[640px] w-full overflow-hidden bg-brand-950 text-white">
         <video
           className="absolute inset-0 h-full w-full object-cover"
           autoPlay
