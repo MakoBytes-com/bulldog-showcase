@@ -168,23 +168,7 @@ export default function SolutionsPage() {
       {/* TRUST MARKERS */}
       <section className="py-16 sm:py-20 bg-white border-b border-zinc-200">
         <Container>
-          <div className="text-center max-w-3xl mx-auto">
-            <h2 className="font-display text-3xl sm:text-4xl text-ink leading-tight">
-              ADT Monitoring Helps Save Lives
-            </h2>
-            <p className="mt-5 text-muted leading-relaxed">
-              Your protection is our priority. ADT Monitoring has six strategically placed
-              interconnected monitoring centers throughout the United States to ensure
-              uninterrupted protection for your home and loved ones. Being interconnected
-              is important because if the center closest to you goes down for any reason,
-              another center is there to provide backup which was proven effective during
-              Hurricane Katrina in 2005. In addition to 24/7 protection, ADT monitoring
-              customers find peace of mind knowing they can expect shortened response
-              times which minimizes homeowner risk. Those saved moments have the power to
-              change everything.
-            </p>
-          </div>
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <TrustCard title="Market Experts" body="ADT has been focused on home security for over a century." />
             <TrustCard title="A Trusted Partner" body="ADT is the #1 home-security monitoring service across the United States." />
             <TrustCard title="Proven Impact" body="ADT responds to 33 million alerts a year, averaging 90,000 per day." />
