@@ -13,33 +13,103 @@ import {
 import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
 import { JsonLd } from "@/components/JsonLd";
+import { SexOffenderLookupForm } from "@/components/SexOffenderLookupForm";
 import {
   LOCATIONS,
+  SATELLITES,
   getLocationBySlug,
+  getSatelliteBySlug,
   ALARM_DETERRENCE_NOTE,
+  type LocationCity,
+  type SatelliteCity,
 } from "@/lib/locations";
 import { SITE } from "@/lib/site";
 
 type Props = { params: Promise<{ city: string }> };
 
+// Resolved view that the template renders — covers both office cities (full
+// dataset) and satellite cities (slimmer dataset, parent-office reference).
+type ResolvedLoc = {
+  isSatellite: boolean;
+  data: LocationCity | SatelliteCity;
+  parent?: LocationCity;
+  // Fields needed by the template, normalized across both types.
+  city: string;
+  state: string;
+  stateFull: string;
+  metro: string;
+  slug: string;
+  intro: string;
+  whyLocal?: string;
+  neighborhoods?: string[];
+  process?: string;
+  faqs?: { q: string; a: string }[];
+  nearby?: string[];
+  offices: LocationCity["offices"];
+  crimeStats?: LocationCity["crimeStats"];
+};
+
+function resolveLocation(slug: string): ResolvedLoc | null {
+  const office = getLocationBySlug(slug);
+  if (office) {
+    return {
+      isSatellite: false,
+      data: office,
+      city: office.city,
+      state: office.state,
+      stateFull: office.stateFull,
+      metro: office.metro,
+      slug: office.slug,
+      intro: office.intro,
+      whyLocal: office.whyLocal,
+      neighborhoods: office.neighborhoods,
+      process: office.process,
+      faqs: office.faqs,
+      nearby: office.nearby,
+      offices: office.offices,
+      crimeStats: office.crimeStats,
+    };
+  }
+  const sat = getSatelliteBySlug(slug);
+  if (!sat) return null;
+  const parent = getLocationBySlug(sat.parentSlug);
+  if (!parent) return null;
+  return {
+    isSatellite: true,
+    data: sat,
+    parent,
+    city: sat.city,
+    state: sat.state,
+    stateFull: sat.stateFull,
+    metro: parent.metro,
+    slug: sat.slug,
+    intro: sat.intro,
+    offices: parent.offices,
+    crimeStats: sat.crimeStats,
+  };
+}
+
 export function generateStaticParams() {
-  return LOCATIONS.map((l) => ({ city: l.slug }));
+  return [
+    ...LOCATIONS.map((l) => ({ city: l.slug })),
+    ...SATELLITES.map((s) => ({ city: s.slug })),
+  ];
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { city } = await params;
-  const loc = getLocationBySlug(city);
+  const loc = resolveLocation(city);
   if (!loc) return {};
   return {
     title: `Home Security in ${loc.city}, ${loc.state} — Bulldog Security Service`,
-    description: `ADT-monitored home security and smart-home automation in ${loc.city}, ${loc.stateFull}. Local techs, real ${loc.metro} office, 24/7 monitoring. ${loc.crimeStats?.burglary ? `${loc.crimeStats.burglary.count.toLocaleString()} burglaries reported in ${loc.city} in ${loc.crimeStats.year}.` : ""}`,
+    description: `ADT-monitored home security and smart-home automation in ${loc.city}, ${loc.stateFull}. Local techs, real ${loc.metro} office, 24/7 monitoring.${loc.crimeStats?.burglary ? ` ${loc.crimeStats.burglary.count.toLocaleString()} burglaries reported in ${loc.city} in ${loc.crimeStats.year}.` : ""}`,
     alternates: { canonical: `/locations/${loc.slug}` },
   };
 }
 
 export default async function LocationPage({ params }: Props) {
   const { city } = await params;
-  const loc = getLocationBySlug(city);
+  const loc = resolveLocation(city);
   if (!loc) notFound();
 
   const hq = loc.offices[0];
@@ -119,10 +189,20 @@ export default async function LocationPage({ params }: Props) {
               About Bulldog in {loc.city}
             </div>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl text-ink leading-tight">
-              Local techs. Local office. Real ADT monitoring.
+              Local techs. {loc.isSatellite ? `Served from our ${loc.parent?.city} office.` : "Local office."} Real ADT monitoring.
             </h2>
             <p className="mt-5 text-muted leading-relaxed">{loc.intro}</p>
-            <p className="mt-4 text-muted leading-relaxed">{loc.whyLocal}</p>
+            {loc.whyLocal && (
+              <p className="mt-4 text-muted leading-relaxed">{loc.whyLocal}</p>
+            )}
+            {loc.isSatellite && loc.parent && (
+              <p className="mt-4 text-sm text-muted leading-relaxed">
+                Looking for our nearest office?{" "}
+                <Link href={`/locations/${loc.parent.slug}`} className="font-semibold text-brand-700 hover:text-brand-800 underline">
+                  See the {loc.parent.city} location page →
+                </Link>
+              </p>
+            )}
           </div>
 
           <aside className="lg:col-span-4 lg:sticky lg:top-24 self-start">
@@ -306,61 +386,80 @@ export default async function LocationPage({ params }: Props) {
               ))}
             </ul>
 
-            <div className="mt-10">
-              <div className="text-sm font-display font-semibold uppercase tracking-[0.2em] text-brand-600">
-                How installs run in {loc.city}
+            {loc.process && (
+              <div className="mt-10">
+                <div className="text-sm font-display font-semibold uppercase tracking-[0.2em] text-brand-600">
+                  How installs run in {loc.city}
+                </div>
+                <p className="mt-3 text-muted leading-relaxed">{loc.process}</p>
               </div>
-              <p className="mt-3 text-muted leading-relaxed">{loc.process}</p>
-            </div>
+            )}
           </div>
 
-          <div className="lg:col-span-5">
-            <div className="text-sm font-display font-semibold uppercase tracking-[0.2em] text-brand-600">
-              Neighborhoods & areas served
+          {loc.neighborhoods && loc.neighborhoods.length > 0 ? (
+            <div className="lg:col-span-5">
+              <div className="text-sm font-display font-semibold uppercase tracking-[0.2em] text-brand-600">
+                Neighborhoods & areas served
+              </div>
+              <h3 className="mt-3 font-display text-2xl text-ink">
+                We cover the {loc.metro} area.
+              </h3>
+              <ul className="mt-5 grid grid-cols-2 gap-2">
+                {loc.neighborhoods.map((n) => (
+                  <li
+                    key={n}
+                    className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-ink"
+                  >
+                    <Building2 className="h-3.5 w-3.5 text-brand-600 flex-shrink-0" />
+                    {n}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <h3 className="mt-3 font-display text-2xl text-ink">
-              We cover the {loc.metro} area.
-            </h3>
-            <ul className="mt-5 grid grid-cols-2 gap-2">
-              {loc.neighborhoods.map((n) => (
-                <li
-                  key={n}
-                  className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-ink"
-                >
-                  <Building2 className="h-3.5 w-3.5 text-brand-600 flex-shrink-0" />
-                  {n}
-                </li>
-              ))}
-            </ul>
-          </div>
+          ) : (
+            <PublicSafetyCard state={loc.state} stateFull={loc.stateFull} city={loc.city} />
+          )}
         </Container>
       </section>
+
+      {/* PUBLIC SAFETY RESOURCES — full-width on office cities since they have the
+          right-column neighborhoods grid; satellite pages already get the card
+          inline above. */}
+      {loc.neighborhoods && loc.neighborhoods.length > 0 && (
+        <section className="pb-16 sm:pb-20 bg-white">
+          <Container className="max-w-3xl">
+            <PublicSafetyCard state={loc.state} stateFull={loc.stateFull} city={loc.city} />
+          </Container>
+        </section>
+      )}
 
       {/* FAQS */}
-      <section className="py-16 sm:py-20 bg-cream border-y border-zinc-200">
-        <Container className="max-w-3xl">
-          <div className="text-sm font-display font-semibold uppercase tracking-[0.2em] text-brand-600">
-            Common questions
-          </div>
-          <h2 className="mt-3 font-display text-3xl sm:text-4xl text-ink leading-tight">
-            Questions we hear from {loc.city} customers.
-          </h2>
-          <div className="mt-8 divide-y divide-zinc-200 border-y border-zinc-200">
-            {loc.faqs.map((f) => (
-              <details key={f.q} className="group py-5">
-                <summary className="cursor-pointer list-none flex items-start justify-between gap-6 font-display text-lg text-ink">
-                  {f.q}
-                  <ChevronRight className="h-5 w-5 text-brand-600 flex-shrink-0 mt-1 transition-transform group-open:rotate-90" />
-                </summary>
-                <p className="mt-3 text-muted leading-relaxed">{f.a}</p>
-              </details>
-            ))}
-          </div>
-        </Container>
-      </section>
+      {loc.faqs && loc.faqs.length > 0 && (
+        <section className="py-16 sm:py-20 bg-cream border-y border-zinc-200">
+          <Container className="max-w-3xl">
+            <div className="text-sm font-display font-semibold uppercase tracking-[0.2em] text-brand-600">
+              Common questions
+            </div>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl text-ink leading-tight">
+              Questions we hear from {loc.city} customers.
+            </h2>
+            <div className="mt-8 divide-y divide-zinc-200 border-y border-zinc-200">
+              {loc.faqs.map((f) => (
+                <details key={f.q} className="group py-5">
+                  <summary className="cursor-pointer list-none flex items-start justify-between gap-6 font-display text-lg text-ink">
+                    {f.q}
+                    <ChevronRight className="h-5 w-5 text-brand-600 flex-shrink-0 mt-1 transition-transform group-open:rotate-90" />
+                  </summary>
+                  <p className="mt-3 text-muted leading-relaxed">{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
 
       {/* NEARBY CITIES */}
-      {loc.nearby.length > 0 && (
+      {loc.nearby && loc.nearby.length > 0 && (
         <section className="py-12 sm:py-16 bg-white">
           <Container>
             <div className="text-sm font-display font-semibold uppercase tracking-[0.2em] text-brand-600">
@@ -389,6 +488,41 @@ export default async function LocationPage({ params }: Props) {
 
       <ConsultSection />
     </>
+  );
+}
+
+// Discrete public-safety callout — links out to the official state sex offender
+// registry. Bulldog stores nothing; the form is a one-click pass-through.
+function PublicSafetyCard({
+  state,
+  stateFull,
+  city,
+}: {
+  state: string;
+  stateFull: string;
+  city: string;
+}) {
+  const registryName =
+    state === "TX"
+      ? "Texas DPS"
+      : state === "FL"
+        ? "FDLE"
+        : "the National Sex Offender Public Website";
+  return (
+    <div className="rounded-lg border border-zinc-200 bg-white p-6">
+      <div className="text-xs font-display font-semibold uppercase tracking-[0.2em] text-brand-600">
+        Public Safety Resources
+      </div>
+      <h3 className="mt-2 font-display text-xl text-ink leading-tight">
+        Check the sex offender registry for your {city} address.
+      </h3>
+      <p className="mt-2 text-sm text-muted leading-relaxed">
+        The official {stateFull} registry ({registryName}) has a public, address-searchable
+        map. Enter your ZIP below and we&rsquo;ll open the official registry in a new tab —
+        Bulldog doesn&rsquo;t store or transmit your address.
+      </p>
+      <SexOffenderLookupForm state={state} city={city} />
+    </div>
   );
 }
 
