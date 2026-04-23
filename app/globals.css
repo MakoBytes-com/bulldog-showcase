@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand blue, derived from live-site #0061aa primary */
+  --color-brand-50: #e6f0f9;
+  --color-brand-100: #cce1f3;
+  --color-brand-200: #99c3e7;
+  --color-brand-300: #66a5db;
+  --color-brand-400: #3387cf;
+  --color-brand-500: #006fb9;
+  --color-brand-600: #0061aa;
+  --color-brand-700: #004d88;
+  --color-brand-800: #003966;
+  --color-brand-900: #002643;
+  --color-brand-950: #001321;
+
+  /* Supporting brand accents pulled from live-site palette */
+  --color-slate-accent: #406f7b;
+  --color-accent-lime: #96c346;
+  --color-success: #04bf6c;
+
+  /* Neutrals matched to live-site */
+  --color-ink: #333333;
+  --color-muted: #777777;
+  --color-cream: #f8f9fb;
+  --color-border-soft: #dbdbdb;
+
+  --font-sans: var(--font-mulish), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-baskervville), Georgia, serif;
+  --font-serif-alt: var(--font-frank), Georgia, serif;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #333333;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-serif-alt {
+  font-family: var(--font-serif-alt);
+}
+
+.section-label {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-brand-600);
+  font-weight: 600;
+}
+
+.prose-legal p {
+  margin-bottom: 1em;
+}
+
+.prose-legal h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-ink);
+}
+
+.prose-legal h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-ink);
+}
+
+.prose-legal a {
+  color: var(--color-brand-600);
+  text-decoration: underline;
+}
+
+.prose-legal ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1em;
+}
