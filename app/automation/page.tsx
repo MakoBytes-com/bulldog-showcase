@@ -79,17 +79,31 @@ export default function AutomationPage() {
   return (
     <>
       {/* HERO */}
-      <section className="bg-brand-900 text-white">
-        <Container className="py-16 sm:py-20">
-          <div className="section-label text-xs text-white/80">Automation</div>
-          <h1 className="mt-3 font-display text-4xl sm:text-5xl lg:text-6xl leading-tight">
+      <section className="relative isolate overflow-hidden bg-brand-900 text-white">
+        <Image
+          src="/images/new-home-lighting.jpg"
+          alt="Modern two-story home at dusk with lights on"
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 -z-10 object-cover object-center"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-900/80 via-brand-900/55 to-brand-900/75" />
+        <Container className="py-32 sm:py-44 lg:py-56 text-center">
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-tight drop-shadow-md">
             Home automation, designed with security at its core.
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/85">
+          <p className="mt-5 mx-auto max-w-2xl text-lg text-white/90 drop-shadow">
             Smart lights, thermostats, video doorbells, door locks and garage-door
             openers — all managed through the ADT Control app and integrated directly
             with your Bulldog security system.
           </p>
+          <Link
+            href="#consultform"
+            className="mt-8 inline-flex items-center justify-center rounded-md bg-brand-600 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white shadow-md hover:bg-brand-700 transition-colors"
+          >
+            Book a Virtual Consult
+          </Link>
         </Container>
       </section>
 
