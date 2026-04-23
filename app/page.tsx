@@ -204,8 +204,8 @@ export default function HomePage() {
         <Container className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="relative rounded-lg overflow-hidden shadow-md">
             <Image
-              src="/images/inspectors-team.jpg"
-              alt="A Bulldog Security service team in uniform"
+              src="/images/picnic-family.jpg"
+              alt="A family enjoying a protected home, smiling together outside"
               width={600}
               height={400}
               className="w-full h-auto object-cover"

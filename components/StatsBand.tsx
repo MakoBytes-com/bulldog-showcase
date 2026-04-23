@@ -7,7 +7,7 @@ export function StatsBand() {
   return (
     <section className="relative py-20 sm:py-28 bg-brand-950 text-white overflow-hidden">
       <Image
-        src="/images/picnic-family.jpg"
+        src="/images/inspectors-team.jpg"
         alt=""
         aria-hidden="true"
         fill
