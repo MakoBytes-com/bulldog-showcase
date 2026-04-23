@@ -105,16 +105,14 @@ export default function HomePage() {
               Learn More <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="relative rounded-lg overflow-hidden border border-zinc-200 shadow-md">
-            <Image
-              src="/images/command-and-control.jpg"
-              alt="ADT Command touchscreen panel on a marble countertop"
-              width={800}
-              height={520}
-              className="w-full h-auto object-cover"
-              sizes="(min-width: 1024px) 600px, 100vw"
-            />
-          </div>
+          <Image
+            src="/images/command-and-control.jpg"
+            alt="ADT Command touchscreen panel and mobile app"
+            width={800}
+            height={520}
+            className="w-full h-auto"
+            sizes="(min-width: 1024px) 600px, 100vw"
+          />
         </Container>
       </section>
 
