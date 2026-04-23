@@ -13,13 +13,16 @@ export default function HomePage() {
       <section className="relative h-[68vh] min-h-[540px] w-full overflow-hidden bg-brand-950 text-white">
         <video
           className="absolute inset-0 h-full w-full object-cover"
-          src="/video/hero.mp4"
           autoPlay
           loop
           muted
           playsInline
-          poster="/images/hero-family-home.jpg"
-        />
+          preload="metadata"
+          poster="/images/hero-poster.jpg"
+        >
+          <source src="/video/hero.webm" type="video/webm" />
+          <source src="/video/hero.mp4" type="video/mp4" />
+        </video>
         <div
           className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/45 to-black/25"
           aria-hidden="true"

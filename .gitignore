@@ -50,3 +50,5 @@ next-env.d.ts
 
 # Local reference material (live-site screenshot, starter readme) — not for the repo
 /.reference/
+
+.vercel
