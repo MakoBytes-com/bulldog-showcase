@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Star } from "lucide-react";
 import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
 import { StatsBand } from "@/components/StatsBand";
@@ -56,6 +56,38 @@ export default function AboutPage() {
           >
             Book a Virtual Consult
           </Link>
+        </Container>
+      </section>
+
+      {/* TRUST BAR — Birdeye / BBB / Google ratings on craft-paper bg */}
+      <section className="relative isolate overflow-hidden">
+        <Image
+          src="/images/trust-bar-bg.jpg"
+          alt=""
+          aria-hidden
+          fill
+          sizes="100vw"
+          className="absolute inset-0 -z-10 object-cover object-center"
+        />
+        <div className="absolute inset-0 -z-10 bg-black/55" />
+        <Container className="py-10 sm:py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center text-white">
+            {[
+              { label: "BIRDEYE", rating: "4.3" },
+              { label: "BBB", rating: "4.3" },
+              { label: "GOOGLE", rating: "4.4" },
+            ].map((r) => (
+              <div key={r.label} className="flex flex-col items-center gap-2">
+                <div className="text-xs font-semibold tracking-[0.2em] text-white/85">{r.label}</div>
+                <div className="font-display text-4xl sm:text-5xl leading-none">{r.rating}</div>
+                <div className="flex items-center gap-1" aria-label={`${r.rating} out of 5 stars`}>
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" aria-hidden />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </Container>
       </section>
 
