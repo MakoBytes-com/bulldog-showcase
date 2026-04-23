@@ -428,15 +428,31 @@ export default async function LocationPage({ params }: Props) {
                 We cover the {loc.metro} area.
               </h3>
               <ul className="mt-5 grid grid-cols-2 gap-2">
-                {loc.neighborhoods.map((n) => (
-                  <li
-                    key={n}
-                    className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-ink"
-                  >
-                    <Building2 className="h-3.5 w-3.5 text-brand-600 flex-shrink-0" />
-                    {n}
-                  </li>
-                ))}
+                {loc.neighborhoods.map((n) => {
+                  const sat = SATELLITES.find((s) => s.city === n);
+                  if (sat) {
+                    return (
+                      <li key={n}>
+                        <Link
+                          href={`/locations/${sat.slug}`}
+                          className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-ink hover:border-brand-600 hover:text-brand-700 transition-colors"
+                        >
+                          <Building2 className="h-3.5 w-3.5 text-brand-600 flex-shrink-0" />
+                          {n}
+                        </Link>
+                      </li>
+                    );
+                  }
+                  return (
+                    <li
+                      key={n}
+                      className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-ink"
+                    >
+                      <Building2 className="h-3.5 w-3.5 text-brand-600 flex-shrink-0" />
+                      {n}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ) : (

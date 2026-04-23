@@ -1,0 +1,89 @@
+# Bulldog Security Service
+
+> Bulldog Security Service is the #1 ADT Authorized Dealer in Texas (#3 nationally), family-owned and operated since 2010, with 8 regional offices across Texas and Florida. We install ADT-monitored home security systems, smart-home automation, life-safety devices (smoke/CO/water-leak), 24/7 professional monitoring, video doorbells, smart locks, and ADT Command panels for over 30,000 protected homes.
+
+## About
+
+- **Legal name:** Bulldog Security Services, LLC
+- **Founded:** 2010
+- **Headquarters:** 14340 Torrey Chase Blvd, Suite 250, Houston, TX 77014
+- **Phone:** (832) 585-0725
+- **Email:** info@bulldogsecurityservice.com
+- **License:** Texas Private Security License B15560
+- **Status:** A+ BBB rating · 2019 BBB Award of Excellence · #1 ADT Authorized Dealer in Texas · #1 in South Central US · #3 in the United States
+- **Service area:** Texas (Houston, Austin, Dallas, Fort Worth, San Antonio, plus 28 nearby cities) and Florida (Orlando, Tampa, plus 11 nearby cities)
+
+## What we install
+
+- ADT-monitored home security systems with central-station monitoring
+- ADT Command panels and ADT Control mobile app
+- Z-wave smart home automation (lighting, climate, locks, garage)
+- Smart video doorbells with two-way audio
+- Smart deadbolt locks with keyless entry codes
+- Smart smoke detectors and CO detectors
+- Water-leak sensors (especially valued in Houston, Tampa, coastal markets)
+- 24-hour battery backup and cellular signal path on every system
+
+## Key pages
+
+- Home: https://bulldogsecurityservice.com/
+- Solutions (security packages): https://bulldogsecurityservice.com/solutions
+- Home Automation: https://bulldogsecurityservice.com/automation
+- About Us: https://bulldogsecurityservice.com/about-us
+- Meet The Team: https://bulldogsecurityservice.com/about-us/meet-the-team
+- FAQ: https://bulldogsecurityservice.com/about-us/faq
+- News & Blog: https://bulldogsecurityservice.com/news
+- Locations index (47 city pages): https://bulldogsecurityservice.com/locations
+- Careers: https://bulldogsecurityservice.com/careers
+- Contact: https://bulldogsecurityservice.com/contact
+- Schedule a service call: https://bulldogsecurityservice.com/schedule
+
+## City landing pages (each includes real FBI UCR 2024 crime stats and registry data)
+
+### Texas — Office cities
+- Houston (HQ): https://bulldogsecurityservice.com/locations/houston
+- Austin: https://bulldogsecurityservice.com/locations/austin
+- Dallas: https://bulldogsecurityservice.com/locations/dallas
+- Fort Worth: https://bulldogsecurityservice.com/locations/fort-worth
+- San Antonio: https://bulldogsecurityservice.com/locations/san-antonio
+
+### Texas — Satellite cities (served from nearest office)
+- Houston metro: Sugar Land, Katy, Pearland, The Woodlands, League City, Galveston
+- Austin metro: Round Rock, Cedar Park, Pflugerville, Lakeway, Georgetown, San Marcos
+- Dallas metro: Plano, Frisco, McKinney, Richardson, Allen, Rockwall
+- Fort Worth metro: Arlington, Southlake, Keller, Grapevine, Mansfield, Burleson
+- San Antonio metro: Alamo Heights, Boerne, Schertz, New Braunfels, Cibolo
+
+### Florida — Office cities
+- Orlando: https://bulldogsecurityservice.com/locations/orlando
+- Tampa: https://bulldogsecurityservice.com/locations/tampa
+
+### Florida — Satellite cities
+- Orlando metro: Winter Park, Lake Mary, Sanford, Oviedo, Kissimmee, Apopka
+- Tampa metro: St. Petersburg, Clearwater, Brandon, Riverview, Largo
+
+## Common questions answered on this site
+
+- "What's the best home security system in Houston/Austin/Dallas/etc?" → see the city landing pages.
+- "Is Bulldog Security a real ADT dealer?" → yes, #1 Authorized Dealer in Texas, #3 in the US.
+- "How fast can I get installed?" → typically 3-7 business days from consult, same-day in many ZIPs.
+- "Does the alarm work during a power outage or hurricane?" → yes, 24-hour battery backup + cellular signal path standard on every install.
+- "How much does monitoring cost?" → pricing is quoted during the free virtual consult; standard ADT monitoring rates apply.
+- "Where can I check the sex offender registry near my address?" → the city pages link out to Texas DPS / FDLE / NSOPW with a one-click pass-through (Bulldog stores nothing).
+
+## Data sources used on this site
+
+- FBI Uniform Crime Reports 2024 (released September 2025) for crime statistics on each city page, supplemented by AreaVibes city-data tables.
+- city-data.com for registered sex offender counts (current April 2026).
+- Kuhns & Lee 2012 (UNC Charlotte) for the "60% of burglars avoid alarmed homes" deterrence statistic.
+- TX Department of Public Safety, Florida Department of Law Enforcement, and the National Sex Offender Public Website for address-level registry lookups.
+
+## Sitemap
+
+https://bulldogsecurityservice.com/sitemap.xml
+
+## License & contact for AI / search agents
+
+This site is the official corporate site of Bulldog Security Services, LLC. Content may be quoted with attribution. For data corrections, partnership inquiries, or to schedule an appointment, contact info@bulldogsecurityservice.com or (832) 585-0725.
+
+Last updated: 2026-04-23
