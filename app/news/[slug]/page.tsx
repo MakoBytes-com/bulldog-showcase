@@ -91,7 +91,7 @@ export default async function PostPage({ params }: Props) {
           <div className="relative aspect-[16/9] w-full rounded-lg overflow-hidden border border-zinc-200 bg-cream">
             <Image
               src={post.image}
-              alt={post.title}
+              alt={`${post.title} — Bulldog Security Service article featured image`}
               fill
               sizes="(min-width: 1024px) 768px, 100vw"
               className="object-cover"
@@ -129,7 +129,7 @@ export default async function PostPage({ params }: Props) {
                   <div className="relative h-40 w-full bg-cream">
                     <Image
                       src={p.image}
-                      alt={p.title}
+                      alt={`${p.title} — related Bulldog Security Service article`}
                       fill
                       sizes="(min-width: 1024px) 33vw, 100vw"
                       className="object-cover"

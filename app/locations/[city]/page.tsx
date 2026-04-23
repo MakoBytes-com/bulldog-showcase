@@ -14,7 +14,7 @@ import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
 import { JsonLd } from "@/components/JsonLd";
 import { SexOffenderLookupForm } from "@/components/SexOffenderLookupForm";
-import { faqSchema, breadcrumbSchema } from "@/lib/schema";
+import { faqSchema, breadcrumbSchema, speakableSchema } from "@/lib/schema";
 import {
   LOCATIONS,
   SATELLITES,
@@ -176,6 +176,7 @@ export default async function LocationPage({ params }: Props) {
       { name: "Locations", url: `${SITE.url}/locations` },
       { name: `${loc.city}, ${loc.state}`, url: `${SITE.url}/locations/${loc.slug}` },
     ]),
+    speakableSchema(["h1", "h2", "h3"]),
   ];
   if (loc.faqs && loc.faqs.length > 0) {
     allSchemas.push(faqSchema(loc.faqs));

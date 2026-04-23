@@ -94,15 +94,130 @@ export function localBusinessSchema() {
   };
 }
 
-export function serviceSchema(opts: { name: string; description: string; url: string }) {
+export function serviceSchema(opts: {
+  name: string;
+  description: string;
+  url: string;
+  /** Optional sub-categories for richer markup (e.g. "Home Security"). */
+  serviceType?: string;
+  /** Optional offer details if pricing is publishable. */
+  offers?: { priceRange?: string };
+}) {
   return {
     "@context": "https://schema.org",
     "@type": "Service",
     name: opts.name,
     description: opts.description,
     url: opts.url,
+    ...(opts.serviceType ? { serviceType: opts.serviceType } : {}),
     provider: { "@id": `${SITE.url}/#organization` },
     areaServed: SERVICE_AREA_CITIES.map((c) => ({ "@type": "City", name: c })),
+    ...(opts.offers
+      ? {
+          offers: {
+            "@type": "Offer",
+            ...opts.offers,
+            availability: "https://schema.org/InStock",
+            seller: { "@id": `${SITE.url}/#organization` },
+          },
+        }
+      : {}),
+  };
+}
+
+// Pre-built Service schemas for individual smart-home / security sub-products.
+// Apply these on the page sections where each product lives. Each is a
+// distinct Service entity for richer search-result categorization.
+export function camerasServiceSchema() {
+  return serviceSchema({
+    name: "Security Cameras — ADT-Monitored",
+    description:
+      "Indoor and outdoor ADT-monitored security cameras with HD recording, motion detection, two-way audio, and live streaming through the ADT Control app.",
+    url: `${SITE.url}/solutions#security`,
+    serviceType: "Security Camera Installation",
+  });
+}
+
+export function doorbellServiceSchema() {
+  return serviceSchema({
+    name: "Smart Video Doorbell",
+    description:
+      "ADT smart video doorbell with motion sensing, two-way audio, real-time visitor alerts, and full integration with the ADT Control app — answer your door from anywhere.",
+    url: `${SITE.url}/automation#doorbell`,
+    serviceType: "Video Doorbell Installation",
+  });
+}
+
+export function smartLocksServiceSchema() {
+  return serviceSchema({
+    name: "Smart Door Locks (Keyless Entry)",
+    description:
+      "Keyless smart deadbolt locks with virtual access codes, remote lock/unlock from the ADT Control app, and arrival/departure alerts. Works across the entire ADT-monitored security system.",
+    url: `${SITE.url}/automation#locks`,
+    serviceType: "Smart Lock Installation",
+  });
+}
+
+export function smartThermostatServiceSchema() {
+  return serviceSchema({
+    name: "ADT Smart Thermostat",
+    description:
+      "ADT Smart Thermostat for remote climate control, scheduling, and energy savings. Integrates with the ADT Control app and the rest of your smart home.",
+    url: `${SITE.url}/automation#climate`,
+    serviceType: "Smart Thermostat Installation",
+  });
+}
+
+export function smartLightingServiceSchema() {
+  return serviceSchema({
+    name: "Smart Lighting (Z-Wave)",
+    description:
+      "Z-wave smart bulbs and lighting automations integrated with the ADT Control app — schedule lights, automate routines, and trigger them from your security system (e.g. lights on when smoke alarm triggers).",
+    url: `${SITE.url}/automation#lighting`,
+    serviceType: "Smart Lighting Installation",
+  });
+}
+
+export function smartGarageServiceSchema() {
+  return serviceSchema({
+    name: "Smart Garage Door Control",
+    description:
+      "ADT smart garage door opener with remote open/close, scheduled auto-close, and status alerts through the ADT Control app.",
+    url: `${SITE.url}/automation#garage`,
+    serviceType: "Smart Garage Installation",
+  });
+}
+
+export function monitoringServiceSchema() {
+  return serviceSchema({
+    name: "24/7 Professional ADT Monitoring",
+    description:
+      "Round-the-clock professional monitoring from the ADT central station. Cellular signal path and 24-hour battery backup standard, so alarms reach the station even during power or internet outages.",
+    url: `${SITE.url}/solutions#monitoring`,
+    serviceType: "Alarm Monitoring",
+  });
+}
+
+export function lifeSafetyServiceSchema() {
+  return serviceSchema({
+    name: "Life Safety Devices",
+    description:
+      "Monitored smoke detectors, carbon monoxide detectors, water-leak sensors, and emergency pendants — proactive protection beyond burglary alarms.",
+    url: `${SITE.url}/solutions#safety`,
+    serviceType: "Life Safety Installation",
+  });
+}
+
+// Speakable schema annotation for voice-assistant pickup (Google Assistant,
+// Alexa). Apply to pages with concise, voice-readable headlines + intros.
+export function speakableSchema(cssSelectors: string[] = ["h1", ".speakable", ".section-label + h2", "p"]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: cssSelectors,
+    },
   };
 }
 

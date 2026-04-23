@@ -5,7 +5,14 @@ import { ChevronRight } from "lucide-react";
 import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
 import { JsonLd } from "@/components/JsonLd";
-import { serviceSchema, breadcrumbSchema } from "@/lib/schema";
+import {
+  serviceSchema,
+  breadcrumbSchema,
+  camerasServiceSchema,
+  monitoringServiceSchema,
+  lifeSafetyServiceSchema,
+  speakableSchema,
+} from "@/lib/schema";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -31,10 +38,14 @@ export default function SolutionsPage() {
               "Personalized ADT-monitored security solutions including ADT Command panels, security cameras, motion sensors, smoke & CO detectors, emergency devices, and 24/7 central-station monitoring.",
             url: `${SITE.url}/solutions`,
           }),
+          camerasServiceSchema(),
+          monitoringServiceSchema(),
+          lifeSafetyServiceSchema(),
           breadcrumbSchema([
             { name: "Home", url: SITE.url },
             { name: "Solutions", url: `${SITE.url}/solutions` },
           ]),
+          speakableSchema(["h1", "h2", ".intro"]),
         ]}
       />
       {/* HERO */}
@@ -105,7 +116,7 @@ export default function SolutionsPage() {
           </div>
           <Image
             src="/images/adt-command-panel.jpg"
-            alt="ADT Command panel"
+            alt="ADT Command touchscreen panel mounted on a home wall"
             width={800}
             height={560}
             className="w-full h-auto"

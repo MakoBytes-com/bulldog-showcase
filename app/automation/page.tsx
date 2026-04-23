@@ -5,7 +5,16 @@ import { ChevronRight, Lightbulb, Thermometer, Video, Lock, Warehouse } from "lu
 import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
 import { JsonLd } from "@/components/JsonLd";
-import { serviceSchema, breadcrumbSchema } from "@/lib/schema";
+import {
+  serviceSchema,
+  breadcrumbSchema,
+  smartLightingServiceSchema,
+  smartThermostatServiceSchema,
+  doorbellServiceSchema,
+  smartLocksServiceSchema,
+  smartGarageServiceSchema,
+  speakableSchema,
+} from "@/lib/schema";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -94,10 +103,16 @@ export default function AutomationPage() {
               "Z-wave smart home automation including smart lighting, ADT Smart Thermostat, video doorbells, keyless smart deadbolt locks, and smart garage-door openers — all managed through the ADT Control app and integrated with the home security system.",
             url: `${SITE.url}/automation`,
           }),
+          smartLightingServiceSchema(),
+          smartThermostatServiceSchema(),
+          doorbellServiceSchema(),
+          smartLocksServiceSchema(),
+          smartGarageServiceSchema(),
           breadcrumbSchema([
             { name: "Home", url: SITE.url },
             { name: "Automation", url: `${SITE.url}/automation` },
           ]),
+          speakableSchema(["h1", "h2", ".intro"]),
         ]}
       />
       {/* HERO */}
