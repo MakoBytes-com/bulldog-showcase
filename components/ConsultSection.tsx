@@ -17,9 +17,9 @@ export function ConsultSection({ id = "consultform" }: { id?: string }) {
         aria-hidden="true"
         fill
         sizes="100vw"
-        className="object-cover opacity-25"
+        className="object-cover opacity-75"
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-brand-900/85 via-brand-900/75 to-brand-950/85" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-900/45 via-brand-900/35 to-brand-950/50" aria-hidden="true" />
       <Container className="relative grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div>
           <div className="section-label text-xs text-white/80">Book a Virtual Consult</div>
