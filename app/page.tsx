@@ -257,19 +257,19 @@ function FeatureCard({
   href: string;
 }) {
   return (
-    <div className="flex flex-col items-start text-left">
-      <div className="w-12 h-12 rounded-md bg-brand-50 text-brand-600 flex items-center justify-center">
+    <Link
+      href={href}
+      className="group flex flex-col items-start text-left rounded-lg border border-zinc-200 bg-white p-7 shadow-sm hover:shadow-lg hover:border-brand-600 hover:-translate-y-1 transition-all duration-200"
+    >
+      <div className="w-14 h-14 rounded-md bg-brand-50 text-brand-600 group-hover:bg-brand-600 group-hover:text-white flex items-center justify-center transition-colors">
         <Icon className="h-6 w-6" />
       </div>
-      <h3 className="mt-4 font-display text-xl text-ink">{title}</h3>
-      <p className="mt-2 text-muted leading-relaxed">{body}</p>
-      <Link
-        href={href}
-        className="mt-4 inline-flex items-center gap-1 text-brand-600 hover:text-brand-700 font-semibold text-xs uppercase tracking-wider"
-      >
-        Learn More <ChevronRight className="h-3.5 w-3.5" />
-      </Link>
-    </div>
+      <h3 className="mt-5 font-display text-2xl text-ink group-hover:text-brand-700 transition-colors">{title}</h3>
+      <p className="mt-3 text-muted leading-relaxed flex-1">{body}</p>
+      <span className="mt-6 inline-flex items-center gap-1 text-brand-600 group-hover:text-brand-700 font-semibold text-xs uppercase tracking-wider">
+        Learn More <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+      </span>
+    </Link>
   );
 }
 
