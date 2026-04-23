@@ -21,6 +21,7 @@ import {
   getLocationBySlug,
   getSatelliteBySlug,
   getSexOffenderData,
+  generateComparativeContext,
   ALARM_DETERRENCE_NOTE,
   SEX_OFFENDER_SOURCE,
   type LocationCity,
@@ -143,6 +144,7 @@ export default async function LocationPage({ params }: Props) {
     ? Math.round((loc.crimeStats.burglary.count / 365) * 10) / 10
     : null;
   const siblings = getSiblings(loc);
+  const comparativeContext = generateComparativeContext(loc, siblings.parent);
 
   // LocalBusiness schema for SEO local-pack
   const localBusinessSchema = {
@@ -375,6 +377,15 @@ export default async function LocationPage({ params }: Props) {
                       </strong>{" "}
                       reported in {loc.city} alone. {ALARM_DETERRENCE_NOTE}
                     </p>
+                  </div>
+                )}
+
+                {comparativeContext && (
+                  <div className="mt-4 rounded-lg border-l-4 border-brand-600 bg-brand-50 px-5 py-4 text-ink">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-brand-700 mb-1">
+                      How {loc.city} compares
+                    </div>
+                    <p className="leading-relaxed">{comparativeContext}</p>
                   </div>
                 )}
               </>

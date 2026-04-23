@@ -1738,3 +1738,63 @@ export function getSexOffenderData(slug: string): SexOffenderData | undefined {
 export function getAllLocationSlugs(): string[] {
   return [...LOCATIONS.map((l) => l.slug), ...SATELLITES.map((s) => s.slug)];
 }
+
+// Generates a UNIQUE comparative-context paragraph per city based on its real
+// numbers. Avoids doorway-page risk: every page gets distinct copy because the
+// numbers (and resulting comparisons) are different for each city.
+export function generateComparativeContext(
+  loc: { city: string; state: string; stateFull: string; crimeStats?: LocationCrimeStats },
+  parent?: { city: string; crimeStats?: LocationCrimeStats },
+): string | null {
+  const stats = loc.crimeStats;
+  if (!stats?.burglary) return null;
+  const cityRate = stats.burglary.ratePer100k;
+  const stateRate = stats.stateAvgBurglaryRate;
+  const usPropRate = stats.nationalAvgPropertyCrimeRate;
+  const cityPropRate = stats.propertyCrime?.ratePer100k;
+
+  const parts: string[] = [];
+
+  // 1. State comparison
+  if (stateRate) {
+    const diff = Math.round(((cityRate - stateRate) / stateRate) * 100);
+    if (Math.abs(diff) < 10) {
+      parts.push(
+        `${loc.city}'s ${cityRate.toLocaleString()} burglaries per 100k residents in 2024 is in line with the ${loc.stateFull} statewide average of ${stateRate}.`,
+      );
+    } else if (diff > 0) {
+      parts.push(
+        `${loc.city}'s ${cityRate.toLocaleString()} burglaries per 100k residents is ${diff}% higher than the ${loc.stateFull} statewide average of ${stateRate} — meaning a monitored alarm and visible deterrents matter more than they would in a lower-crime area.`,
+      );
+    } else {
+      parts.push(
+        `${loc.city}'s ${cityRate.toLocaleString()} burglaries per 100k residents is ${Math.abs(diff)}% lower than the ${loc.stateFull} statewide average of ${stateRate} — most local installs are smart-home and convenience-driven (smart locks, video doorbells, automation) more than burglary deterrent.`,
+      );
+    }
+  }
+
+  // 2. Parent-city comparison (for satellites only)
+  if (parent?.crimeStats?.burglary) {
+    const parentRate = parent.crimeStats.burglary.ratePer100k;
+    const diff = Math.round(((cityRate - parentRate) / parentRate) * 100);
+    if (Math.abs(diff) >= 10) {
+      const direction = diff > 0 ? "higher" : "lower";
+      parts.push(
+        `Compared to ${parent.city} city limits (${parentRate.toLocaleString()} burglaries per 100k), ${loc.city} runs about ${Math.abs(diff)}% ${direction} — typical for a ${diff > 0 ? "denser, higher-traffic" : "more residential, lower-density"} area.`,
+      );
+    }
+  }
+
+  // 3. Property-crime national comparison
+  if (cityPropRate && usPropRate) {
+    const diff = Math.round(((cityPropRate - usPropRate) / usPropRate) * 100);
+    if (Math.abs(diff) >= 15) {
+      const direction = diff > 0 ? "higher" : "lower";
+      parts.push(
+        `Total property crime in ${loc.city} (${cityPropRate.toLocaleString()} per 100k) runs ${Math.abs(diff)}% ${direction} than the US national average (${usPropRate.toLocaleString()} per 100k).`,
+      );
+    }
+  }
+
+  return parts.length > 0 ? parts.join(" ") : null;
+}
