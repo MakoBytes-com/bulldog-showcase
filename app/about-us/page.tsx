@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, Star } from "lucide-react";
+import { ChevronRight, Star, User, Heart } from "lucide-react";
 import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
 import { StatsBand } from "@/components/StatsBand";
@@ -131,11 +131,16 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      {/* OUR PEOPLE + OUR PROMISE — green section per live WP */}
-      <section className="py-16 sm:py-24 bg-gradient-to-b from-[rgba(10,102,36,0.95)] to-[#132d13] text-white">
+      {/* OUR PEOPLE + OUR PROMISE — site-blue section */}
+      <section className="py-16 sm:py-24 bg-gradient-to-b from-brand-800 to-brand-900 text-white">
         <Container className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 p-8 sm:p-10">
-            <div className="section-label text-sm text-white/80">Our People</div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-700 shadow-md">
+              <User className="h-6 w-6" aria-hidden />
+            </div>
+            <div className="mt-5 text-sm font-display font-semibold uppercase tracking-[0.2em] text-white/90">
+              Our People
+            </div>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl leading-tight">
               Our greatest strength.
             </h2>
@@ -148,7 +153,12 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 p-8 sm:p-10">
-            <div className="section-label text-sm text-white/80">Our Promise</div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-700 shadow-md">
+              <Heart className="h-6 w-6" aria-hidden />
+            </div>
+            <div className="mt-5 text-sm font-display font-semibold uppercase tracking-[0.2em] text-white/90">
+              Our Promise
+            </div>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl leading-tight">
               We treat your home like our own.
             </h2>
