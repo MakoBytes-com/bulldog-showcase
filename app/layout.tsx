@@ -9,7 +9,7 @@ import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { UmamiAnalytics } from "@/components/UmamiAnalytics";
 import { SITE } from "@/lib/site";
-import { organizationSchema, localBusinessSchema } from "@/lib/schema";
+import { organizationSchema, localBusinessSchema, websiteSchema } from "@/lib/schema";
 
 const mulish = Mulish({
   subsets: ["latin"],
@@ -104,7 +104,7 @@ export default function RootLayout({
       className={`${mulish.variable} ${baskervville.variable} ${frank.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-ink">
-        <JsonLd data={[organizationSchema(), localBusinessSchema()]} />
+        <JsonLd data={[organizationSchema(), localBusinessSchema(), websiteSchema()]} />
         <TopBar />
         <Header />
         <main className="flex-1 flex flex-col">{children}</main>

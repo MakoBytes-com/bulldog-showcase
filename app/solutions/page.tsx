@@ -4,17 +4,39 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
+import { JsonLd } from "@/components/JsonLd";
+import { serviceSchema, breadcrumbSchema } from "@/lib/schema";
+import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Solutions — Home Security, Life Safety & Monitoring",
+  title: "Home Security Solutions — ADT-Monitored Systems for TX & FL",
   description:
-    "Personalized home security solutions from Bulldog Security Service — ADT-monitored cameras, motion detection, smoke and CO detection, emergency devices, and 24/7 professional monitoring.",
+    "Personalized ADT-monitored home security from Bulldog Security Service — ADT Command panels, security cameras, motion detection, smoke & CO detection, emergency devices, and 24/7 central-station monitoring across Texas and Florida.",
   alternates: { canonical: "/solutions" },
+  openGraph: {
+    title: "Home Security Solutions — Bulldog Security Service",
+    description: "ADT-monitored security packages built around your home — cameras, motion, smoke/CO, emergency devices, 24/7 monitoring.",
+    url: `${SITE.url}/solutions`,
+  },
 };
 
 export default function SolutionsPage() {
   return (
     <>
+      <JsonLd
+        data={[
+          serviceSchema({
+            name: "ADT-Monitored Home Security",
+            description:
+              "Personalized ADT-monitored security solutions including ADT Command panels, security cameras, motion sensors, smoke & CO detectors, emergency devices, and 24/7 central-station monitoring.",
+            url: `${SITE.url}/solutions`,
+          }),
+          breadcrumbSchema([
+            { name: "Home", url: SITE.url },
+            { name: "Solutions", url: `${SITE.url}/solutions` },
+          ]),
+        ]}
+      />
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-brand-900 text-white">
         <Image

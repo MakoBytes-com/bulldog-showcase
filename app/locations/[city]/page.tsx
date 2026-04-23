@@ -14,6 +14,7 @@ import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
 import { JsonLd } from "@/components/JsonLd";
 import { SexOffenderLookupForm } from "@/components/SexOffenderLookupForm";
+import { faqSchema, breadcrumbSchema } from "@/lib/schema";
 import {
   LOCATIONS,
   SATELLITES,
@@ -168,9 +169,21 @@ export default async function LocationPage({ params }: Props) {
     },
   };
 
+  const allSchemas: object[] = [
+    localBusinessSchema,
+    breadcrumbSchema([
+      { name: "Home", url: SITE.url },
+      { name: "Locations", url: `${SITE.url}/locations` },
+      { name: `${loc.city}, ${loc.state}`, url: `${SITE.url}/locations/${loc.slug}` },
+    ]),
+  ];
+  if (loc.faqs && loc.faqs.length > 0) {
+    allSchemas.push(faqSchema(loc.faqs));
+  }
+
   return (
     <>
-      <JsonLd data={localBusinessSchema} />
+      <JsonLd data={allSchemas} />
 
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-gradient-to-b from-brand-800 to-brand-900 text-white">

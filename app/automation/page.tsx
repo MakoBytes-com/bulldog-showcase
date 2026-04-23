@@ -4,12 +4,20 @@ import Link from "next/link";
 import { ChevronRight, Lightbulb, Thermometer, Video, Lock, Warehouse } from "lucide-react";
 import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
+import { JsonLd } from "@/components/JsonLd";
+import { serviceSchema, breadcrumbSchema } from "@/lib/schema";
+import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Home Automation — Smart Lights, Locks, Thermostats, Cameras",
+  title: "Smart Home Automation — Lights, Locks, Thermostats & Doorbells",
   description:
-    "Bulldog Security Service home automation — smart lighting, climate control, video doorbells, smart door locks and smart garage door openers, all managed through the ADT Control app.",
+    "Z-wave smart home automation from Bulldog Security Service — smart lighting, ADT Smart Thermostat, video doorbells, keyless smart deadbolts, and smart garage-door control. All managed from the ADT Control app, integrated with your security system.",
   alternates: { canonical: "/automation" },
+  openGraph: {
+    title: "Smart Home Automation — Bulldog Security Service",
+    description: "Smart lights, thermostats, doorbells, locks and garage openers — all controlled from the ADT Control app.",
+    url: `${SITE.url}/automation`,
+  },
 };
 
 type Module = {
@@ -78,6 +86,20 @@ const MODULES: Module[] = [
 export default function AutomationPage() {
   return (
     <>
+      <JsonLd
+        data={[
+          serviceSchema({
+            name: "Smart Home Automation — Z-Wave & ADT Control",
+            description:
+              "Z-wave smart home automation including smart lighting, ADT Smart Thermostat, video doorbells, keyless smart deadbolt locks, and smart garage-door openers — all managed through the ADT Control app and integrated with the home security system.",
+            url: `${SITE.url}/automation`,
+          }),
+          breadcrumbSchema([
+            { name: "Home", url: SITE.url },
+            { name: "Automation", url: `${SITE.url}/automation` },
+          ]),
+        ]}
+      />
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-brand-900 text-white">
         <Image

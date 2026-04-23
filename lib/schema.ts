@@ -131,6 +131,46 @@ export function faqSchema(items: { q: string; a: string }[]) {
   };
 }
 
+// WebSite schema with SearchAction — eligible for Google sitelinks search box.
+export function websiteSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE.url}/#website`,
+    url: SITE.url,
+    name: SITE.name,
+    publisher: { "@id": `${SITE.url}/#organization` },
+    inLanguage: "en-US",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: `${SITE.url}/?q={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
+  };
+}
+
+// ItemList schema for collection pages (e.g. /locations index).
+export function itemListSchema(opts: {
+  name: string;
+  url: string;
+  items: { name: string; url: string; description?: string }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: opts.name,
+    url: opts.url,
+    numberOfItems: opts.items.length,
+    itemListElement: opts.items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: item.url,
+      name: item.name,
+      ...(item.description ? { description: item.description } : {}),
+    })),
+  };
+}
+
 export function articleSchema(opts: {
   title: string;
   description: string;

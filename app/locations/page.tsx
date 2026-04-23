@@ -3,17 +3,50 @@ import Link from "next/link";
 import { ChevronRight, MapPin, Phone } from "lucide-react";
 import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
-import { TX_LOCATIONS, FL_LOCATIONS, LOCATIONS } from "@/lib/locations";
+import { JsonLd } from "@/components/JsonLd";
+import { TX_LOCATIONS, FL_LOCATIONS, LOCATIONS, SATELLITES } from "@/lib/locations";
+import { itemListSchema, breadcrumbSchema } from "@/lib/schema";
+import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Our Locations — Bulldog Security Service",
-  description: `Bulldog Security Service has ${LOCATIONS.length} offices across Texas and Florida — Houston HQ, Austin, Dallas, Fort Worth, San Antonio, Orlando and Tampa. Local techs, ADT-monitored systems, 24/7 service.`,
+  title: "Locations — 47 City Service Areas Across Texas & Florida",
+  description: `Bulldog Security Service has ${LOCATIONS.length} regional offices and serves ${LOCATIONS.length + SATELLITES.length} cities across Texas and Florida — Houston, Austin, Dallas, Fort Worth, San Antonio, Orlando, Tampa and 40 surrounding metro cities. ADT-monitored security with local techs.`,
   alternates: { canonical: "/locations" },
+  openGraph: {
+    title: "Bulldog Security Locations — Texas & Florida",
+    description: `${LOCATIONS.length} regional offices, ${LOCATIONS.length + SATELLITES.length} cities served. Local ADT-monitored security across TX and FL.`,
+    url: `${SITE.url}/locations`,
+  },
 };
 
 export default function LocationsIndexPage() {
+  const allCities = [
+    ...LOCATIONS.map((l) => ({
+      name: `${l.city}, ${l.state}`,
+      url: `${SITE.url}/locations/${l.slug}`,
+      description: `Bulldog Security Service ${l.metro} office`,
+    })),
+    ...SATELLITES.map((s) => ({
+      name: `${s.city}, ${s.state}`,
+      url: `${SITE.url}/locations/${s.slug}`,
+    })),
+  ];
+
   return (
     <>
+      <JsonLd
+        data={[
+          itemListSchema({
+            name: "Bulldog Security Service — Locations",
+            url: `${SITE.url}/locations`,
+            items: allCities,
+          }),
+          breadcrumbSchema([
+            { name: "Home", url: SITE.url },
+            { name: "Locations", url: `${SITE.url}/locations` },
+          ]),
+        ]}
+      />
       {/* HERO */}
       <section className="relative isolate overflow-hidden bg-gradient-to-b from-brand-800 to-brand-900 text-white">
         <Container className="py-24 sm:py-32 text-center">
