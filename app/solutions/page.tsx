@@ -72,7 +72,7 @@ export default function SolutionsPage() {
             alt="ADT Command panel"
             width={800}
             height={560}
-            className="rounded-lg shadow-md w-full h-auto object-cover border border-zinc-200"
+            className="w-full h-auto"
             sizes="(min-width: 1024px) 600px, 100vw"
           />
         </Container>
@@ -229,7 +229,7 @@ function Section({
           alt={imageAlt}
           width={800}
           height={500}
-          className="rounded-lg shadow-md w-full h-auto object-cover border border-zinc-200 bg-white"
+          className="w-full h-auto"
           sizes="(min-width: 1024px) 600px, 100vw"
         />
       </Container>

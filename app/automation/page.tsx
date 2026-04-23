@@ -134,13 +134,13 @@ export default function AutomationPage() {
                 Add this to your system <ChevronRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-            <div className={`relative rounded-lg overflow-hidden shadow-md bg-white border border-zinc-200 ${i % 2 === 1 ? "lg:order-1" : ""}`}>
+            <div className={i % 2 === 1 ? "lg:order-1" : ""}>
               <Image
                 src={m.heroImage}
                 alt={`${m.title} — lifestyle photo`}
                 width={800}
                 height={500}
-                className="w-full h-auto object-cover"
+                className="w-full h-auto"
                 sizes="(min-width: 1024px) 600px, 100vw"
               />
             </div>
