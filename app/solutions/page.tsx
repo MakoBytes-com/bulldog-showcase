@@ -25,7 +25,7 @@ export default function SolutionsPage() {
           sizes="100vw"
           className="absolute inset-0 -z-10 object-cover object-center"
         />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-900/55 via-brand-900/20 to-brand-900/50" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-900/80 via-brand-900/55 to-brand-900/75" />
         <Container className="py-32 sm:py-44 lg:py-56 text-center">
           <div className="section-label text-xs text-white/85">Solutions</div>
           <h1 className="mt-3 font-display text-4xl sm:text-5xl lg:text-6xl leading-tight drop-shadow-md">
