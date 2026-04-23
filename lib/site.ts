@@ -155,6 +155,7 @@ export const NAV = [
       { label: "FAQ", href: "/about-us/faq" },
     ],
   },
+  { label: "Locations", href: "/locations" },
   { label: "News", href: "/news" },
   { label: "Careers", href: "/careers" },
   { label: "Contact Us", href: "/contact" },

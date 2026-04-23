@@ -11,6 +11,7 @@ const FOOTER_LINKS = [
   { label: "About Us", href: "/about-us" },
   { label: "Meet The Team", href: "/about-us/meet-the-team" },
   { label: "FAQ", href: "/about-us/faq" },
+  { label: "Locations", href: "/locations" },
   { label: "News", href: "/news" },
   { label: "Careers", href: "/careers" },
   { label: "Contact Us", href: "/contact" },
