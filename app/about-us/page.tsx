@@ -31,16 +31,31 @@ const CORE_VALUES = [
 export default function AboutPage() {
   return (
     <>
-      <section className="bg-brand-900 text-white">
-        <Container className="py-16 sm:py-20">
-          <div className="section-label text-xs text-white/80">About Us</div>
-          <h1 className="mt-3 font-display text-4xl sm:text-5xl lg:text-6xl leading-tight">
+      {/* HERO */}
+      <section className="relative isolate overflow-hidden bg-brand-900 text-white">
+        <Image
+          src="/images/about-hero-house-care.jpg"
+          alt="Hands surrounding a wooden home figurine — symbolic of protecting what matters"
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 -z-10 object-cover object-center"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-900/80 via-brand-900/55 to-brand-900/75" />
+        <Container className="py-32 sm:py-44 lg:py-56 text-center">
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-tight drop-shadow-md">
             A team you can trust.
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/85">
-            Family-owned and operated since 2010 — proudly the #1 ADT Authorized Dealer in
+          <p className="mt-5 mx-auto max-w-2xl text-lg text-white/90 drop-shadow">
+            Family-owned and operated since 2010 — the #1 ADT Authorized Dealer in
             Texas and #3 in the United States.
           </p>
+          <Link
+            href="#consultform"
+            className="mt-8 inline-flex items-center justify-center rounded-md bg-brand-600 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white shadow-md hover:bg-brand-700 transition-colors"
+          >
+            Book a Virtual Consult
+          </Link>
         </Container>
       </section>
 
@@ -56,8 +71,15 @@ export default function AboutPage() {
               Driven by our desire to keep our neighbors safe, our customer-first
               mentality has awarded us an A+ BBB rating. With a focus on smart security
               and an eye for innovation, we offer the convenience of a truly connected
-              home — providing continued peace of mind 24/7. Our mission remains simple:
-              to help keep you, your loved ones, and your property safe.
+              home — providing continued peace of mind 24/7. Our mission is simple: to
+              help keep you, your loved ones, and your property safe.
+            </p>
+            <p className="mt-4 text-muted leading-relaxed">
+              Our job is to help protect what is most important to you, and we take that
+              job very seriously. We take the time to get to know our customers so we
+              can craft personalized security programs to address their unique needs.
+              From initial inspection to continued customer care, our priority remains
+              the same — helping to protect what matters most to <em>you</em>.
             </p>
           </div>
           <div className="lg:col-span-5 lg:sticky lg:top-24">
@@ -72,6 +94,37 @@ export default function AboutPage() {
             <p className="mt-4 text-sm text-muted">
               Recipient of the 2019 BBB &ldquo;Award of Excellence&rdquo; — recognizing
               our commitment to honesty, transparency and customer service.
+            </p>
+          </div>
+        </Container>
+      </section>
+
+      {/* OUR PEOPLE + OUR PROMISE */}
+      <section className="py-16 sm:py-24 bg-cream border-y border-zinc-200">
+        <Container className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div>
+            <div className="section-label text-sm">Our People</div>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl text-ink leading-tight">
+              Our greatest strength.
+            </h2>
+            <p className="mt-5 text-muted leading-relaxed">
+              At Bulldog, our people are our greatest strength. We have a uniquely
+              family-oriented culture full of passionate people who care about helping
+              others. We&rsquo;re moms. Dads. Grandparents. Recent grads. We&rsquo;re
+              people just like you — committed to serving our community by helping to
+              protect our neighbors.
+            </p>
+          </div>
+          <div>
+            <div className="section-label text-sm">Our Promise</div>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl text-ink leading-tight">
+              We treat your home like our own.
+            </h2>
+            <p className="mt-5 text-muted leading-relaxed">
+              Helping to protect what matters most to you is what matters most to us. At
+              Bulldog, we promise to always treat your family, your pets and your home
+              like our very own. We&rsquo;ll put you first and provide expert,
+              personalized advice. We&rsquo;ll always be honest, transparent and kind.
             </p>
           </div>
         </Container>
