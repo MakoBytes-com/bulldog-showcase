@@ -16,16 +16,31 @@ export default function SolutionsPage() {
   return (
     <>
       {/* HERO */}
-      <section className="bg-brand-900 text-white">
-        <Container className="py-16 sm:py-20">
-          <div className="section-label text-xs text-white/80">Solutions</div>
-          <h1 className="mt-3 font-display text-4xl sm:text-5xl lg:text-6xl leading-tight">
+      <section className="relative isolate overflow-hidden bg-brand-900 text-white">
+        <Image
+          src="/images/solutions-hero.jpg"
+          alt="ADT Command panel, sensors, video doorbell and smart speaker on a home surface"
+          fill
+          priority
+          sizes="100vw"
+          className="absolute inset-0 -z-10 object-cover object-center"
+        />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-900/80 via-brand-900/55 to-brand-900/75" />
+        <Container className="py-24 sm:py-32 lg:py-40 text-center">
+          <div className="section-label text-xs text-white/85">Solutions</div>
+          <h1 className="mt-3 font-display text-4xl sm:text-5xl lg:text-6xl leading-tight drop-shadow-md">
             Home protection, your way.
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/85">
+          <p className="mt-5 mx-auto max-w-2xl text-lg text-white/90 drop-shadow">
             Personalized, ADT-monitored security solutions so you can choose the
             protection <em>you</em> want — designed around your home and your family.
           </p>
+          <Link
+            href="#consultform"
+            className="mt-8 inline-flex items-center justify-center rounded-md bg-brand-600 px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white shadow-md hover:bg-brand-700 transition-colors"
+          >
+            Book a Virtual Consult
+          </Link>
         </Container>
       </section>
 
@@ -134,17 +149,18 @@ export default function SolutionsPage() {
           <div>
             <div className="section-label text-sm text-white/80">Monitoring Saves Lives</div>
             <h2 className="mt-3 font-display text-3xl sm:text-4xl leading-tight">
-              Six interconnected centers. One promise.
+              ADT Monitoring Helps Save Lives
             </h2>
             <p className="mt-5 text-white/85 leading-relaxed">
-              Your protection is our priority. ADT Monitoring has six strategically-placed
+              Your protection is our priority. ADT Monitoring has six strategically placed
               interconnected monitoring centers throughout the United States to ensure
               uninterrupted protection for your home and loved ones. Being interconnected
-              is important: if the center closest to you goes down for any reason, another
-              center is there to provide backup — as proven during Hurricane Katrina in
-              2005. In addition to 24/7 protection, ADT monitoring customers find peace of
-              mind knowing they can expect shortened response times, which minimizes
-              homeowner risk. Those saved moments have the power to change everything.
+              is important because if the center closest to you goes down for any reason,
+              another center is there to provide backup which was proven effective during
+              Hurricane Katrina in 2005. In addition to 24/7 protection, ADT monitoring
+              customers find peace of mind knowing they can expect shortened response
+              times which minimizes homeowner risk. Those saved moments have the power to
+              change everything.
             </p>
           </div>
         </Container>
@@ -153,13 +169,7 @@ export default function SolutionsPage() {
       {/* TRUST MARKERS */}
       <section className="py-16 sm:py-20 bg-white border-b border-zinc-200">
         <Container>
-          <div className="text-center max-w-2xl mx-auto">
-            <div className="section-label text-sm">Why ADT</div>
-            <h2 className="mt-3 font-display text-3xl sm:text-4xl text-ink">
-              The monitoring network homeowners trust.
-            </h2>
-          </div>
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <TrustCard title="Market Experts" body="ADT has been focused on home security for over a century." />
             <TrustCard title="A Trusted Partner" body="ADT is the #1 home-security monitoring service across the United States." />
             <TrustCard title="Proven Impact" body="ADT responds to 33 million alerts a year, averaging 90,000 per day." />
