@@ -130,7 +130,7 @@ export const LOCATIONS: LocationCity[] = [
         a: "Monitoring runs as low as the standard ADT monitored package, with options to add smart-home, video doorbell and full automation. We'll quote your exact monthly during the consult — no surprise add-ons.",
       },
     ],
-    nearby: ["Sugar Land", "Katy", "Pearland", "The Woodlands", "League City", "Galveston"],
+    nearby: ["Sugar Land", "Katy", "Pearland", "The Woodlands", "Spring", "Cypress", "West University", "Bellaire", "Friendswood", "League City", "Galveston"],
     crimeStats: {
       year: 2024,
       population: 2385298,
@@ -611,6 +611,107 @@ export const SATELLITES: SatelliteCity[] = [
     crimeStats: { year: 2024, population: 52052, burglary: { count: 139, ratePer100k: 261.8 }, propertyCrime: { count: 1264, ratePer100k: 2380 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
   },
 
+  // Houston metro — additional neighborhoods/cities served from the HQ
+  {
+    slug: "spring",
+    city: "Spring",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "houston",
+    intro:
+      "Spring is a CDP in Harris and Montgomery Counties just north of the Houston HQ off I-45. Old Town Spring's historic district plus the newer Klein/Champions area are all served by Bulldog from our Torrey Chase office a few miles south.",
+    crimeStats: { year: 2024, population: 63363, propertyCrime: { count: 0, ratePer100k: 2129 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "FBI UCR demographic estimate (CDP, no city-level table)", note: "Spring is a CDP — Harris County Sheriff and Klein/Spring ISD area patrols cover policing, and the FBI UCR doesn't publish a separate city-level table. The number above is a demographic estimate from AreaVibes, not a directly-reported figure." },
+  },
+  {
+    slug: "cypress",
+    city: "Cypress",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "houston",
+    intro:
+      "Cypress sits in northwest Harris County along US-290 — a fast-growing master-planned-community area (Bridgeland, Towne Lake, Fairfield, Coles Crossing). Bulldog covers Cypress from our Houston HQ, with same-week installs typical.",
+    crimeStats: { year: 2024, population: 195000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Harris County Sheriff's Office (CDP, no city-level FBI UCR table)", note: "Cypress is a CDP — Harris County Sheriff handles patrol, and there's no separate city-level FBI UCR table. For current local incidents, see HCSO's online crime maps or contact the Cypress Patrol District." },
+  },
+  {
+    slug: "the-heights",
+    city: "The Heights",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "houston",
+    intro:
+      "The Heights is a historic Houston neighborhood inside the 610 Loop — older bungalows and remodeled craftsman homes mixed with newer townhomes. Patrolled by HPD, served by Bulldog from our Torrey Chase HQ. Most installs here are smart-lock + video doorbell + ADT Command panel for the older homes.",
+    crimeStats: { year: 2024, population: 50000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Houston PD (neighborhood within Houston city limits)", note: "The Heights is a Houston neighborhood, not a separate municipality. Crime stats are reported at the Houston city level — see the main Houston page for the FBI UCR figures (8,318 registered offenders, 14,953 burglaries city-wide in 2024)." },
+  },
+  {
+    slug: "montrose",
+    city: "Montrose",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "houston",
+    intro:
+      "Montrose is one of Houston's most walkable inner-loop neighborhoods — older bungalows, mid-rise condos and museum-district edge. HPD-patrolled, served by Bulldog from our HQ. Smart locks and video doorbells are particularly popular with the dense pedestrian foot traffic.",
+    crimeStats: { year: 2024, population: 35000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Houston PD (neighborhood within Houston city limits)", note: "Montrose is a Houston neighborhood, not a separate municipality. Crime stats are reported at the Houston city level — see the main Houston page for the FBI UCR figures." },
+  },
+  {
+    slug: "galleria-memorial",
+    city: "Galleria / Memorial",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "houston",
+    intro:
+      "The Galleria / Memorial corridor along I-610 West and Memorial Drive includes high-rises, gated communities, and the Memorial Villages. HPD plus the Memorial Villages Police Department cover this area. Bulldog serves it from our Torrey Chase HQ.",
+    crimeStats: { year: 2024, population: 130000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Houston PD + Memorial Villages PD", note: "The Galleria area falls under Houston city limits (HPD patrol). The Memorial Villages (Bunker Hill, Hedwig, Hilshire, Hunters Creek, Piney Point, Spring Valley) have their own PD with separate small-jurisdiction reporting. See the main Houston page for HPD city-wide stats." },
+  },
+  {
+    slug: "west-university",
+    city: "West University",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "houston",
+    intro:
+      "West University Place is a small incorporated city of ~16k residents inside the 610 Loop, surrounded by Houston. West U has its own PD and is one of the safest residential communities in the metro — 8 burglaries in all of 2024. Bulldog covers West U, Southside Place and Southampton from our Houston HQ.",
+    crimeStats: { year: 2024, population: 16021, burglary: { count: 8, ratePer100k: 54.3 }, propertyCrime: { count: 146, ratePer100k: 992 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "bellaire",
+    city: "Bellaire",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "houston",
+    intro:
+      "Bellaire is an incorporated city of ~20k residents inside the 610 Loop, fully surrounded by Houston. Bellaire PD handles its own patrol. Bulldog serves Bellaire and the surrounding inner-loop area from our Houston HQ.",
+    crimeStats: { year: 2024, population: 19553, burglary: { count: 37, ratePer100k: 218.2 }, propertyCrime: { count: 403, ratePer100k: 2376 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "clear-lake",
+    city: "Clear Lake",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "houston",
+    intro:
+      "Clear Lake spans portions of Houston, Webster, Nassau Bay and Seabrook around the NASA Johnson Space Center. Multiple PD jurisdictions overlap. Bulldog covers Clear Lake out of our South Houston office on Space Park Drive — literally a few minutes from most Clear Lake addresses.",
+    crimeStats: { year: 2024, population: 60000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Multiple PD jurisdictions (Houston, Webster, Nassau Bay, Seabrook)", note: "Clear Lake is a regional area, not a single municipality — it spans Houston, Webster, Nassau Bay and Seabrook with different PDs handling each portion. For city-level FBI UCR data, see the relevant city's stats. League City covers the south portion." },
+  },
+  {
+    slug: "friendswood",
+    city: "Friendswood",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "houston",
+    intro:
+      "Friendswood is an incorporated city of ~41k in Galveston and Harris Counties south of Houston. One of the lower burglary rates in the area (51 per 100k in 2024). Bulldog serves Friendswood from our South Houston office on Space Park Drive.",
+    crimeStats: { year: 2024, population: 40785, burglary: { count: 21, ratePer100k: 51.5 }, propertyCrime: { count: 222, ratePer100k: 545 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+
   // Austin metro
   {
     slug: "round-rock",
@@ -1066,6 +1167,10 @@ export const SEX_OFFENDER_DATA: Record<string, SexOffenderData> = {
   brandon: { count: 92, ratio: 1241 },
   riverview: { count: 108, ratio: 815 },
   largo: { count: 181, ratio: 456 },
+  // Houston-area additions
+  spring: { count: 366, ratio: 166 },
+  bellaire: { count: 4, ratio: 4694 },
+  friendswood: { count: 34, ratio: 1179 },
 };
 
 export const SEX_OFFENDER_SOURCE = "city-data.com (compiled from public state registries), current as of April 2026";
