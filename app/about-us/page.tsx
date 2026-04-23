@@ -99,15 +99,15 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      {/* OUR PEOPLE + OUR PROMISE */}
-      <section className="py-16 sm:py-24 bg-cream border-y border-zinc-200">
-        <Container className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div>
-            <div className="section-label text-sm">Our People</div>
-            <h2 className="mt-3 font-display text-3xl sm:text-4xl text-ink leading-tight">
+      {/* OUR PEOPLE + OUR PROMISE — green section per live WP */}
+      <section className="py-16 sm:py-24 bg-gradient-to-b from-[rgba(10,102,36,0.95)] to-[#132d13] text-white">
+        <Container className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 p-8 sm:p-10">
+            <div className="section-label text-sm text-white/80">Our People</div>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl leading-tight">
               Our greatest strength.
             </h2>
-            <p className="mt-5 text-muted leading-relaxed">
+            <p className="mt-5 text-white/90 leading-relaxed">
               At Bulldog, our people are our greatest strength. We have a uniquely
               family-oriented culture full of passionate people who care about helping
               others. We&rsquo;re moms. Dads. Grandparents. Recent grads. We&rsquo;re
@@ -115,12 +115,12 @@ export default function AboutPage() {
               protect our neighbors.
             </p>
           </div>
-          <div>
-            <div className="section-label text-sm">Our Promise</div>
-            <h2 className="mt-3 font-display text-3xl sm:text-4xl text-ink leading-tight">
+          <div className="rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 p-8 sm:p-10">
+            <div className="section-label text-sm text-white/80">Our Promise</div>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl leading-tight">
               We treat your home like our own.
             </h2>
-            <p className="mt-5 text-muted leading-relaxed">
+            <p className="mt-5 text-white/90 leading-relaxed">
               Helping to protect what matters most to you is what matters most to us. At
               Bulldog, we promise to always treat your family, your pets and your home
               like our very own. We&rsquo;ll put you first and provide expert,
