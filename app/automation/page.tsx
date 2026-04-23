@@ -91,12 +91,11 @@ export default function AutomationPage() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-brand-900/80 via-brand-900/55 to-brand-900/75" />
         <Container className="py-32 sm:py-44 lg:py-56 text-center">
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl leading-tight drop-shadow-md">
-            Home automation, designed with security at its core.
+            Home automation, built around security.
           </h1>
           <p className="mt-5 mx-auto max-w-2xl text-lg text-white/90 drop-shadow">
-            Smart lights, thermostats, video doorbells, door locks and garage-door
-            openers — all managed through the ADT Control app and integrated directly
-            with your Bulldog security system.
+            Smart lights, thermostats, doorbells, locks and garage-door openers —
+            all controlled from one app, integrated with your security system.
           </p>
           <Link
             href="#consultform"
