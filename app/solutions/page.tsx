@@ -86,6 +86,7 @@ export default function SolutionsPage() {
         imageAlt="ADT outdoor security camera"
         body="ADT's indoor and outdoor security cameras empower you to stay connected to your home and property 24/7 by providing a virtual 720p HD view in real-time. For added protection, a live video clip can be sent to your phone the moment motion is detected inside or outside your home. To ensure uninterrupted monitoring service, ADT's outdoor security cameras are weatherproof — designed to be snow, rain and humidity resistant."
         background="cream"
+        imageCard
       />
 
       {/* MOTION DETECTION */}
@@ -196,6 +197,7 @@ function Section({
   body,
   reverse = false,
   background = "white",
+  imageCard = false,
 }: {
   id?: string;
   eyebrow: string;
@@ -205,7 +207,19 @@ function Section({
   body: string;
   reverse?: boolean;
   background?: "white" | "cream";
+  imageCard?: boolean;
 }) {
+  const img = (
+    <Image
+      src={image}
+      alt={imageAlt}
+      width={800}
+      height={500}
+      className="w-full h-auto"
+      sizes="(min-width: 1024px) 600px, 100vw"
+    />
+  );
+
   return (
     <section
       id={id}
@@ -224,14 +238,13 @@ function Section({
           </h2>
           <p className="mt-5 text-muted leading-relaxed">{body}</p>
         </div>
-        <Image
-          src={image}
-          alt={imageAlt}
-          width={800}
-          height={500}
-          className="w-full h-auto"
-          sizes="(min-width: 1024px) 600px, 100vw"
-        />
+        {imageCard ? (
+          <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+            {img}
+          </div>
+        ) : (
+          img
+        )}
       </Container>
     </section>
   );
