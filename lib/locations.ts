@@ -1005,6 +1005,75 @@ export function getSatelliteBySlug(slug: string): SatelliteCity | undefined {
   return SATELLITES.find((s) => s.slug === slug);
 }
 
+// Registered sex offender count per city (city-data.com, current April 2026).
+// `ratio` = residents per 1 registered offender (lower = more offenders per
+// capita). Kept flat by slug to avoid editing 47 LocationCity entries.
+export type SexOffenderData = { count: number; ratio: number };
+
+export const SEX_OFFENDER_DATA: Record<string, SexOffenderData> = {
+  // Office cities
+  houston: { count: 8318, ratio: 277 },
+  austin: { count: 1504, ratio: 630 },
+  dallas: { count: 4491, ratio: 293 },
+  "fort-worth": { count: 3483, ratio: 246 },
+  "san-antonio": { count: 3928, ratio: 380 },
+  orlando: { count: 2589, ratio: 107 },
+  tampa: { count: 1308, ratio: 288 },
+  // Houston metro satellites
+  "sugar-land": { count: 40, ratio: 2322 },
+  katy: { count: 258, ratio: 67 },
+  pearland: { count: 66, ratio: 1685 },
+  "the-woodlands": { count: 9, ratio: 12908 },
+  "league-city": { count: 45, ratio: 2211 },
+  galveston: { count: 139, ratio: 373 },
+  // Austin metro
+  "round-rock": { count: 133, ratio: 906 },
+  "cedar-park": { count: 26, ratio: 2634 },
+  pflugerville: { count: 57, ratio: 1021 },
+  lakeway: { count: 2, ratio: 7135 },
+  georgetown: { count: 109, ratio: 588 },
+  "san-marcos": { count: 159, ratio: 400 },
+  // Dallas metro
+  plano: { count: 113, ratio: 2531 },
+  frisco: { count: 35, ratio: 4675 },
+  mckinney: { count: 82, ratio: 2027 },
+  richardson: { count: 34, ratio: 3265 },
+  allen: { count: 48, ratio: 2091 },
+  rockwall: { count: 27, ratio: 1595 },
+  // Fort Worth metro
+  arlington: { count: 620, ratio: 634 },
+  southlake: { count: 1, ratio: 30137 },
+  keller: { count: 17, ratio: 2696 },
+  grapevine: { count: 13, ratio: 4026 },
+  mansfield: { count: 69, ratio: 948 },
+  burleson: { count: 140, ratio: 310 },
+  // San Antonio metro
+  "alamo-heights": { count: 1, ratio: 8108 },
+  boerne: { count: 24, ratio: 563 },
+  schertz: { count: 26, ratio: 1524 },
+  "new-braunfels": { count: 123, ratio: 564 },
+  cibolo: { count: 21, ratio: 1268 },
+  // Orlando metro
+  "winter-park": { count: 44, ratio: 703 },
+  "lake-mary": { count: 15, ratio: 1061 },
+  sanford: { count: 126, ratio: 466 },
+  oviedo: { count: 24, ratio: 1609 },
+  kissimmee: { count: 529, ratio: 131 },
+  apopka: { count: 319, ratio: 154 },
+  // Tampa metro
+  "st-petersburg": { count: 774, ratio: 337 },
+  clearwater: { count: 449, ratio: 255 },
+  brandon: { count: 92, ratio: 1241 },
+  riverview: { count: 108, ratio: 815 },
+  largo: { count: 181, ratio: 456 },
+};
+
+export const SEX_OFFENDER_SOURCE = "city-data.com (compiled from public state registries), current as of April 2026";
+
+export function getSexOffenderData(slug: string): SexOffenderData | undefined {
+  return SEX_OFFENDER_DATA[slug];
+}
+
 // Returns the union of office cities and satellite cities for static generation.
 export function getAllLocationSlugs(): string[] {
   return [...LOCATIONS.map((l) => l.slug), ...SATELLITES.map((s) => s.slug)];

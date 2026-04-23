@@ -19,7 +19,9 @@ import {
   SATELLITES,
   getLocationBySlug,
   getSatelliteBySlug,
+  getSexOffenderData,
   ALARM_DETERRENCE_NOTE,
+  SEX_OFFENDER_SOURCE,
   type LocationCity,
   type SatelliteCity,
 } from "@/lib/locations";
@@ -139,6 +141,7 @@ export default async function LocationPage({ params }: Props) {
   const burglariesPerDay = loc.crimeStats?.burglary
     ? Math.round((loc.crimeStats.burglary.count / 365) * 10) / 10
     : null;
+  const siblings = getSiblings(loc);
 
   // LocalBusiness schema for SEO local-pack
   const localBusinessSchema = {
@@ -437,7 +440,9 @@ export default async function LocationPage({ params }: Props) {
               </ul>
             </div>
           ) : (
-            <PublicSafetyCard state={loc.state} stateFull={loc.stateFull} city={loc.city} />
+            <div className="lg:col-span-5">
+              <PublicSafetyCard state={loc.state} stateFull={loc.stateFull} city={loc.city} slug={loc.slug} />
+            </div>
           )}
         </Container>
       </section>
@@ -448,7 +453,7 @@ export default async function LocationPage({ params }: Props) {
       {loc.neighborhoods && loc.neighborhoods.length > 0 && (
         <section className="pb-16 sm:pb-20 bg-white">
           <Container className="max-w-3xl">
-            <PublicSafetyCard state={loc.state} stateFull={loc.stateFull} city={loc.city} />
+            <PublicSafetyCard state={loc.state} stateFull={loc.stateFull} city={loc.city} slug={loc.slug} />
           </Container>
         </section>
       )}
@@ -478,7 +483,43 @@ export default async function LocationPage({ params }: Props) {
         </section>
       )}
 
-      {/* NEARBY CITIES */}
+      {/* SIBLING CITIES — for satellites: link back to parent + other satellites
+          in the same metro. Office cities use the NEARBY CITIES block below. */}
+      {loc.isSatellite && siblings.parent && (
+        <section className="py-12 sm:py-16 bg-white">
+          <Container>
+            <div className="text-sm font-display font-semibold uppercase tracking-[0.2em] text-brand-600">
+              Other {siblings.parent.metro} locations
+            </div>
+            <h3 className="mt-3 font-display text-2xl text-ink">More cities we cover from {siblings.parent.city}</h3>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Link
+                href={`/locations/${siblings.parent.slug}`}
+                className="inline-flex items-center gap-1 rounded-full bg-brand-600 px-3 py-1 text-sm font-semibold text-white hover:bg-brand-700 transition-colors"
+              >
+                {siblings.parent.city} (main office)
+              </Link>
+              {siblings.siblings.map((s) => (
+                <Link
+                  key={s.slug}
+                  href={`/locations/${s.slug}`}
+                  className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-cream px-3 py-1 text-sm text-ink hover:border-brand-600 hover:text-brand-700 transition-colors"
+                >
+                  {s.city}
+                </Link>
+              ))}
+              <Link
+                href="/locations"
+                className="inline-flex items-center gap-1 rounded-full border border-brand-600 px-3 py-1 text-sm font-semibold text-brand-700 hover:bg-brand-50 transition-colors"
+              >
+                View all locations <ChevronRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </Container>
+        </section>
+      )}
+
+      {/* NEARBY CITIES — office-city block */}
       {loc.nearby && loc.nearby.length > 0 && (
         <section className="py-12 sm:py-16 bg-white">
           <Container>
@@ -531,10 +572,12 @@ function PublicSafetyCard({
   state,
   stateFull,
   city,
+  slug,
 }: {
   state: string;
   stateFull: string;
   city: string;
+  slug: string;
 }) {
   const registryName =
     state === "TX"
@@ -542,6 +585,7 @@ function PublicSafetyCard({
       : state === "FL"
         ? "FDLE"
         : "the National Sex Offender Public Website";
+  const so = getSexOffenderData(slug);
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-6">
       <div className="text-xs font-display font-semibold uppercase tracking-[0.2em] text-brand-600">
@@ -550,12 +594,23 @@ function PublicSafetyCard({
       <h3 className="mt-2 font-display text-xl text-ink leading-tight">
         Check the sex offender registry for your {city} address.
       </h3>
-      <p className="mt-2 text-sm text-muted leading-relaxed">
+      {so && (
+        <div className="mt-3 rounded-md border border-zinc-200 bg-cream px-3 py-2.5 text-sm text-ink">
+          <span className="font-semibold">{so.count.toLocaleString()}</span> registered offenders in {city} city limits ·{" "}
+          <span className="font-semibold">1 per {so.ratio.toLocaleString()}</span> residents
+        </div>
+      )}
+      <p className="mt-3 text-sm text-muted leading-relaxed">
         The official {stateFull} registry ({registryName}) has a public, address-searchable
         map. Enter your ZIP below and we&rsquo;ll open the official registry in a new tab —
         Bulldog doesn&rsquo;t store or transmit your address.
       </p>
       <SexOffenderLookupForm state={state} city={city} />
+      {so && (
+        <p className="mt-3 text-[11px] text-muted leading-relaxed">
+          Source: {SEX_OFFENDER_SOURCE}.
+        </p>
+      )}
     </div>
   );
 }
