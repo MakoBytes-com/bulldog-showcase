@@ -194,7 +194,7 @@ export const LOCATIONS: LocationCity[] = [
         a: "We can integrate most major smart-home brands into the ADT Control app. We'll confirm what works with your specific devices during the consult.",
       },
     ],
-    nearby: ["Round Rock", "Cedar Park", "Pflugerville", "Lakeway", "Georgetown", "San Marcos"],
+    nearby: ["Round Rock", "Cedar Park", "Leander", "Pflugerville", "Lakeway", "Bee Cave", "West Lake Hills", "Tarrytown", "Hyde Park", "Mueller", "Circle C", "Georgetown", "Kyle", "Buda", "San Marcos"],
     crimeStats: {
       year: 2024,
       population: 988400,
@@ -258,7 +258,7 @@ export const LOCATIONS: LocationCity[] = [
         a: "Same-day installs are available in many DFW ZIPs depending on tech availability. Ask during the consult.",
       },
     ],
-    nearby: ["Plano", "Frisco", "McKinney", "Richardson", "Allen", "Rockwall"],
+    nearby: ["Plano", "Frisco", "McKinney", "Allen", "Richardson", "Highland Park", "University Park", "Lakewood", "Oak Lawn", "Preston Hollow", "Lake Highlands", "Mesquite", "Garland", "Rockwall"],
     crimeStats: {
       year: 2024,
       population: 1391819,
@@ -322,7 +322,7 @@ export const LOCATIONS: LocationCity[] = [
         a: "Yes — landlords and snowbirds get multi-property pricing. Mention it during the consult.",
       },
     ],
-    nearby: ["Arlington", "Southlake", "Keller", "Grapevine", "Mansfield", "Burleson"],
+    nearby: ["Arlington", "Southlake", "Keller", "Colleyville", "Grapevine", "Westlake", "Mansfield", "Hurst", "Euless", "Bedford", "North Richland Hills", "Watauga", "Saginaw", "Burleson"],
     crimeStats: {
       year: 2024,
       population: 926371,
@@ -384,7 +384,7 @@ export const LOCATIONS: LocationCity[] = [
         a: "Signals reach the ADT central station within seconds. The station verifies, contacts you, then dispatches SAPD or Bexar County Sheriff per your call list.",
       },
     ],
-    nearby: ["Stone Oak", "Alamo Heights", "Boerne", "Schertz", "New Braunfels", "Cibolo"],
+    nearby: ["Stone Oak", "Alamo Heights", "Olmos Park", "Terrell Hills", "Hollywood Park", "Shavano Park", "Helotes", "Boerne", "Schertz", "Cibolo", "New Braunfels", "Universal City"],
     crimeStats: {
       year: 2024,
       population: 1573237,
@@ -447,7 +447,7 @@ export const LOCATIONS: LocationCity[] = [
         a: "Yes. We can configure your system for seasonal occupancy, send alerts to your property manager, and let multiple users arm/disarm from their own phones.",
       },
     ],
-    nearby: ["Winter Park", "Lake Mary", "Sanford", "Oviedo", "Kissimmee", "Apopka"],
+    nearby: ["Winter Park", "Lake Mary", "Altamonte Springs", "Longwood", "Apopka", "Oviedo", "Sanford", "Maitland", "Casselberry", "Lake Nona", "Dr. Phillips", "Kissimmee", "Windermere"],
     crimeStats: {
       year: 2024,
       population: 294679,
@@ -509,7 +509,7 @@ export const LOCATIONS: LocationCity[] = [
         a: "Yes. Water-leak sensors are an inexpensive add-on and well worth it in this climate, especially for bathrooms, water heaters and laundry rooms.",
       },
     ],
-    nearby: ["St. Petersburg", "Clearwater", "Brandon", "Riverview", "Westchase", "Largo"],
+    nearby: ["St. Petersburg", "Clearwater", "Brandon", "Riverview", "South Tampa", "Hyde Park", "Westchase", "New Tampa", "Carrollwood", "Town 'N' Country", "Apollo Beach", "Largo", "Pinellas Park"],
     crimeStats: {
       year: 2024,
       population: 403927,
@@ -780,6 +780,107 @@ export const SATELLITES: SatelliteCity[] = [
     crimeStats: { year: 2024, population: 65711, burglary: { count: 194, ratePer100k: 266.8 }, propertyCrime: { count: 1642, ratePer100k: 2258 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
   },
 
+  // Austin metro additions
+  {
+    slug: "leander",
+    city: "Leander",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "austin",
+    intro:
+      "Leander sits on the northwest edge of the Austin metro along the Capital Metro Red Line. New construction subdivisions have driven population growth past 62k. Bulldog covers Leander, Crystal Falls and Travisso from our Austin office on Northland Drive.",
+    crimeStats: { year: 2024, population: 62512, burglary: { count: 129, ratePer100k: 147.0 }, propertyCrime: { count: 867, ratePer100k: 988 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "bee-cave",
+    city: "Bee Cave",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "austin",
+    intro:
+      "Bee Cave sits in the Texas Hill Country west of Austin along Highway 71, including the Hill Country Galleria area and surrounding gated subdivisions. Bulldog serves Bee Cave from our Austin office.",
+    crimeStats: { year: 2024, population: 7049, burglary: { count: 19, ratePer100k: 224.9 }, propertyCrime: { count: 225, ratePer100k: 2663 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "west-lake-hills",
+    city: "West Lake Hills",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "austin",
+    intro:
+      "West Lake Hills is a small incorporated city of ~3.4k west of downtown Austin in the Eanes ISD area. Larger custom homes on hillside lots. Bulldog serves West Lake Hills, Rollingwood and the surrounding Eanes area from our Austin office.",
+    crimeStats: { year: 2024, population: 3420, burglary: { count: 10, ratePer100k: 322.4 }, propertyCrime: { count: 88, ratePer100k: 2837 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "tarrytown",
+    city: "Tarrytown",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "austin",
+    intro:
+      "Tarrytown is an established Austin neighborhood west of MoPac with older homes near Lake Austin. Patrolled by APD. Bulldog serves Tarrytown from our Austin office, with smart-home retrofits being the most common install for the older housing stock.",
+    crimeStats: { year: 2024, population: 8000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Austin PD (neighborhood within Austin city limits)", note: "Tarrytown is an Austin neighborhood, not a separate municipality. Crime stats are reported at the Austin city level — see the main Austin page for FBI UCR figures." },
+  },
+  {
+    slug: "hyde-park-austin",
+    city: "Hyde Park",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "austin",
+    intro:
+      "Hyde Park is one of Austin's oldest planned neighborhoods, just north of UT campus. Older bungalows, university-area mix. Patrolled by APD. Bulldog covers Hyde Park, Hancock and the surrounding north-central Austin area from our Northland office.",
+    crimeStats: { year: 2024, population: 9500, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Austin PD (neighborhood within Austin city limits)", note: "Hyde Park is an Austin neighborhood, not a separate municipality. See the Austin page for city-level FBI UCR data." },
+  },
+  {
+    slug: "mueller",
+    city: "Mueller",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "austin",
+    intro:
+      "Mueller is a master-planned community on the former airport site in central-east Austin. Newer construction, mixed-use density, walkable streets. Patrolled by APD. Bulldog handles installs from our Austin office.",
+    crimeStats: { year: 2024, population: 14000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Austin PD (neighborhood within Austin city limits)", note: "Mueller is an Austin neighborhood within city limits. See the main Austin page for FBI UCR data." },
+  },
+  {
+    slug: "circle-c",
+    city: "Circle C",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "austin",
+    intro:
+      "Circle C Ranch is a master-planned community in southwest Austin off MoPac extension. Newer single-family homes, HOA-active. APD patrols. Bulldog covers Circle C from our Austin office.",
+    crimeStats: { year: 2024, population: 12000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Austin PD (neighborhood within Austin city limits)", note: "Circle C is an Austin neighborhood. See the main Austin page for city-level FBI UCR data." },
+  },
+  {
+    slug: "kyle",
+    city: "Kyle",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "austin",
+    intro:
+      "Kyle sits south of Austin along I-35 in Hays County, with rapid growth from new master-planned communities (Plum Creek, 6 Creeks). Bulldog serves Kyle, Buda and the surrounding north Hays County area from our Austin office.",
+    crimeStats: { year: 2024, population: 47247, burglary: { count: 64, ratePer100k: 92.7 }, propertyCrime: { count: 569, ratePer100k: 824 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "buda",
+    city: "Buda",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "austin",
+    intro:
+      "Buda sits between Austin and Kyle along I-35 in Hays County, growing rapidly with new subdivisions like Whispering Hollow and Sunfield. Bulldog covers Buda from our Austin office.",
+    crimeStats: { year: 2024, population: 16991, burglary: { count: 20, ratePer100k: 122.8 }, propertyCrime: { count: 266, ratePer100k: 1633 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+
   // Dallas metro
   {
     slug: "plano",
@@ -846,6 +947,96 @@ export const SATELLITES: SatelliteCity[] = [
     intro:
       "Rockwall County's lakeside communities (Heath, Rowlett, Lake Ray Hubbard) need different security than typical urban setups — outbuildings, docks, and second homes. Bulldog handles all of it from our Farmers Branch office.",
     crimeStats: { year: 2024, population: 46220, burglary: { count: 64, ratePer100k: 116.9 }, propertyCrime: { count: 752, ratePer100k: 1373 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+
+  // Dallas metro additions
+  {
+    slug: "highland-park",
+    city: "Highland Park",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "dallas",
+    intro:
+      "Highland Park is a small incorporated city of ~9.5k inside Dallas, with its own DPS (Department of Public Safety). Older estate homes and high-end retail (Highland Park Village). Bulldog serves the Park Cities from our Farmers Branch office.",
+    crimeStats: { year: 2024, population: 9451, burglary: { count: 26, ratePer100k: 298.6 }, propertyCrime: { count: 214, ratePer100k: 2458 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "university-park",
+    city: "University Park",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "dallas",
+    intro:
+      "University Park is the second of the Park Cities, surrounding SMU. Its own PD handles patrol — one of the lowest-crime communities in DFW. Bulldog serves University Park alongside Highland Park from our Farmers Branch office.",
+    crimeStats: { year: 2024, population: 25903, burglary: { count: 47, ratePer100k: 186.2 }, propertyCrime: { count: 362, ratePer100k: 1434 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "lakewood",
+    city: "Lakewood",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "dallas",
+    intro:
+      "Lakewood is an established Dallas neighborhood east of downtown around White Rock Lake. Older 1920s-1940s homes. DPD patrols. Bulldog covers Lakewood, Hollywood Heights and the M Streets from our Farmers Branch office.",
+    crimeStats: { year: 2024, population: 30000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Dallas PD (neighborhood within Dallas city limits)", note: "Lakewood is a Dallas neighborhood, not a separate municipality. See the main Dallas page for city-level FBI UCR figures." },
+  },
+  {
+    slug: "oak-lawn",
+    city: "Oak Lawn",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "dallas",
+    intro:
+      "Oak Lawn is a dense urban Dallas neighborhood north of downtown — high-rises, mid-century apartments, and walkable mixed-use. DPD patrols. Bulldog handles installs from Farmers Branch, with smart-lock and video doorbell setups being most popular.",
+    crimeStats: { year: 2024, population: 30000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Dallas PD (neighborhood within Dallas city limits)", note: "Oak Lawn is a Dallas neighborhood. See the main Dallas page for city-level FBI UCR data." },
+  },
+  {
+    slug: "preston-hollow",
+    city: "Preston Hollow",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "dallas",
+    intro:
+      "Preston Hollow is an upscale Dallas neighborhood north of LBJ Freeway — large estate lots, Mockingbird/Walnut Hill area. DPD patrols. Bulldog covers Preston Hollow from our Farmers Branch office.",
+    crimeStats: { year: 2024, population: 25000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Dallas PD (neighborhood within Dallas city limits)", note: "Preston Hollow is a Dallas neighborhood. See the main Dallas page for city-level FBI UCR figures." },
+  },
+  {
+    slug: "lake-highlands",
+    city: "Lake Highlands",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "dallas",
+    intro:
+      "Lake Highlands is a northeast Dallas neighborhood between Skillman and the President George Bush Tollway — established mid-century homes plus newer infill. DPD patrols. Bulldog serves Lake Highlands from our Farmers Branch office.",
+    crimeStats: { year: 2024, population: 35000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "Dallas PD (neighborhood within Dallas city limits)", note: "Lake Highlands is a Dallas neighborhood. See the main Dallas page for city-level FBI UCR figures." },
+  },
+  {
+    slug: "mesquite",
+    city: "Mesquite",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "dallas",
+    intro:
+      "Mesquite sits east of Dallas in Dallas County. With 148k residents and a higher burglary rate than most of north DFW (392/100k), home security is a real practical concern here. Bulldog serves Mesquite from our Farmers Branch office.",
+    crimeStats: { year: 2024, population: 148020, burglary: { count: 583, ratePer100k: 391.8 }, propertyCrime: { count: 4429, ratePer100k: 2976 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "garland",
+    city: "Garland",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "dallas",
+    intro:
+      "Garland is one of the largest cities in DFW (245k residents), straddling Dallas and Collin Counties. Mature neighborhoods plus newer subdivisions. Bulldog covers Garland and surrounding Rowlett/Sachse area from Farmers Branch.",
+    crimeStats: { year: 2024, population: 245211, burglary: { count: 747, ratePer100k: 303.3 }, propertyCrime: { count: 4896, ratePer100k: 1988 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
   },
 
   // Fort Worth metro
@@ -916,6 +1107,96 @@ export const SATELLITES: SatelliteCity[] = [
     crimeStats: { year: 2024, population: 48615, burglary: { count: 44, ratePer100k: 76.0 }, propertyCrime: { count: 630, ratePer100k: 1089 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
   },
 
+  // Fort Worth metro additions
+  {
+    slug: "colleyville",
+    city: "Colleyville",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "fort-worth",
+    intro:
+      "Colleyville is a small affluent city in northeast Tarrant County between Southlake and Grapevine. One of the lowest burglary rates in the Metroplex (16/100k). Bulldog serves Colleyville from our Mid-Cities office on Boulevard 26.",
+    crimeStats: { year: 2024, population: 27477, burglary: { count: 4, ratePer100k: 15.6 }, propertyCrime: { count: 138, ratePer100k: 538 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "westlake",
+    city: "Westlake",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "fort-worth",
+    intro:
+      "Westlake is a small town (~1.5k residents) of executive estates and corporate campuses (Charles Schwab, Fidelity HQ) west of Southlake. Bulldog handles Westlake from our Mid-Cities office.",
+    crimeStats: { year: 2024, population: 1549, propertyCrime: { count: 0, ratePer100k: 286 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "FBI UCR demographic estimate (small jurisdiction)", note: "Westlake is a very small jurisdiction without a separate published FBI UCR table. The number above is a demographic estimate from AreaVibes." },
+  },
+  {
+    slug: "hurst",
+    city: "Hurst",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "fort-worth",
+    intro:
+      "Hurst is one of the H-E-B (Hurst-Euless-Bedford) cities in central Tarrant County along Highway 183, with the North East Mall area as its commercial center. Bulldog serves Hurst from our Mid-Cities office.",
+    crimeStats: { year: 2024, population: 39602, burglary: { count: 87, ratePer100k: 223.2 }, propertyCrime: { count: 872, ratePer100k: 2237 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "euless",
+    city: "Euless",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "fort-worth",
+    intro:
+      "Euless is the middle H-E-B city, home to the south end of DFW Airport. Bulldog covers Euless from our Mid-Cities office on Boulevard 26 just north.",
+    crimeStats: { year: 2024, population: 57525, burglary: { count: 108, ratePer100k: 182.3 }, propertyCrime: { count: 1247, ratePer100k: 2105 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "bedford",
+    city: "Bedford",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "fort-worth",
+    intro:
+      "Bedford is the third H-E-B city, just east of Hurst. Bulldog serves Bedford from our Mid-Cities office.",
+    crimeStats: { year: 2024, population: 50460, burglary: { count: 75, ratePer100k: 156.6 }, propertyCrime: { count: 741, ratePer100k: 1547 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "north-richland-hills",
+    city: "North Richland Hills",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "fort-worth",
+    intro:
+      "North Richland Hills is the city our Fort Worth Mid-Cities office actually sits in (Boulevard 26). 72k residents in northeast Tarrant County between Hurst and Watauga. Bulldog handles installs across NRH from this office.",
+    crimeStats: { year: 2024, population: 72121, burglary: { count: 168, ratePer100k: 237.4 }, propertyCrime: { count: 1580, ratePer100k: 2232 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "watauga",
+    city: "Watauga",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "fort-worth",
+    intro:
+      "Watauga sits just north of North Richland Hills along the I-820 / Mid-Cities corridor. Bulldog covers Watauga from our Mid-Cities office.",
+    crimeStats: { year: 2024, population: 25192, burglary: { count: 29, ratePer100k: 127.7 }, propertyCrime: { count: 194, ratePer100k: 854 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "saginaw",
+    city: "Saginaw",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "fort-worth",
+    intro:
+      "Saginaw is north of Fort Worth in Tarrant County along Highway 287. Newer subdivisions have driven steady growth. Bulldog covers Saginaw from our Mid-Cities office.",
+    crimeStats: { year: 2024, population: 24477, burglary: { count: 29, ratePer100k: 113.6 }, propertyCrime: { count: 352, ratePer100k: 1379 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+
   // San Antonio metro
   {
     slug: "alamo-heights",
@@ -971,6 +1252,85 @@ export const SATELLITES: SatelliteCity[] = [
     intro:
       "Cibolo is a fast-growing suburb just east of Schertz with low crime and lots of new construction. Bulldog installs throughout Cibolo from our Crownhill office.",
     crimeStats: { year: 2024, population: 31234, burglary: { count: 53, ratePer100k: 140.8 }, propertyCrime: { count: 318, ratePer100k: 845 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+
+  // San Antonio metro additions
+  {
+    slug: "stone-oak",
+    city: "Stone Oak",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "san-antonio",
+    intro:
+      "Stone Oak is a fast-growing master-planned community in north San Antonio along the 281/1604 corridor. SAPD patrols. Bulldog covers Stone Oak from our Crownhill office a few miles south.",
+    crimeStats: { year: 2024, population: 50000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: "San Antonio PD (neighborhood within San Antonio city limits)", note: "Stone Oak is a San Antonio neighborhood, not a separate municipality. See the main San Antonio page for city-level FBI UCR data." },
+  },
+  {
+    slug: "olmos-park",
+    city: "Olmos Park",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "san-antonio",
+    intro:
+      "Olmos Park is a small enclave city of ~1.9k residents north of downtown San Antonio with its own PD. Older estate homes. Bulldog covers Olmos Park from our Crownhill office.",
+    crimeStats: { year: 2024, population: 1902, burglary: { count: 7, ratePer100k: 324.8 }, propertyCrime: { count: 16, ratePer100k: 742 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "terrell-hills",
+    city: "Terrell Hills",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "san-antonio",
+    intro:
+      "Terrell Hills is a small incorporated city of ~5.5k residents inside San Antonio with its own PD. Older established homes. Bulldog handles Terrell Hills from our Crownhill office.",
+    crimeStats: { year: 2024, population: 5567, burglary: { count: 6, ratePer100k: 118.5 }, propertyCrime: { count: 87, ratePer100k: 1718 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "hollywood-park",
+    city: "Hollywood Park",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "san-antonio",
+    intro:
+      "Hollywood Park is a small wooded enclave city of ~3.4k residents in north San Antonio off 281. Bulldog serves Hollywood Park from our Crownhill office.",
+    crimeStats: { year: 2024, population: 3424, burglary: { count: 2, ratePer100k: 65.5 }, propertyCrime: { count: 45, ratePer100k: 1473 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "shavano-park",
+    city: "Shavano Park",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "san-antonio",
+    intro:
+      "Shavano Park is a small upscale residential city of ~4k residents in north San Antonio. Bulldog covers Shavano Park from our Crownhill office.",
+    crimeStats: { year: 2024, population: 3988, burglary: { count: 5, ratePer100k: 132.1 }, propertyCrime: { count: 43, ratePer100k: 1136 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "helotes",
+    city: "Helotes",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "san-antonio",
+    intro:
+      "Helotes sits northwest of San Antonio along Bandera Road in the Texas Hill Country. Newer subdivisions plus older small-town center. Bulldog serves Helotes from our Crownhill office.",
+    crimeStats: { year: 2024, population: 9720, burglary: { count: 33, ratePer100k: 322.0 }, propertyCrime: { count: 110, ratePer100k: 1073 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "universal-city",
+    city: "Universal City",
+    state: "TX",
+    stateFull: "Texas",
+    region: "texas",
+    parentSlug: "san-antonio",
+    intro:
+      "Universal City sits northeast of San Antonio next to Randolph Air Force Base. Bulldog covers Universal City and the surrounding Schertz/Cibolo/Live Oak area from our Crownhill office.",
+    crimeStats: { year: 2024, population: 21174, burglary: { count: 51, ratePer100k: 253.5 }, propertyCrime: { count: 423, ratePer100k: 2102 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: TX_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
   },
 
   // Orlando metro
@@ -1039,6 +1399,175 @@ export const SATELLITES: SatelliteCity[] = [
     intro:
       "Apopka sits at the northwest edge of the Orlando metro and has a higher burglary rate than most surrounding cities — 475 per 100k vs Florida's statewide 152. Bulldog serves Apopka, Forest City and Plymouth from our Longwood office.",
     crimeStats: { year: 2024, population: 54904, burglary: { count: 288, ratePer100k: 475.4 }, propertyCrime: { count: 1404, ratePer100k: 2317 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+
+  // Orlando metro additions
+  {
+    slug: "altamonte-springs",
+    city: "Altamonte Springs",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "orlando",
+    intro:
+      "Altamonte Springs sits in Seminole County north of Orlando along I-4. Cranes Roost area, Altamonte Mall area, plus established residential. Bulldog serves Altamonte from our Longwood office just north.",
+    crimeStats: { year: 2024, population: 45050, burglary: { count: 75, ratePer100k: 166.8 }, propertyCrime: { count: 1039, ratePer100k: 2311 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "longwood",
+    city: "Longwood",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "orlando",
+    intro:
+      "Longwood is the city our Orlando office actually sits in (West State Road 434). Established Seminole County community between Lake Mary and Altamonte Springs. Bulldog covers Longwood and immediate surrounding area from this office.",
+    crimeStats: { year: 2024, population: 15833, burglary: { count: 34, ratePer100k: 196.6 }, propertyCrime: { count: 236, ratePer100k: 1364 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "maitland",
+    city: "Maitland",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "orlando",
+    intro:
+      "Maitland sits between Winter Park and Altamonte Springs in Orange County, with the Maitland Center business park and a residential mix of older estates. Bulldog covers Maitland from our Longwood office.",
+    crimeStats: { year: 2024, population: 18243, burglary: { count: 51, ratePer100k: 266.5 }, propertyCrime: { count: 259, ratePer100k: 1353 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "casselberry",
+    city: "Casselberry",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "orlando",
+    intro:
+      "Casselberry sits in Seminole County between Altamonte Springs and Winter Park. Bulldog serves Casselberry from our Longwood office.",
+    crimeStats: { year: 2024, population: 29344, burglary: { count: 51, ratePer100k: 163.6 }, propertyCrime: { count: 807, ratePer100k: 2589 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
+  },
+  {
+    slug: "lake-nona",
+    city: "Lake Nona",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "orlando",
+    intro:
+      "Lake Nona is a master-planned community in southeast Orlando around the Medical City and the USTA National Campus. Newer construction, gated subdivisions. OPD plus Orange County Sheriff in unincorporated areas. Bulldog serves Lake Nona from our Longwood office.",
+    crimeStats: { year: 2024, population: 25000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: "Orlando PD + Orange County Sheriff", note: "Lake Nona spans Orlando city limits and unincorporated Orange County. There's no separate FBI UCR table for Lake Nona; see the main Orlando page for OPD city-wide data, or Orange County Sheriff for unincorporated parts." },
+  },
+  {
+    slug: "dr-phillips",
+    city: "Dr. Phillips",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "orlando",
+    intro:
+      "Dr. Phillips is a CDP in southwest Orange County near Universal Orlando, with established residential plus the Restaurant Row commercial corridor. Patrolled by Orange County Sheriff. Bulldog covers Dr. Phillips from our Longwood office.",
+    crimeStats: { year: 2024, population: 11000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: "Orange County Sheriff (CDP, no city-level FBI UCR table)", note: "Dr. Phillips is a CDP — Orange County Sheriff handles patrol, no separate city-level FBI UCR table is published. For local incident maps, check OCSO's online crime data." },
+  },
+  {
+    slug: "windermere",
+    city: "Windermere",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "orlando",
+    intro:
+      "Windermere is a small town of ~3.6k residents on the Butler chain of lakes in west Orange County. Estate homes and lakefront. Bulldog covers Windermere from our Longwood office.",
+    crimeStats: { year: 2024, population: 3613, propertyCrime: { count: 0, ratePer100k: 270 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: "FBI UCR demographic estimate (small jurisdiction)", note: "Windermere is a very small jurisdiction without a separate published FBI UCR table. The number above is a demographic estimate from AreaVibes." },
+  },
+
+  // Tampa metro additions
+  {
+    slug: "south-tampa",
+    city: "South Tampa",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "tampa",
+    intro:
+      "South Tampa covers the area south of Kennedy Boulevard down to Bayshore — Hyde Park, SoHo, Davis Islands, Westshore, MacDill area. Tampa PD patrols. Bulldog handles installs from our West Busch office.",
+    crimeStats: { year: 2024, population: 70000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: "Tampa PD (neighborhood within Tampa city limits)", note: "South Tampa is a Tampa neighborhood, not a separate municipality. See the main Tampa page for city-level FBI UCR figures." },
+  },
+  {
+    slug: "hyde-park-tampa",
+    city: "Hyde Park",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "tampa",
+    intro:
+      "Hyde Park is one of South Tampa's most established neighborhoods — historic bungalows, walkable to Hyde Park Village retail. Tampa PD patrols. Bulldog covers Hyde Park from our West Busch office.",
+    crimeStats: { year: 2024, population: 9000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: "Tampa PD (neighborhood within Tampa city limits)", note: "Hyde Park is a Tampa neighborhood. See the main Tampa page for city-level FBI UCR figures." },
+  },
+  {
+    slug: "westchase",
+    city: "Westchase",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "tampa",
+    intro:
+      "Westchase is a master-planned community in northwest Hillsborough County off the Veterans Expressway. Newer homes, HOA-active. Bulldog serves Westchase from our West Busch office.",
+    crimeStats: { year: 2024, population: 23000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: "Hillsborough County Sheriff (CDP, no city-level FBI UCR table)", note: "Westchase is a CDP — Hillsborough County Sheriff handles patrol, no separate city-level FBI UCR table is published." },
+  },
+  {
+    slug: "new-tampa",
+    city: "New Tampa",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "tampa",
+    intro:
+      "New Tampa covers the northeast Tampa area along Bruce B. Downs (Tampa Palms, Hunter's Green, Cory Lake Isles, Live Oak Preserve). Tampa PD patrols. Bulldog handles installs from our West Busch office.",
+    crimeStats: { year: 2024, population: 50000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: "Tampa PD (neighborhood within Tampa city limits)", note: "New Tampa is a Tampa neighborhood. See the main Tampa page for city-level FBI UCR figures." },
+  },
+  {
+    slug: "carrollwood",
+    city: "Carrollwood",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "tampa",
+    intro:
+      "Carrollwood is a CDP north of Tampa off Dale Mabry, with Original Carrollwood and Carrollwood Village subdivisions. Hillsborough County Sheriff patrols. Bulldog serves Carrollwood from our West Busch office.",
+    crimeStats: { year: 2024, population: 35000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: "Hillsborough County Sheriff (CDP, no city-level FBI UCR table)", note: "Carrollwood is a CDP — Hillsborough County Sheriff handles patrol, no separate city-level FBI UCR table." },
+  },
+  {
+    slug: "town-n-country",
+    city: "Town 'N' Country",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "tampa",
+    intro:
+      "Town 'N' Country is a CDP in northwest Hillsborough County off the Veterans Expressway near the airport. Bulldog covers Town 'N' Country from our West Busch office.",
+    crimeStats: { year: 2024, population: 80000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: "Hillsborough County Sheriff (CDP, no city-level FBI UCR table)", note: "Town 'N' Country is a CDP — Hillsborough County Sheriff handles patrol, no separate city-level FBI UCR table." },
+  },
+  {
+    slug: "apollo-beach",
+    city: "Apollo Beach",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "tampa",
+    intro:
+      "Apollo Beach is a coastal CDP in southern Hillsborough County off US-41, with canal-front homes and the Manatee Viewing Center. Bulldog covers Apollo Beach from our Tampa office, with water-leak monitoring being a particularly common add-on for the waterfront homes.",
+    crimeStats: { year: 2024, population: 25000, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: "Hillsborough County Sheriff (CDP, no city-level FBI UCR table)", note: "Apollo Beach is a CDP — Hillsborough County Sheriff handles patrol, no separate city-level FBI UCR table." },
+  },
+  {
+    slug: "pinellas-park",
+    city: "Pinellas Park",
+    state: "FL",
+    stateFull: "Florida",
+    region: "florida",
+    parentSlug: "tampa",
+    intro:
+      "Pinellas Park sits in the middle of Pinellas County between St. Petersburg and Largo. 55k residents. Bulldog covers Pinellas Park from our Tampa office.",
+    crimeStats: { year: 2024, population: 55392, burglary: { count: 103, ratePer100k: 192.6 }, propertyCrime: { count: 1180, ratePer100k: 2206 }, nationalAvgPropertyCrimeRate: US_AVG_PROPERTY_CRIME_RATE, stateAvgBurglaryRate: FL_AVG_BURGLARY_RATE, source: CRIME_DATA_SOURCE },
   },
 
   // Tampa metro
@@ -1171,6 +1700,32 @@ export const SEX_OFFENDER_DATA: Record<string, SexOffenderData> = {
   spring: { count: 366, ratio: 166 },
   bellaire: { count: 4, ratio: 4694 },
   friendswood: { count: 34, ratio: 1179 },
+  // Austin-area additions
+  leander: { count: 74, ratio: 527 },
+  kyle: { count: 104, ratio: 361 },
+  buda: { count: 78, ratio: 169 },
+  // Dallas-area additions
+  "university-park": { count: 1, ratio: 24945 },
+  mesquite: { count: 178, ratio: 808 },
+  garland: { count: 365, ratio: 643 },
+  // Fort Worth-area additions
+  hurst: { count: 86, ratio: 466 },
+  euless: { count: 98, ratio: 567 },
+  bedford: { count: 39, ratio: 1298 },
+  "north-richland-hills": { count: 54, ratio: 1304 },
+  watauga: { count: 24, ratio: 1050 },
+  saginaw: { count: 20, ratio: 1123 },
+  colleyville: { count: 11, ratio: 2352 },
+  // San Antonio-area additions
+  "universal-city": { count: 10, ratio: 2048 },
+  helotes: { count: 19, ratio: 455 },
+  // Orlando-area additions
+  "altamonte-springs": { count: 43, ratio: 1018 },
+  longwood: { count: 38, ratio: 382 },
+  maitland: { count: 7, ratio: 2528 },
+  casselberry: { count: 35, ratio: 783 },
+  // Tampa-area additions
+  "pinellas-park": { count: 89, ratio: 585 },
 };
 
 export const SEX_OFFENDER_SOURCE = "city-data.com (compiled from public state registries), current as of April 2026";
