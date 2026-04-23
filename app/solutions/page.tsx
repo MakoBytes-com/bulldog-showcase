@@ -85,7 +85,7 @@ export default function SolutionsPage() {
         image="/images/security-cameras.jpg"
         imageAlt="ADT outdoor security camera"
         body="ADT's indoor and outdoor security cameras empower you to stay connected to your home and property 24/7 by providing a virtual 720p HD view in real-time. For added protection, a live video clip can be sent to your phone the moment motion is detected inside or outside your home. To ensure uninterrupted monitoring service, ADT's outdoor security cameras are weatherproof — designed to be snow, rain and humidity resistant."
-        background="cream"
+        background="white"
       />
 
       {/* MOTION DETECTION */}
@@ -106,7 +106,7 @@ export default function SolutionsPage() {
         image="/images/smoke-carbon-detector.png"
         imageAlt="ADT smoke and carbon monoxide communicator"
         body="In an emergency, every second counts — it could be the difference between life and death. Our smoke communicator uses photoelectric and rise-of-heat technology to measure air density. Our carbon monoxide communicator uses electrochemical sensing technology to monitor air and carbon monoxide concentrations in your home. These early-detection mechanisms alert you the moment danger is sensed and, with ADT's monitoring service, emergency services are automatically dispatched to your home."
-        background="cream"
+        background="white"
       />
 
       {/* EMERGENCY DEVICES */}
