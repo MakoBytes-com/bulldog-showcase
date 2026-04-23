@@ -12,9 +12,9 @@ export function StatsBand() {
         aria-hidden="true"
         fill
         sizes="100vw"
-        className="object-cover opacity-30"
+        className="object-cover opacity-75"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-brand-950/70 via-brand-900/75 to-brand-950/85" aria-hidden="true" />
+      <div className="absolute inset-0 bg-gradient-to-b from-brand-950/40 via-brand-900/35 to-brand-950/45" aria-hidden="true" />
       <Container className="relative text-center">
         <p className="font-display text-xl sm:text-2xl text-white/90">
           We have proudly helped to protect over
