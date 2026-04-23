@@ -131,9 +131,18 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      {/* OUR PEOPLE + OUR PROMISE — site-blue section */}
+      {/* OUR EXPERIENCE — People + Promise on site-blue section */}
       <section className="py-16 sm:py-24 bg-gradient-to-b from-brand-800 to-brand-900 text-white">
-        <Container className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Container>
+          <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
+            <div className="text-sm font-display font-semibold uppercase tracking-[0.2em] text-white/80">
+              Our Experience
+            </div>
+            <h2 className="mt-3 font-display text-3xl sm:text-4xl leading-tight">
+              The people and promise behind every install.
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="rounded-lg bg-white/10 backdrop-blur-sm border border-white/15 p-8 sm:p-10">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-700 shadow-md">
               <User className="h-6 w-6" aria-hidden />
@@ -168,6 +177,7 @@ export default function AboutPage() {
               like our very own. We&rsquo;ll put you first and provide expert,
               personalized advice. We&rsquo;ll always be honest, transparent and kind.
             </p>
+          </div>
           </div>
         </Container>
       </section>
