@@ -136,11 +136,11 @@ export default function AutomationPage() {
             </div>
             <div className={i % 2 === 1 ? "lg:order-1" : ""}>
               <Image
-                src={m.heroImage}
-                alt={`${m.title} — lifestyle photo`}
+                src={m.detailImage}
+                alt={`${m.title} — product detail`}
                 width={800}
                 height={500}
-                className="w-full h-auto"
+                className="w-full h-auto object-contain"
                 sizes="(min-width: 1024px) 600px, 100vw"
               />
             </div>
