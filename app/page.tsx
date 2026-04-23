@@ -5,6 +5,7 @@ import { Container } from "@/components/Container";
 import { ConsultSection } from "@/components/ConsultSection";
 import { StatsBand } from "@/components/StatsBand";
 import { TestimonialsSection } from "@/components/Testimonials";
+import { YouTubeFacade } from "@/components/YouTubeFacade";
 
 export default function HomePage() {
   return (
@@ -185,19 +186,13 @@ export default function HomePage() {
               services, everyone was able to escape to safety.
             </p>
           </div>
-          <div className="order-1 lg:order-2 relative rounded-lg overflow-hidden shadow-md bg-zinc-900 aspect-video">
-            <Image
-              src="/images/family-smiling.jpg"
-              alt="A family smiling together"
-              fill
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="object-cover opacity-90"
+          <div className="order-1 lg:order-2">
+            <YouTubeFacade
+              videoId="Kzl5SBETYuI"
+              poster="/images/family-smiling.jpg"
+              posterAlt="The Jensen family, whose home alarm helped them escape a 2018 chemical fire"
+              title="Bulldog Security — The Jensen Family Story"
             />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-16 h-16 rounded-full bg-white/90 shadow-lg flex items-center justify-center" aria-hidden="true">
-                <div className="w-0 h-0 border-y-[12px] border-y-transparent border-l-[18px] border-l-brand-600 ml-1.5" />
-              </div>
-            </div>
           </div>
         </Container>
       </section>
