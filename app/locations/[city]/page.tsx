@@ -23,6 +23,26 @@ import {
   type LocationCity,
   type SatelliteCity,
 } from "@/lib/locations";
+
+// Returns the parent + sibling satellites for a given location, used for
+// internal linking on each page. For office cities, returns its satellites.
+// For satellites, returns its parent + sibling satellites.
+function getSiblings(loc: ResolvedLoc): {
+  parent?: LocationCity;
+  siblings: SatelliteCity[];
+} {
+  if (loc.isSatellite) {
+    const parent = (loc.data as SatelliteCity);
+    const parentLoc = getLocationBySlug(parent.parentSlug);
+    const siblings = SATELLITES.filter(
+      (s) => s.parentSlug === parent.parentSlug && s.slug !== parent.slug,
+    );
+    return { parent: parentLoc, siblings };
+  }
+  const office = loc.data as LocationCity;
+  const siblings = SATELLITES.filter((s) => s.parentSlug === office.slug);
+  return { siblings };
+}
 import { SITE } from "@/lib/site";
 
 type Props = { params: Promise<{ city: string }> };
@@ -467,14 +487,28 @@ export default async function LocationPage({ params }: Props) {
             </div>
             <h3 className="mt-3 font-display text-2xl text-ink">Nearby cities</h3>
             <div className="mt-5 flex flex-wrap gap-2">
-              {loc.nearby.map((n) => (
-                <span
-                  key={n}
-                  className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-cream px-3 py-1 text-sm text-ink"
-                >
-                  {n}
-                </span>
-              ))}
+              {loc.nearby.map((n) => {
+                const sat = SATELLITES.find((s) => s.city === n);
+                if (sat) {
+                  return (
+                    <Link
+                      key={n}
+                      href={`/locations/${sat.slug}`}
+                      className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-cream px-3 py-1 text-sm text-ink hover:border-brand-600 hover:text-brand-700 transition-colors"
+                    >
+                      {n}
+                    </Link>
+                  );
+                }
+                return (
+                  <span
+                    key={n}
+                    className="inline-flex items-center gap-1 rounded-full border border-zinc-300 bg-cream px-3 py-1 text-sm text-ink"
+                  >
+                    {n}
+                  </span>
+                );
+              })}
               <Link
                 href="/locations"
                 className="inline-flex items-center gap-1 rounded-full bg-brand-600 px-3 py-1 text-sm font-semibold text-white hover:bg-brand-700 transition-colors"
