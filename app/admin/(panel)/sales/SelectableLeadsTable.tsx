@@ -370,9 +370,9 @@ export function SelectableLeadsTable({
                   <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                     <a
                       href={`/admin/sales/leads/${lead.id}`}
-                      className="rounded-md border border-[#1d3554] bg-[#0b1a2e] px-2.5 py-1 text-xs font-medium text-[#cfd9e5] transition hover:border-[#3a94d6] hover:text-white"
+                      className="inline-block whitespace-nowrap rounded-md border border-[#1d3554] bg-[#0b1a2e] px-2.5 py-1 text-xs font-medium text-[#cfd9e5] transition hover:border-[#3a94d6] hover:text-white"
                     >
-                      Open →
+                      Open&nbsp;→
                     </a>
                   </td>
                 </tr>
