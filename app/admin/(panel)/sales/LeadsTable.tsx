@@ -50,6 +50,9 @@ export function LeadsTable({
             <th className="px-5 py-3 font-medium">Status</th>
             <th className="px-5 py-3 font-medium">Compliance</th>
             <th className="px-5 py-3 font-medium">Scraped</th>
+            <th className="px-3 py-3 font-medium">
+              <span className="sr-only">Actions</span>
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-[#1d3554]">
@@ -97,6 +100,14 @@ export function LeadsTable({
               </td>
               <td className="px-5 py-3 text-xs text-[#7a8aa0]">
                 {formatDate(lead.scrapedAt)}
+              </td>
+              <td className="px-3 py-3 text-right">
+                <a
+                  href={`/admin/sales/leads/${lead.id}`}
+                  className="rounded-md border border-[#1d3554] bg-[#0b1a2e] px-2.5 py-1 text-xs font-medium text-[#cfd9e5] transition hover:border-[#3a94d6] hover:text-white"
+                >
+                  Open →
+                </a>
               </td>
             </tr>
           ))}

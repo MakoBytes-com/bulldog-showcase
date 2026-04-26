@@ -279,6 +279,9 @@ export function SelectableLeadsTable({
               <th className="px-5 py-3 font-medium">{dateLabel}</th>
               <th className="px-5 py-3 font-medium">Status</th>
               <th className="px-5 py-3 font-medium">Compliance</th>
+              <th className="px-3 py-3 font-medium">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#1d3554]">
@@ -363,6 +366,14 @@ export function SelectableLeadsTable({
                     ) : (
                       <span className="text-[#7a8aa0]">Mail-only</span>
                     )}
+                  </td>
+                  <td className="px-3 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                    <a
+                      href={`/admin/sales/leads/${lead.id}`}
+                      className="rounded-md border border-[#1d3554] bg-[#0b1a2e] px-2.5 py-1 text-xs font-medium text-[#cfd9e5] transition hover:border-[#3a94d6] hover:text-white"
+                    >
+                      Open →
+                    </a>
                   </td>
                 </tr>
               );
