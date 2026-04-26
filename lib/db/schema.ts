@@ -322,6 +322,30 @@ export const competitorIntel = pgTable("competitor_intel", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Individual scraped customer complaints from BBB. Powers the
+// "Recent complaints" feed under each competitor in the panel.
+// Refreshed weekly via the scrape-competitors cron; deduped by
+// (competitor_slug, body_hash) so re-scrapes don't double up.
+export const competitorComplaints = pgTable(
+  "competitor_complaints",
+  {
+    id: serial("id").primaryKey(),
+    competitorSlug: varchar("competitor_slug", { length: 80 }).notNull(),
+    bodyHash: varchar("body_hash", { length: 64 }).notNull(),
+    filedDate: varchar("filed_date", { length: 16 }), // MM/DD/YYYY as-shown
+    complaintType: varchar("complaint_type", { length: 80 }),
+    status: varchar("status", { length: 40 }),
+    body: text("body").notNull(),
+    scrapedAt: timestamp("scraped_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("uniq_competitor_complaint").on(t.competitorSlug, t.bodyHash),
+    index("idx_competitor_complaint_slug").on(t.competitorSlug),
+    index("idx_competitor_complaint_filed").on(t.filedDate),
+  ],
+);
+
 export const media = pgTable("media", {
   id: serial("id").primaryKey(),
   alt: varchar("alt"),
@@ -354,3 +378,5 @@ export type SalesLead = typeof salesLeads.$inferSelect;
 export type NewSalesLead = typeof salesLeads.$inferInsert;
 export type CompetitorIntel = typeof competitorIntel.$inferSelect;
 export type NewCompetitorIntel = typeof competitorIntel.$inferInsert;
+export type CompetitorComplaint = typeof competitorComplaints.$inferSelect;
+export type NewCompetitorComplaint = typeof competitorComplaints.$inferInsert;

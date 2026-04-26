@@ -15,6 +15,8 @@
 
 import "server-only";
 
+import { createHash } from "node:crypto";
+
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
 
@@ -26,6 +28,14 @@ export type BbbStats = {
   totalReviews: number | null;
   averageReviewRating: number | null;
   yearsInBusiness: number | null;
+};
+
+export type BbbComplaint = {
+  bodyHash: string; // sha256 of body — primary dedupe key per competitor
+  filedDate: string | null; // MM/DD/YYYY as displayed
+  complaintType: string | null; // "Order Issues", "Billing", etc
+  status: string | null; // "Resolved", "Answered", etc
+  body: string;
 };
 
 function pluck(html: string, pattern: RegExp): string | null {
@@ -104,6 +114,102 @@ export async function fetchBbbStats(bbbUrl: string): Promise<BbbStats> {
     averageReviewRating,
     yearsInBusiness,
   };
+}
+
+/**
+ * Fetch the most recent customer complaints from a competitor's BBB
+ * /complaints subpath. BBB renders complaint cards via client-side
+ * JS so we need ScrapingBee's render_js=true (more credits, but
+ * unavoidable for this data).
+ *
+ * Returns up to ~10 most recent complaint summaries — that's what
+ * BBB shows on page 1. Older complaints are accessible via paging
+ * but for competitor-intel purposes the freshest 10 is plenty.
+ */
+export async function fetchBbbComplaints(
+  bbbProfileUrl: string,
+): Promise<BbbComplaint[]> {
+  const apiKey = process.env.SCRAPINGBEE_API_KEY;
+  if (!apiKey) {
+    throw new Error("SCRAPINGBEE_API_KEY not set");
+  }
+  const complaintsUrl = bbbProfileUrl.replace(/\/?$/, "") + "/complaints";
+
+  const proxyUrl = new URL("https://app.scrapingbee.com/api/v1/");
+  proxyUrl.searchParams.set("api_key", apiKey);
+  proxyUrl.searchParams.set("url", complaintsUrl);
+  proxyUrl.searchParams.set("premium_proxy", "true");
+  proxyUrl.searchParams.set("country_code", "us");
+  proxyUrl.searchParams.set("render_js", "true");
+  proxyUrl.searchParams.set("wait", "2500");
+
+  const resp = await fetch(proxyUrl.toString(), {
+    headers: { "User-Agent": UA },
+    cache: "no-store",
+  });
+  if (!resp.ok) {
+    const body = await resp.text().catch(() => "");
+    throw new Error(
+      `ScrapingBee complaints HTTP ${resp.status} for ${complaintsUrl}: ${body.slice(0, 160)}`,
+    );
+  }
+  const html = await resp.text();
+
+  // Extract every <div class="...complaint-body...">...</div>. Anchor to
+  // a closing </div> on the same level — naive but the rendered HTML
+  // doesn't nest more <div> inside the body content.
+  const bodyMatches = [
+    ...html.matchAll(
+      /class="[^"]*complaint-body[^"]*"[^>]*>([\s\S]*?)<\/div>/g,
+    ),
+  ];
+
+  const complaints: BbbComplaint[] = [];
+  let cursor = 0;
+
+  for (const m of bodyMatches) {
+    const rawBody = m[1];
+    const body = rawBody
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#x27;/g, "'")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/REMOVED/g, "[REMOVED]") // BBB redacts $$ and PII as REMOVED
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (body.length < 30) continue; // skip empty / too-short
+    if (body.length > 4000) continue; // suspicious — probably matched too greedy
+
+    // Walk backward in the HTML up to ~1800 chars from match start
+    // to find this card's header metadata (Date / Type / Status).
+    const start = Math.max(cursor, m.index! - 1800);
+    const header = html.slice(start, m.index!);
+    cursor = m.index! + m[0].length;
+
+    const dateMatch = header.match(/Date:\s*<[^>]+>\s*(\d{1,2}\/\d{1,2}\/\d{4})/);
+    const typeMatch = header.match(/Type:\s*<[^>]+>\s*([^<]+)</);
+    const statusMatch = header.match(/Status:\s*<[^>]+>\s*([^<]+)</);
+
+    const filedDate = dateMatch?.[1] ?? null;
+    const complaintType = typeMatch?.[1].trim() ?? null;
+    const status = statusMatch?.[1].trim() ?? null;
+
+    const bodyHash = createHash("sha256").update(body).digest("hex");
+
+    complaints.push({
+      bodyHash,
+      filedDate,
+      complaintType,
+      status,
+      body,
+    });
+  }
+
+  return complaints;
 }
 
 /**

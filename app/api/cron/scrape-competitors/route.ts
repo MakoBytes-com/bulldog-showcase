@@ -8,7 +8,11 @@ import { NextResponse } from "next/server";
 
 import { db, schema } from "@/lib/db";
 import { logError, logWarn } from "@/lib/log";
-import { COMPETITOR_SEED, fetchBbbStats } from "@/lib/scrapers/bbbProfile";
+import {
+  COMPETITOR_SEED,
+  fetchBbbComplaints,
+  fetchBbbStats,
+} from "@/lib/scrapers/bbbProfile";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,7 +30,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  const results: Array<{ slug: string; ok: boolean; err?: string }> = [];
+  const results: Array<{ slug: string; ok: boolean; err?: string; newComplaints?: number }> = [];
 
   for (const c of COMPETITOR_SEED) {
     try {
@@ -62,7 +66,39 @@ export async function GET(req: Request) {
             updatedAt: new Date(),
           },
         });
-      results.push({ slug: c.slug, ok: true });
+      // Now pull recent complaints for this competitor.
+      let newComplaints = 0;
+      try {
+        const complaints = await fetchBbbComplaints(c.bbbUrl);
+        for (const cmp of complaints) {
+          const inserted = await db
+            .insert(schema.competitorComplaints)
+            .values({
+              competitorSlug: c.slug,
+              bodyHash: cmp.bodyHash,
+              filedDate: cmp.filedDate,
+              complaintType: cmp.complaintType,
+              status: cmp.status,
+              body: cmp.body,
+            })
+            .onConflictDoNothing({
+              target: [
+                schema.competitorComplaints.competitorSlug,
+                schema.competitorComplaints.bodyHash,
+              ],
+            })
+            .returning({ id: schema.competitorComplaints.id });
+          if (inserted.length > 0) newComplaints++;
+        }
+      } catch (err) {
+        // Don't fail the whole competitor if just complaints fetch fails;
+        // the headline stats already landed above.
+        logWarn("cron/scrape-competitors", `complaints fetch failed for ${c.slug}`, {
+          err: err instanceof Error ? err.message : String(err),
+        });
+      }
+
+      results.push({ slug: c.slug, ok: true, newComplaints });
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       results.push({ slug: c.slug, ok: false, err: msg });

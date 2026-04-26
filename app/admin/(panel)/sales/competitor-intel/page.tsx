@@ -1,6 +1,7 @@
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 import { db, schema } from "@/lib/db";
+import type { CompetitorComplaint } from "@/lib/db/schema";
 import { Card } from "../../../_components/ui";
 
 export const dynamic = "force-dynamic";
@@ -22,10 +23,27 @@ function formatNumber(n: number | null) {
 }
 
 export default async function CompetitorIntelPage() {
-  const rows = await db
-    .select()
-    .from(schema.competitorIntel)
-    .orderBy(desc(schema.competitorIntel.totalComplaints));
+  const [rows, allComplaints] = await Promise.all([
+    db
+      .select()
+      .from(schema.competitorIntel)
+      .orderBy(desc(schema.competitorIntel.totalComplaints)),
+    db
+      .select()
+      .from(schema.competitorComplaints)
+      .orderBy(desc(schema.competitorComplaints.scrapedAt))
+      .limit(500),
+  ]);
+
+  const complaintsBySlug: Record<string, CompetitorComplaint[]> = {};
+  for (const c of allComplaints) {
+    if (!complaintsBySlug[c.competitorSlug]) {
+      complaintsBySlug[c.competitorSlug] = [];
+    }
+    if (complaintsBySlug[c.competitorSlug].length < 5) {
+      complaintsBySlug[c.competitorSlug].push(c);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -56,73 +74,115 @@ export default async function CompetitorIntelPage() {
           </p>
         </Card>
       ) : (
-        <Card className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-[#1d3554] text-xs uppercase tracking-wider text-[#7a8aa0]">
-              <tr>
-                <th className="px-5 py-3 font-medium">Competitor</th>
-                <th className="px-5 py-3 text-right font-medium">BBB Rating</th>
-                <th className="px-5 py-3 text-right font-medium">Complaints</th>
-                <th className="px-5 py-3 text-right font-medium">Reviews</th>
-                <th className="px-5 py-3 text-right font-medium">
-                  Avg Review
-                </th>
-                <th className="px-5 py-3 text-right font-medium">Years</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1d3554]">
-              {rows.map((c) => (
-                <tr
-                  key={c.id}
-                  className="text-[#cfd9e5] hover:bg-[#0e2b5c]/40"
-                >
-                  <td className="px-5 py-3">
-                    <a
-                      href={c.bbbUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-medium text-white underline-offset-4 hover:underline"
-                    >
-                      {c.name}
-                    </a>
-                    {c.bbbAccredited ? (
-                      <div className="mt-0.5 text-[10px] uppercase tracking-wider text-emerald-300">
-                        BBB Accredited{" "}
-                        {c.accreditedSince ? `since ${c.accreditedSince}` : ""}
-                      </div>
-                    ) : null}
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <span
-                      className={`text-xl font-semibold ${ratingColor(c.bbbRating)}`}
+        <div className="space-y-4">
+          {rows.map((c) => (
+            <Card key={c.id} className="p-5">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex-1 min-w-[200px]">
+                  <a
+                    href={c.bbbUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-lg font-semibold text-white underline-offset-4 hover:underline"
+                  >
+                    {c.name}
+                  </a>
+                  {c.bbbAccredited ? (
+                    <div className="mt-0.5 text-[10px] uppercase tracking-wider text-emerald-300">
+                      BBB Accredited{" "}
+                      {c.accreditedSince ? `since ${c.accreditedSince}` : ""}
+                    </div>
+                  ) : null}
+                </div>
+                <div className="flex items-center gap-6 text-sm">
+                  <div className="text-center">
+                    <div className="text-[10px] uppercase tracking-widest text-[#7a8aa0]">
+                      BBB
+                    </div>
+                    <div
+                      className={`mt-0.5 text-2xl font-semibold ${ratingColor(c.bbbRating)}`}
                     >
                       {c.bbbRating ?? "—"}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3 text-right font-mono text-[13px] text-rose-200">
-                    {formatNumber(c.totalComplaints)}
-                  </td>
-                  <td className="px-5 py-3 text-right font-mono text-[13px]">
-                    {formatNumber(c.totalReviews)}
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    {c.averageReviewRating ? (
-                      <span className="font-mono text-[13px] text-white">
-                        {Number(c.averageReviewRating).toFixed(1)}
-                        <span className="ml-1 text-xs text-[#7a8aa0]">/ 5</span>
-                      </span>
-                    ) : (
-                      <span className="text-[#7a8aa0]">—</span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3 text-right text-xs text-[#7a8aa0]">
-                    {c.yearsInBusiness ?? "—"}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[10px] uppercase tracking-widest text-[#7a8aa0]">
+                      Complaints
+                    </div>
+                    <div className="mt-0.5 font-mono text-lg font-semibold text-rose-200">
+                      {formatNumber(c.totalComplaints)}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[10px] uppercase tracking-widest text-[#7a8aa0]">
+                      Reviews
+                    </div>
+                    <div className="mt-0.5 font-mono text-lg text-[#cfd9e5]">
+                      {formatNumber(c.totalReviews)}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-[10px] uppercase tracking-widest text-[#7a8aa0]">
+                      Years
+                    </div>
+                    <div className="mt-0.5 font-mono text-lg text-[#cfd9e5]">
+                      {c.yearsInBusiness ?? "—"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {(complaintsBySlug[c.slug]?.length ?? 0) > 0 ? (
+                <div className="mt-4 rounded-lg border border-[#1d3554] bg-[#0b1a2e] p-4">
+                  <div className="mb-3 flex items-baseline justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-amber-300">
+                      Recent complaints (live from BBB)
+                    </div>
+                    <a
+                      href={`${c.bbbUrl.replace(/\/?$/, "")}/complaints`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-[#4fa8e0] underline-offset-4 hover:underline"
+                    >
+                      All on BBB ↗
+                    </a>
+                  </div>
+                  <div className="space-y-3">
+                    {complaintsBySlug[c.slug].map((cmp) => (
+                      <div
+                        key={cmp.id}
+                        className="border-l-2 border-rose-400/40 pl-3 text-sm"
+                      >
+                        <div className="mb-1 flex flex-wrap items-baseline gap-2 text-[11px] text-[#7a8aa0]">
+                          {cmp.filedDate ? (
+                            <span className="font-mono">{cmp.filedDate}</span>
+                          ) : null}
+                          {cmp.complaintType ? (
+                            <span className="rounded bg-rose-500/10 px-1.5 py-0.5 text-rose-300">
+                              {cmp.complaintType}
+                            </span>
+                          ) : null}
+                          {cmp.status ? (
+                            <span className="text-[#cfd9e5]">{cmp.status}</span>
+                          ) : null}
+                        </div>
+                        <p className="text-[#cfd9e5]">
+                          {cmp.body.length > 350
+                            ? `${cmp.body.slice(0, 350)}…`
+                            : cmp.body}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-3 text-xs text-[#7a8aa0]">
+                  No complaints scraped yet for this competitor — the
+                  next cron run will populate them.
+                </p>
+              )}
+            </Card>
+          ))}
+        </div>
       )}
 
       <Card className="p-6">
