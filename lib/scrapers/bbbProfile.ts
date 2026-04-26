@@ -128,24 +128,24 @@ export const COMPETITOR_SEED = [
     slug: "adt",
     name: "ADT LLC",
     bbbUrl:
-      "https://www.bbb.org/us/fl/boca-raton/profile/burglar-alarm-systems/adt-llc-0633-90000334",
+      "https://www.bbb.org/us/ma/west-springfield/profile/burglar-alarm-systems/adt-llc-0261-100542",
   },
   {
     slug: "brinks",
-    name: "Brinks Home Security",
+    name: "Brinks Home",
     bbbUrl:
-      "https://www.bbb.org/us/tx/dallas/profile/burglar-alarm-systems/brinks-home-0875-90020495",
+      "https://www.bbb.org/us/tx/dallas/profile/burglar-alarm-systems/brinks-home-0875-90346299",
   },
   {
     slug: "ring",
     name: "Ring",
     bbbUrl:
-      "https://www.bbb.org/us/ca/santa-monica/profile/security-systems/ring-1216-100012671",
+      "https://www.bbb.org/us/ca/santa-monica/profile/security-cameras/ring-1216-258909",
   },
   {
     slug: "frontpoint",
     name: "Frontpoint Security",
     bbbUrl:
-      "https://www.bbb.org/us/va/mclean/profile/burglar-alarm-systems/frontpoint-security-solutions-0241-90089935",
+      "https://www.bbb.org/us/va/sterling/profile/burglar-alarm-systems/frontpoint-security-solutions-llc-0241-213917567",
   },
 ] as const;
