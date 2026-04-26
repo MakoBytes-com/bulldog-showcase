@@ -6,6 +6,8 @@
 import { and, desc, eq, isNotNull, ne, sql } from "drizzle-orm";
 
 import { db, schema } from "./index";
+import { scoreLead } from "@/lib/leadScoring";
+import type { SalesLead } from "@/lib/db/schema";
 
 // Address-having predicate: street address must start with a digit.
 // Anything without a real address is hidden from the panel — it stays
@@ -13,23 +15,37 @@ import { db, schema } from "./index";
 // sales team only sees actionable rows.
 const HAS_ADDRESS = sql`${schema.salesLeads.address} ~ '^[0-9]'`;
 
+export type SortKey = "score" | "value" | "date";
+
 export type LeadsPage = {
   leads: typeof schema.salesLeads.$inferSelect[];
   page: number;
   perPage: number;
   totalDistinct: number;
   totalPages: number;
+  sort: SortKey;
 };
 
 const PER_PAGE = 100;
 
+function apprValOf(lead: SalesLead): number {
+  const meta = (lead.metadata ?? {}) as Record<string, unknown>;
+  const hcad = (meta.hcad ?? {}) as Record<string, unknown>;
+  return typeof hcad.apprVal === "number" ? hcad.apprVal : -1;
+}
+
 export async function listLeadsBySource(
   source: "home-sale" | "business-filing",
   page = 1,
-  filters: { minValue?: number } = {},
+  filters: { minValue?: number; sort?: SortKey } = {},
 ): Promise<LeadsPage> {
   const safePage = Math.max(1, Math.floor(page));
   const minValue = filters.minValue && filters.minValue > 0 ? filters.minValue : 0;
+  // Default sort differs per source: home-sale defaults to score (the
+  // intelligent ranking), business-filing defaults to date (freshness
+  // is already most of the score for that source).
+  const sort: SortKey =
+    filters.sort ?? (source === "home-sale" ? "score" : "date");
 
   // Pull ALL address-having rows for this source, then collapse
   // duplicates (multiple filings on the same property), then paginate
@@ -58,6 +74,18 @@ export async function listLeadsBySource(
     deduped.push(lead);
   }
 
+  // Sort the deduplicated set. Score and value sorts only make sense
+  // for home-sale (HCAD enrichment is the differentiator); date is
+  // already the input order so it's a no-op.
+  if (source === "home-sale" && sort === "score") {
+    const withScore = deduped.map((l) => ({ l, s: scoreLead(l).total }));
+    withScore.sort((a, b) => b.s - a.s);
+    deduped.length = 0;
+    deduped.push(...withScore.map((x) => x.l));
+  } else if (source === "home-sale" && sort === "value") {
+    deduped.sort((a, b) => apprValOf(b) - apprValOf(a));
+  }
+
   const totalDistinct = deduped.length;
   const totalPages = Math.max(1, Math.ceil(totalDistinct / PER_PAGE));
   const start = (safePage - 1) * PER_PAGE;
@@ -69,6 +97,7 @@ export async function listLeadsBySource(
     perPage: PER_PAGE,
     totalDistinct,
     totalPages,
+    sort,
   };
 }
 

@@ -3,11 +3,13 @@
 import { useMemo, useState, useTransition } from "react";
 
 import type { SalesLead } from "@/lib/db/schema";
+import { scoreLead } from "@/lib/leadScoring";
 
 import { Card } from "../../_components/ui";
 import { exportSelectedAction } from "./actions";
 
 type LeadSource = "home-sale" | "business-filing";
+type SortKey = "score" | "value" | "date";
 
 const STATUS_COLORS: Record<string, string> = {
   new: "bg-[#3a94d6]/20 text-[#3a94d6]",
@@ -56,6 +58,14 @@ function formatMoney(n: number | null): string {
   return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
 }
 
+function scoreColor(total: number): string {
+  // 8-10 = green (hot), 5-7 = amber (warm), 1-4 = grey (cool), 0 = rose (DNC)
+  if (total === 0) return "bg-rose-500/15 text-rose-300";
+  if (total >= 8) return "bg-emerald-500/15 text-emerald-300";
+  if (total >= 5) return "bg-amber-500/15 text-amber-300";
+  return "bg-[#1d3554] text-[#7a8aa0]";
+}
+
 function downloadCsv(filename: string, csv: string) {
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -79,6 +89,7 @@ export function SelectableLeadsTable({
   emptyBody,
   coverage,
   minValue = 0,
+  sort = "date",
 }: {
   leads: SalesLead[];
   source: LeadSource;
@@ -90,6 +101,7 @@ export function SelectableLeadsTable({
   emptyBody: string;
   coverage: { label: string; counties: string[]; note?: string };
   minValue?: number;
+  sort?: SortKey;
 }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [isPending, startTransition] = useTransition();
@@ -148,6 +160,37 @@ export function SelectableLeadsTable({
   const end = start + leads.length - 1;
   const noun = isHome ? "lead" : "business";
 
+  // Build the persisted query-string fragment so pagination + sort
+  // links keep the active filter and sort. Always reset page to 1
+  // when changing sort so users don't end up on an empty page.
+  const filterFrag = minValue > 0 ? `minValue=${minValue}` : "";
+  function sortHref(nextSort: SortKey): string {
+    const parts: string[] = [];
+    if (filterFrag) parts.push(filterFrag);
+    if (nextSort !== "score") parts.push(`sort=${nextSort}`);
+    return parts.length > 0 ? `${basePath}?${parts.join("&")}` : basePath;
+  }
+  function SortHeader({
+    label,
+    keyName,
+    align = "left",
+  }: {
+    label: string;
+    keyName: SortKey;
+    align?: "left" | "right";
+  }) {
+    const active = sort === keyName;
+    const cls = `cursor-pointer transition hover:text-white ${
+      active ? "text-white" : ""
+    }`;
+    return (
+      <a href={sortHref(keyName)} className={cls}>
+        {label}
+        {active ? <span className="ml-1 text-[#3a94d6]">↓</span> : null}
+      </a>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <p className="rounded-xl border border-[#1d3554] bg-[#0b1a2e] px-5 py-3 text-xs text-[#cfd9e5]">
@@ -185,6 +228,9 @@ export function SelectableLeadsTable({
           action={basePath}
           className="flex flex-wrap items-center gap-3 rounded-xl border border-[#1d3554] bg-[#0b1a2e] px-5 py-3 text-sm"
         >
+          {sort !== "score" ? (
+            <input type="hidden" name="sort" value={sort} />
+          ) : null}
           <label htmlFor="minValue" className="text-[#cfd9e5]">
             Min property value:
           </label>
@@ -274,9 +320,22 @@ export function SelectableLeadsTable({
               <th className="px-5 py-3 font-medium">{nameLabel}</th>
               <th className="px-5 py-3 font-medium">Address</th>
               {isHome ? (
-                <th className="px-5 py-3 text-right font-medium">Value</th>
+                <>
+                  <th className="px-3 py-3 text-center font-medium">
+                    <SortHeader label="Score" keyName="score" />
+                  </th>
+                  <th className="px-5 py-3 text-right font-medium">
+                    <SortHeader label="Value" keyName="value" align="right" />
+                  </th>
+                </>
               ) : null}
-              <th className="px-5 py-3 font-medium">{dateLabel}</th>
+              <th className="px-5 py-3 font-medium">
+                {isHome ? (
+                  <SortHeader label={dateLabel} keyName="date" />
+                ) : (
+                  dateLabel
+                )}
+              </th>
               <th className="px-5 py-3 font-medium">Status</th>
               <th className="px-5 py-3 font-medium">Compliance</th>
               <th className="px-3 py-3 font-medium">
@@ -289,6 +348,7 @@ export function SelectableLeadsTable({
               const isSelected = selected.has(lead.id);
               const fdate = filingDate(lead, source);
               const { apprVal, matchSource } = hcadInfo(lead);
+              const score = isHome ? scoreLead(lead) : null;
               return (
                 <tr
                   key={lead.id}
@@ -337,10 +397,27 @@ export function SelectableLeadsTable({
                       </div>
                     ) : null}
                   </td>
-                  {isHome ? (
-                    <td className="px-5 py-3 text-right font-mono text-[13px] text-[#cfd9e5]">
-                      {formatMoney(apprVal)}
-                    </td>
+                  {isHome && score ? (
+                    <>
+                      <td
+                        className="px-3 py-3 text-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span
+                          title={score.components
+                            .map((c) => `${c.label}: ${c.value} (${c.reason})`)
+                            .join("\n")}
+                          className={`inline-block min-w-[2rem] cursor-help rounded-md px-2 py-0.5 text-center text-xs font-semibold ${scoreColor(
+                            score.total,
+                          )}`}
+                        >
+                          {score.total}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 text-right font-mono text-[13px] text-[#cfd9e5]">
+                        {formatMoney(apprVal)}
+                      </td>
+                    </>
                   ) : null}
                   <td className="px-5 py-3 text-xs text-[#cfd9e5]">
                     {fdate ?? <span className="text-[#7a8aa0]">—</span>}
@@ -384,7 +461,10 @@ export function SelectableLeadsTable({
 
       {totalPages > 1 ? (
         (() => {
-          const filterQs = minValue > 0 ? `&minValue=${minValue}` : "";
+          const extras: string[] = [];
+          if (minValue > 0) extras.push(`minValue=${minValue}`);
+          if (sort !== "score" && isHome) extras.push(`sort=${sort}`);
+          const filterQs = extras.length > 0 ? `&${extras.join("&")}` : "";
           return (
             <div className="flex items-center justify-between gap-3 rounded-xl border border-[#1d3554] bg-[#0e2b5c]/40 px-5 py-2.5 text-sm">
               <span className="text-[#cfd9e5]">

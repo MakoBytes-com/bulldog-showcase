@@ -1,18 +1,23 @@
-import { listLeadsBySource } from "@/lib/db/salesQueries";
+import { listLeadsBySource, type SortKey } from "@/lib/db/salesQueries";
 
 import { SelectableLeadsTable } from "../SelectableLeadsTable";
 
 export const dynamic = "force-dynamic";
 
+const VALID_SORTS: SortKey[] = ["score", "value", "date"];
+
 export default async function HomeSalesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; minValue?: string }>;
+  searchParams: Promise<{ page?: string; minValue?: string; sort?: string }>;
 }) {
-  const { page: pageStr, minValue: minValueStr } = await searchParams;
+  const { page: pageStr, minValue: minValueStr, sort: sortStr } = await searchParams;
   const page = pageStr ? parseInt(pageStr, 10) : 1;
   const minValue = minValueStr ? parseInt(minValueStr, 10) : 0;
-  const result = await listLeadsBySource("home-sale", page, { minValue });
+  const sort: SortKey = VALID_SORTS.includes(sortStr as SortKey)
+    ? (sortStr as SortKey)
+    : "score";
+  const result = await listLeadsBySource("home-sale", page, { minValue, sort });
 
   return (
     <SelectableLeadsTable
@@ -23,6 +28,7 @@ export default async function HomeSalesPage({
       totalDistinct={result.totalDistinct}
       basePath="/admin/sales/home-sales"
       minValue={minValue}
+      sort={result.sort}
       emptyTitle="No home-sale leads with addresses yet"
       emptyBody="Once the daily Harris County scrape + HCAD enrichment runs, mailable residential transfers will land here."
       coverage={{
