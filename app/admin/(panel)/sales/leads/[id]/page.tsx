@@ -1,8 +1,10 @@
+import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
 
 import { db, schema } from "@/lib/db";
+import { listLeadEvents, type LeadEventWithUser } from "@/lib/db/leadEvents";
 import { Card } from "../../../../_components/ui";
 
 import { EditForm } from "./EditForm";
@@ -43,6 +45,8 @@ export default async function LeadDetailPage({
     .limit(1);
   const lead = rows[0];
   if (!lead) notFound();
+
+  const events = await listLeadEvents(leadId, 50);
 
   const meta = (lead.metadata ?? {}) as Record<string, unknown>;
   const hcad = (meta.hcad ?? {}) as Record<string, unknown>;
@@ -184,8 +188,149 @@ export default async function LeadDetailPage({
           <EditForm lead={lead} />
         </div>
       </Card>
+
+      <Card className="p-6">
+        <h3 className="text-base font-semibold text-white">Activity</h3>
+        <p className="mt-1 text-sm text-[#cfd9e5]">
+          Every status change, note edit, export, and DNC toggle is
+          recorded here with the user who made it. Most recent first.
+        </p>
+        <div className="mt-5">
+          <ActivityTimeline events={events} />
+        </div>
+      </Card>
     </div>
   );
+}
+
+function ActivityTimeline({ events }: { events: LeadEventWithUser[] }) {
+  if (events.length === 0) {
+    return (
+      <p className="text-sm text-[#7a8aa0]">
+        No activity yet — changes you make below will start appearing here.
+      </p>
+    );
+  }
+  return (
+    <ol className="space-y-3">
+      {events.map((e) => {
+        const desc = describeEvent(e);
+        const who = e.userName ?? (e.userId === null ? "System" : "User");
+        const when = formatActivityTime(e.createdAt);
+        return (
+          <li
+            key={e.id}
+            className="flex items-start gap-3 border-l-2 border-[#1d3554] pl-4"
+          >
+            <div className="-ml-[1.4rem] mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-[#3a94d6]" />
+            <div className="flex-1">
+              <div className="text-sm text-[#cfd9e5]">{desc}</div>
+              <div className="mt-0.5 text-xs text-[#7a8aa0]">
+                <span className="font-medium text-[#cfd9e5]">{who}</span>
+                {" · "}
+                {when}
+              </div>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function describeEvent(e: LeadEventWithUser): ReactNode {
+  const detail = e.detail ?? {};
+  switch (e.kind) {
+    case "status_change":
+      return (
+        <>
+          Status changed{" "}
+          <span className="font-mono text-[12px] text-[#7a8aa0]">
+            {String(detail.from ?? "?")}
+          </span>{" "}
+          →{" "}
+          <span className="font-mono text-[12px] text-emerald-300">
+            {String(detail.to ?? "?")}
+          </span>
+        </>
+      );
+    case "bulk_status_change":
+      return (
+        <>
+          Status changed (bulk action,{" "}
+          {String(detail.batchSize ?? "?")} leads){" "}
+          <span className="font-mono text-[12px] text-[#7a8aa0]">
+            {String(detail.from ?? "?")}
+          </span>{" "}
+          →{" "}
+          <span className="font-mono text-[12px] text-emerald-300">
+            {String(detail.to ?? "?")}
+          </span>
+        </>
+      );
+    case "note_changed":
+      if (detail.cleared) return "Notes cleared";
+      return (
+        <>
+          Notes edited{" "}
+          <span className="text-[#7a8aa0]">
+            ({String(detail.length ?? 0)} chars)
+          </span>
+        </>
+      );
+    case "next_action_set":
+      return (
+        <>
+          Next action set for{" "}
+          <span className="font-mono text-[12px] text-[#cfd9e5]">
+            {typeof detail.at === "string"
+              ? new Date(detail.at).toLocaleString()
+              : "—"}
+          </span>
+        </>
+      );
+    case "next_action_cleared":
+      return "Next action cleared";
+    case "dnc_set":
+      return (
+        <span className="text-rose-300">
+          Internal Do-Not-Contact flag set
+        </span>
+      );
+    case "dnc_cleared":
+      return "Internal Do-Not-Contact flag cleared";
+    case "exported":
+      return (
+        <>
+          Exported to CSV (batch of {String(detail.batchSize ?? "?")}){" "}
+          <span className="font-mono text-[11px] text-[#7a8aa0]">
+            {String(detail.filename ?? "")}
+          </span>
+        </>
+      );
+    default:
+      return e.kind;
+  }
+}
+
+function formatActivityTime(d: Date): string {
+  const now = Date.now();
+  const t = d.getTime();
+  const sec = Math.floor((now - t) / 1000);
+  if (sec < 60) return "just now";
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 7) return `${day}d ago`;
+  return d.toLocaleString("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function DRow({

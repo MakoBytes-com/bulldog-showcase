@@ -271,6 +271,30 @@ export const salesLeads = pgTable(
   ],
 );
 
+// Per-lead activity log. Every status change, note edit, export, DNC
+// toggle, and bulk action writes a row here so a sales rep can see
+// exactly what happened to a lead and when. user_id is null for system
+// events (e.g. an automated re-enrichment writing back HCAD data);
+// otherwise it's the admin user who triggered the action. detail holds
+// kind-specific payload (e.g. {from: "new", to: "mailed"} for a status
+// change, or {batchSize: 23} for a bulk export).
+export const salesLeadEvents = pgTable(
+  "sales_lead_events",
+  {
+    id: serial("id").primaryKey(),
+    leadId: integer("lead_id").notNull(),
+    userId: integer("user_id"),
+    kind: varchar("kind", { length: 40 }).notNull(),
+    detail: jsonb("detail"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("idx_sales_lead_events_lead").on(t.leadId, t.createdAt.desc()),
+  ],
+);
+
 // Distributed rate-limiter store. One row per attempt; checked by
 // COUNT(*) within a window for a given bucket_key (e.g.
 // "login:ip:1.2.3.4", "login:email:foo@bar.com"). Rows older than the
@@ -380,3 +404,5 @@ export type CompetitorIntel = typeof competitorIntel.$inferSelect;
 export type NewCompetitorIntel = typeof competitorIntel.$inferInsert;
 export type CompetitorComplaint = typeof competitorComplaints.$inferSelect;
 export type NewCompetitorComplaint = typeof competitorComplaints.$inferInsert;
+export type SalesLeadEvent = typeof salesLeadEvents.$inferSelect;
+export type NewSalesLeadEvent = typeof salesLeadEvents.$inferInsert;

@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 
 import { db, schema } from "@/lib/db";
 import { requireAdminUserId } from "@/lib/auth/requireAdmin";
+import { logLeadEvent } from "@/lib/db/leadEvents";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -30,7 +31,7 @@ export async function updateLeadAction(
   _prev: ActionResult | null,
   formData: FormData,
 ): Promise<ActionResult> {
-  await requireAdminUserId();
+  const userId = await requireAdminUserId();
 
   const id = Number(formData.get("id"));
   if (!id || !Number.isFinite(id)) {
@@ -42,6 +43,7 @@ export async function updateLeadAction(
 
   const notesRaw = formData.get("notes");
   const notes = typeof notesRaw === "string" ? notesRaw.trim() : null;
+  const notesNormalized = notes && notes.length > 0 ? notes : null;
 
   const nextActionRaw = formData.get("next_action_at");
   let nextActionAt: Date | null = null;
@@ -52,16 +54,68 @@ export async function updateLeadAction(
 
   const dncFlag = formData.get("internal_do_not_contact") === "on";
 
+  // Read the lead BEFORE the update so we can diff it and log
+  // semantically meaningful events (status_change, note_changed, etc.)
+  // rather than a single opaque "edited" event.
+  const before = await db
+    .select()
+    .from(schema.salesLeads)
+    .where(eq(schema.salesLeads.id, id))
+    .limit(1);
+  const prev = before[0];
+  if (!prev) return { ok: false, error: "Lead not found." };
+
   await db
     .update(schema.salesLeads)
     .set({
       status,
-      notes: notes && notes.length > 0 ? notes : null,
+      notes: notesNormalized,
       nextActionAt,
       internalDoNotContact: dncFlag,
       updatedAt: new Date(),
     })
     .where(eq(schema.salesLeads.id, id));
+
+  // Log each meaningful change. Done after the write so audit-log
+  // failures can't leave the row half-updated.
+  if (prev.status !== status) {
+    await logLeadEvent({
+      leadId: id,
+      userId,
+      kind: "status_change",
+      detail: { from: prev.status, to: status },
+    });
+  }
+  if ((prev.notes ?? null) !== notesNormalized) {
+    await logLeadEvent({
+      leadId: id,
+      userId,
+      kind: "note_changed",
+      detail: {
+        cleared: notesNormalized === null,
+        length: notesNormalized?.length ?? 0,
+      },
+    });
+  }
+  const prevNextActionMs = prev.nextActionAt
+    ? new Date(prev.nextActionAt).getTime()
+    : null;
+  const newNextActionMs = nextActionAt ? nextActionAt.getTime() : null;
+  if (prevNextActionMs !== newNextActionMs) {
+    await logLeadEvent({
+      leadId: id,
+      userId,
+      kind: newNextActionMs === null ? "next_action_cleared" : "next_action_set",
+      detail: newNextActionMs ? { at: nextActionAt!.toISOString() } : undefined,
+    });
+  }
+  if (prev.internalDoNotContact !== dncFlag) {
+    await logLeadEvent({
+      leadId: id,
+      userId,
+      kind: dncFlag ? "dnc_set" : "dnc_cleared",
+    });
+  }
 
   revalidatePath(`/admin/sales/leads/${id}`);
   revalidatePath("/admin/sales/home-sales");

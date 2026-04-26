@@ -6,7 +6,15 @@ import type { SalesLead } from "@/lib/db/schema";
 import { scoreLead } from "@/lib/leadScoring";
 
 import { Card } from "../../_components/ui";
-import { exportSelectedAction } from "./actions";
+import { bulkUpdateStatusAction, exportSelectedAction } from "./actions";
+
+const BULK_STATUSES: { value: string; label: string }[] = [
+  { value: "saved", label: "Saved (in pipeline)" },
+  { value: "contacted", label: "Contacted" },
+  { value: "quoted", label: "Quoted" },
+  { value: "won", label: "Won" },
+  { value: "dead", label: "Dead" },
+];
 
 type LeadSource = "home-sale" | "business-filing";
 type SortKey = "score" | "value" | "date";
@@ -107,6 +115,7 @@ export function SelectableLeadsTable({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [lastExport, setLastExport] = useState<string | null>(null);
+  const [bulkStatus, setBulkStatus] = useState<string>("");
   const [filterInput, setFilterInput] = useState<string>(
     minValue > 0 ? String(minValue) : "",
   );
@@ -144,6 +153,36 @@ export function SelectableLeadsTable({
       downloadCsv(result.filename, result.csv);
       setLastExport(`Exported ${result.count} lead${result.count === 1 ? "" : "s"} → marked as Mailed`);
       setSelected(new Set());
+    });
+  }
+
+  function handleBulkStatus() {
+    if (selected.size === 0 || !bulkStatus) return;
+    setError(null);
+    const label =
+      BULK_STATUSES.find((s) => s.value === bulkStatus)?.label ?? bulkStatus;
+    if (
+      !confirm(
+        `Mark ${selected.size} selected ${selected.size === 1 ? "lead" : "leads"} as "${label}"?`,
+      )
+    ) {
+      return;
+    }
+    startTransition(async () => {
+      const result = await bulkUpdateStatusAction(
+        [...selected],
+        source,
+        bulkStatus,
+      );
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setLastExport(
+        `Updated ${result.count} lead${result.count === 1 ? "" : "s"} → ${label}`,
+      );
+      setSelected(new Set());
+      setBulkStatus("");
     });
   }
 
@@ -287,18 +326,42 @@ export function SelectableLeadsTable({
             <span className="ml-3 text-xs text-rose-300">{error}</span>
           ) : null}
         </div>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={selected.size === 0 || isPending}
-          className="rounded-lg bg-[#006fb9] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#3a94d6] disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {isPending
-            ? "Exporting…"
-            : selected.size === 0
-              ? "Export Selected → CSV"
-              : `Export ${selected.size} → CSV & Mark Mailed`}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            value={bulkStatus}
+            onChange={(e) => setBulkStatus(e.target.value)}
+            disabled={selected.size === 0 || isPending}
+            aria-label="Bulk status update"
+            className="rounded-md border border-[#1d3554] bg-[#0b1a2e] px-3 py-2 text-sm text-white focus:border-[#3a94d6] focus:outline-none disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <option value="">Bulk status…</option>
+            {BULK_STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>
+                Mark as {s.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            onClick={handleBulkStatus}
+            disabled={selected.size === 0 || !bulkStatus || isPending}
+            className="rounded-lg border border-[#1d3554] bg-[#0e2b5c] px-3 py-2 text-sm font-semibold text-white transition hover:border-[#3a94d6] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Apply
+          </button>
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={selected.size === 0 || isPending}
+            className="rounded-lg bg-[#006fb9] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#3a94d6] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {isPending
+              ? "Working…"
+              : selected.size === 0
+                ? "Export Selected → CSV"
+                : `Export ${selected.size} → CSV & Mark Mailed`}
+          </button>
+        </div>
       </div>
 
       <Card className="overflow-x-auto">
