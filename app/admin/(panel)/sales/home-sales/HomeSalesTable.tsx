@@ -230,8 +230,12 @@ export function HomeSalesTable({ leads }: { leads: SalesLead[] }) {
       <p className="text-xs text-[#7a8aa0]">
         Tip: click anywhere on a row to select it. The CSV is the
         universal format every print-and-mail house accepts (Click2Mail,
-        MailMyStatements, Lob, your local printer). Once exported, leads
-        are marked as &ldquo;mailed&rdquo; and move into{" "}
+        MailMyStatements, Lob, your local printer) and is{" "}
+        <strong className="text-[#cfd9e5]">Salesforce-import-ready</strong>{" "}
+        &mdash; the columns map directly to Lead fields (name, street,
+        city, state, postal code) via Data Loader or the Setup &rarr;
+        Data Import Wizard. Once exported, leads are marked as
+        &ldquo;mailed&rdquo; and move into{" "}
         <a href="/admin/sales/saved" className="text-[#4fa8e0] underline-offset-4 hover:underline">
           Saved Leads
         </a>
