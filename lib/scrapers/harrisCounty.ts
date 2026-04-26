@@ -41,7 +41,20 @@ export type DeedRecord = {
   filmCode: string | null;
   grantor: string[]; // raw uppercase names as recorded
   grantee: string[];
-  description: string | null; // subdivision / abstract / lot info
+
+  // Legal description fields — captured separately so HCAD can be
+  // matched on subdivision + lot + block (the stable parcel identifier
+  // that doesn't depend on HCAD's owner-update lag).
+  description: string | null; // subdivision name only
+  section: string | null;
+  lot: string | null;
+  block: string | null;
+  abstract: string | null;
+  tract: string | null;
+  unit: string | null;
+  reserve: string | null;
+  outlot: string | null;
+
   rawText: string; // unparsed cell text for debugging
 };
 
@@ -162,12 +175,28 @@ function parseRecords(html: string): DeedRecord[] {
       .map((m) => m[1].trim())
       .filter(Boolean);
 
-    // Description (subdivision / abstract / lot)
-    const descM = cell.match(/Desc\s*:\s*(.+?)(?=\s+(?:Sec|Lot|Block|Unit|Reserve|Abstract|Tract|Outlot|Pgs?\b|$))/);
-    const description = descM?.[1].trim() ?? null;
+    // Each labeled legal-description field. Lazy regex to grab the
+    // value up to the next labeled field or end of cell.
+    function pluck(label: string): string | null {
+      const re = new RegExp(
+        `${label}\\s*:\\s*(.+?)(?=\\s+(?:Desc|Sec|Lot|Block|Unit|Reserve|Abstract|Tract|Outlot|Pgs?|$|\\d+\\s*$))`,
+      );
+      const m = cell.match(re);
+      return m ? m[1].trim() : null;
+    }
 
-    // Page count — small integer that follows description fields.
-    const pgM = cell.match(/\b(\d{1,3})\s+RP-\d{4}-\d{6}\s*$/);
+    const description = pluck("Desc");
+    const section = pluck("Sec");
+    const lot = pluck("Lot");
+    const block = pluck("Block");
+    const abstract = pluck("Abstract");
+    const tract = pluck("Tract");
+    const unit = pluck("Unit");
+    const reserve = pluck("Reserve");
+    const outlot = pluck("Outlot");
+
+    // Trailing small integer = page count.
+    const pgM = cell.match(/\b(\d{1,3})\s*$/);
     const pages = pgM ? parseInt(pgM[1], 10) : null;
 
     records.push({
@@ -175,10 +204,18 @@ function parseRecords(html: string): DeedRecord[] {
       fileDate,
       type,
       pages,
-      filmCode: null, // film code can equal the file number; not parsed separately yet
+      filmCode: null,
       grantor,
       grantee,
       description,
+      section,
+      lot,
+      block,
+      abstract,
+      tract,
+      unit,
+      reserve,
+      outlot,
       rawText: cell.slice(0, 800),
     });
   }

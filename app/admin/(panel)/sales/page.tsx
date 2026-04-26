@@ -9,24 +9,17 @@ function sourceTotal(by: Record<string, number> | undefined) {
 }
 
 export default async function SalesOverviewPage() {
-  const { byKey, total } = await getLeadCounts();
+  const { byKey, pendingByKey, total, pendingTotal } = await getLeadCounts();
   const homeSales = byKey["home-sale"] ?? {};
-  const businesses = byKey["business-filing"] ?? {};
 
   const tiles = [
     {
       label: "New Home Sales",
       total: sourceTotal(homeSales),
       newCount: homeSales.new ?? 0,
+      pending: pendingByKey["home-sale"] ?? 0,
       caption:
-        "Recent residential property transfers in Bulldog's service area. Source: county recorder of deeds.",
-    },
-    {
-      label: "New Businesses",
-      total: sourceTotal(businesses),
-      newCount: businesses.new ?? 0,
-      caption:
-        "New business filings in TX + FL. Source: TX SOS + FL Sunbiz entity formations.",
+        "Address-confirmed residential transfers in Harris County. Pending = awaiting HCAD address resolution (resolves over 30-60 days).",
     },
   ];
 
@@ -35,9 +28,9 @@ export default async function SalesOverviewPage() {
       <Card className="p-6">
         <h2 className="text-lg font-semibold text-white">Pipeline overview</h2>
         <p className="mt-2 text-sm text-[#cfd9e5]">
-          {total === 0
-            ? "Scrapers aren't wired yet — once they run, fresh leads land here daily. Use the tabs to jump to each source."
-            : `${total.toLocaleString()} total leads across all sources. Drill into a tab to triage.`}
+          {total === 0 && pendingTotal === 0
+            ? "Scrapers aren't wired yet — once they run, fresh leads land here daily."
+            : `${total.toLocaleString()} address-confirmed lead${total === 1 ? "" : "s"} ready to mail. ${pendingTotal.toLocaleString()} more awaiting HCAD address resolution.`}
         </p>
       </Card>
 
@@ -47,13 +40,19 @@ export default async function SalesOverviewPage() {
             <div className="text-xs uppercase tracking-widest text-[#7a8aa0]">
               {t.label}
             </div>
-            <div className="mt-1 flex items-baseline gap-3">
+            <div className="mt-1 flex flex-wrap items-baseline gap-3">
               <span className="text-3xl font-semibold text-white">
                 {t.total.toLocaleString()}
               </span>
+              <span className="text-xs text-[#7a8aa0]">address-confirmed</span>
               {t.newCount > 0 && (
                 <span className="rounded-full bg-[#3a94d6]/20 px-2 py-0.5 text-xs font-medium text-[#3a94d6]">
                   {t.newCount} new
+                </span>
+              )}
+              {t.pending > 0 && (
+                <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-300">
+                  +{t.pending} pending
                 </span>
               )}
             </div>

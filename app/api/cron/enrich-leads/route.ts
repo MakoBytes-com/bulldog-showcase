@@ -15,7 +15,7 @@ import { and, eq, isNull, or, sql } from "drizzle-orm";
 
 import { db, schema } from "@/lib/db";
 import { logError, logWarn } from "@/lib/log";
-import { enrichLeadFromHcad } from "@/lib/scrapers/hcadEnrich";
+import { enrichLead } from "@/lib/scrapers/hcadEnrich";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -61,17 +61,14 @@ export async function GET(req: Request) {
   const errorSamples: string[] = [];
 
   for (const lead of candidates) {
-    // Subdivision hint sits on the original metadata.description from
-    // the Clerk row — we stored that as the placeholder address.
-    const subdivisionHint =
-      typeof lead.metadata === "object" &&
-      lead.metadata !== null &&
-      "description" in lead.metadata
-        ? (lead.metadata as { description?: string }).description ?? null
-        : lead.address;
+    const meta = (lead.metadata ?? {}) as Record<string, unknown>;
+    const grantees = Array.isArray(meta.grantee) ? (meta.grantee as string[]) : [lead.name];
+    const subdivision = typeof meta.description === "string" ? meta.description : null;
+    const lot = typeof meta.lot === "string" ? meta.lot : null;
+    const block = typeof meta.block === "string" ? meta.block : null;
 
     try {
-      const parcel = await enrichLeadFromHcad(lead.name, subdivisionHint);
+      const parcel = await enrichLead({ grantees, subdivision, lot, block });
 
       if (!parcel) {
         stillUnknown++;

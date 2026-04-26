@@ -81,38 +81,56 @@ export async function GET(req: Request) {
         continue;
       }
 
-      // ON CONFLICT DO NOTHING via the (source, external_id) idx.
+      const clerkMetadata = {
+        fileDate: rec.fileDate,
+        type: rec.type,
+        pages: rec.pages,
+        grantor: rec.grantor,
+        grantee: rec.grantee,
+        description: rec.description,
+        section: rec.section,
+        lot: rec.lot,
+        block: rec.block,
+        abstract: rec.abstract,
+        tract: rec.tract,
+        unit: rec.unit,
+        reserve: rec.reserve,
+        outlot: rec.outlot,
+        countyClerk: "Harris County",
+        sourceUrl: `https://www.cclerk.hctx.net/applications/websearch/RP_R.aspx`,
+      };
+
+      // ON CONFLICT, refresh the metadata only — preserve everything
+      // else (status, notes, address from prior enrichment). Lets us
+      // re-scrape after a parser improvement and immediately have the
+      // richer legal-description fields on existing rows without
+      // creating duplicates.
       const result = await db
         .insert(schema.salesLeads)
         .values({
           source: "home-sale",
           externalId: rec.fileNumber,
           name,
-          // Address isn't in the index page — only the description (subdivision).
-          // The actual property address has to be looked up from the deed PDF
-          // itself, which is a follow-up enrichment step. For now we store
-          // the description as the address-substitute.
-          address: rec.description,
-          city: "Houston", // Harris County — predominantly Houston metro
+          address: null, // address comes from HCAD enrichment
+          city: "Houston",
           state: "TX",
           zip: null,
-          metadata: {
-            fileDate: rec.fileDate,
-            type: rec.type,
-            pages: rec.pages,
-            grantor: rec.grantor,
-            grantee: rec.grantee,
-            description: rec.description,
-            countyClerk: "Harris County",
-            sourceUrl: `https://www.cclerk.hctx.net/applications/websearch/RP_R.aspx`,
-          },
+          metadata: clerkMetadata,
           status: "new",
           consentToCall: false,
           dncFlagged: false,
           internalDoNotContact: false,
         })
-        .onConflictDoNothing({
+        .onConflictDoUpdate({
           target: [schema.salesLeads.source, schema.salesLeads.externalId],
+          set: {
+            // jsonb || jsonb merges right-side keys on top of left, so
+            // existing keys (e.g. metadata.hcad set by the enrichment
+            // job) are preserved when the right-side doesn't supply
+            // them. Re-scrapes refresh the Clerk-side fields without
+            // wiping HCAD enrichment.
+            metadata: sql`coalesce(${schema.salesLeads.metadata}, '{}'::jsonb) || ${JSON.stringify(clerkMetadata)}::jsonb`,
+          },
         })
         .returning({ id: schema.salesLeads.id });
 

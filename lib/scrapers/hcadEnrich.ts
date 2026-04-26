@@ -95,6 +95,7 @@ type HcadFeature = {
     address?: string | null;
     city?: string | null;
     zip?: string | null;
+    legal_lines?: string | null;
   };
 };
 
@@ -196,13 +197,153 @@ export async function searchHcadByOwner(
 }
 
 /**
- * High-level: given a Clerk-record buyer name + subdivision hint, return
- * the best parcel match (or null if no confident match).
+ * Search HCAD by subdivision substring + filter by lot/block in legal
+ * description text. Use as a fallback when owner-name match returns
+ * nothing — works for brand-new buyers HCAD hasn't indexed yet because
+ * the parcel itself has been on the books for years under the previous
+ * owner. We just need the address.
+ *
+ * legal_lines text varies wildly ("LT 18 BLK 62", "LOT 18 BLK 62",
+ * "LT-18 BLK-62", "TR 9 BLK 1") so we try several patterns.
+ */
+export async function searchHcadByLegalDescription(opts: {
+  subdivision: string;
+  lot?: string | null;
+  block?: string | null;
+  limit?: number;
+}): Promise<HcadParcel[]> {
+  const { subdivision, lot, block, limit = 100 } = opts;
+  if (!subdivision) return [];
+
+  // Use first 1-2 significant tokens of the subdivision to widen the
+  // initial query. HCAD often appends ", PT SEC 1-3" etc. so an exact
+  // match misses.
+  const subTokens = subdivision
+    .toUpperCase()
+    .split(/[^A-Z0-9]+/)
+    .filter((t) => t.length >= 3);
+  if (subTokens.length === 0) return [];
+
+  // Match parcels whose subdivision starts with the first significant
+  // token. ArcGIS LIKE is case-sensitive in some versions; we already
+  // uppercase. Use UPPER() to be safe.
+  const firstTok = subTokens[0].replace(/'/g, "''");
+  const params = new URLSearchParams({
+    where: `UPPER(subdivision) LIKE '${firstTok}%'`,
+    outFields: "HCAD_NUM,owner,subdivision,address,city,zip,legal_lines",
+    resultRecordCount: String(limit),
+    f: "json",
+    returnGeometry: "false",
+  });
+
+  const url = `${HCAD_QUERY_URL}?${params.toString()}`;
+  const data = (await httpsGetJson(url)) as {
+    features?: HcadFeature[];
+    error?: { message?: string };
+  };
+  if (data.error) {
+    throw new Error(`HCAD legal-desc error: ${data.error.message ?? "unknown"}`);
+  }
+
+  const all = (data.features ?? [])
+    .map((f) => f.attributes)
+    .filter((a) => a.HCAD_NUM && a.address)
+    .map((a) => ({
+      hcadNum: a.HCAD_NUM!,
+      owner: a.owner ?? "",
+      subdivision: a.subdivision ?? null,
+      address: a.address!,
+      city: a.city ?? null,
+      zip: a.zip ?? null,
+      legalLines: a.legal_lines ?? "",
+    }))
+    .filter((p) => !/^0\s/.test(p.address));
+
+  // Now narrow by lot+block embedded in legal_lines.
+  if (!lot && !block) {
+    return all;
+  }
+
+  const lotPatterns = lot
+    ? [
+        new RegExp(`\\bLT\\s*-?\\s*${lot}\\b`),
+        new RegExp(`\\bLOT\\s*-?\\s*${lot}\\b`),
+      ]
+    : [];
+  const blockPatterns = block
+    ? [
+        new RegExp(`\\bBLK\\s*-?\\s*${block}\\b`),
+        new RegExp(`\\bBLOCK\\s*-?\\s*${block}\\b`),
+      ]
+    : [];
+
+  return all.filter((p) => {
+    const ll = (p.legalLines || "").toUpperCase();
+    const lotOk = lotPatterns.length === 0 || lotPatterns.some((re) => re.test(ll));
+    const blockOk = blockPatterns.length === 0 || blockPatterns.some((re) => re.test(ll));
+    return lotOk && blockOk;
+  });
+}
+
+/**
+ * High-level enrichment: try every grantee on the deed, then fall back
+ * to legal-description match. Returns the first confident hit, or null.
+ */
+export async function enrichLead(opts: {
+  grantees: string[];
+  subdivision: string | null;
+  lot?: string | null;
+  block?: string | null;
+}): Promise<HcadParcel | null> {
+  const { grantees, subdivision, lot, block } = opts;
+
+  // Strategy 1: try each grantee owner-name match.
+  for (const name of grantees) {
+    if (!name) continue;
+    try {
+      const candidates = await searchHcadByOwner(name, 10);
+      const picked = pickBest(candidates, subdivision);
+      if (picked) return picked;
+    } catch {
+      // fall through to next grantee
+    }
+  }
+
+  // Strategy 2: legal-description match. Doesn't need HCAD to have
+  // indexed the new owner yet — the parcel is there from the prior
+  // owner.
+  if (subdivision && (lot || block)) {
+    try {
+      const candidates = await searchHcadByLegalDescription({
+        subdivision,
+        lot,
+        block,
+      });
+      // If only 1, take it. If multiple, that's fine — the lot+block
+      // narrowing is already strict enough that a few matches are
+      // typically the same parcel under different owner records.
+      if (candidates.length === 1) return candidates[0];
+      if (candidates.length > 1 && candidates.length <= 3) return candidates[0];
+    } catch {
+      // give up; lead stays unenriched, retry next day
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Backwards-compat shim — old enrichment cron called this. Keep working
+ * for callers that pass a single name + hint.
+ *
+ * @deprecated prefer enrichLead({ grantees, subdivision, lot, block })
  */
 export async function enrichLeadFromHcad(
   ownerName: string,
   subdivisionHint: string | null,
 ): Promise<HcadParcel | null> {
-  const candidates = await searchHcadByOwner(ownerName, 10);
-  return pickBest(candidates, subdivisionHint);
+  return enrichLead({
+    grantees: [ownerName],
+    subdivision: subdivisionHint,
+  });
 }
