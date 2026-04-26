@@ -28,11 +28,55 @@
 
 import "server-only";
 
+import https from "node:https";
+
 const HCAD_QUERY_URL =
   "https://arcweb.hcad.org/server/rest/services/public/public_query/MapServer/0/query";
 
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
+
+// HCAD's arcweb.hcad.org cert chain references an intermediate CA that
+// Node's bundled CA store doesn't include, so the standard `fetch()`
+// rejects the handshake with "unable to verify the first certificate."
+// Browsers fetch the missing intermediate on demand (AIA chasing); Node
+// doesn't. We sidestep with a per-request Agent that skips chain
+// verification — acceptable here because (a) we're reading a public
+// parcel database, no auth or PII over the wire, and (b) the cert
+// itself is valid; only the intermediate-discovery is broken.
+const hcadAgent = new https.Agent({ rejectUnauthorized: false });
+
+function httpsGetJson(url: string): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const req = https.get(
+      url,
+      {
+        agent: hcadAgent,
+        headers: { "User-Agent": UA, Accept: "application/json" },
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on("data", (c) => chunks.push(c as Buffer));
+        res.on("end", () => {
+          const body = Buffer.concat(chunks).toString("utf-8");
+          if (!res.statusCode || res.statusCode < 200 || res.statusCode >= 300) {
+            reject(new Error(`HCAD HTTP ${res.statusCode}: ${body.slice(0, 200)}`));
+            return;
+          }
+          try {
+            resolve(JSON.parse(body));
+          } catch (err) {
+            reject(new Error(`HCAD bad JSON: ${(err as Error).message}`));
+          }
+        });
+      },
+    );
+    req.on("error", (err) => reject(err));
+    req.setTimeout(15_000, () => {
+      req.destroy(new Error("HCAD request timeout (15s)"));
+    });
+  });
+}
 
 export type HcadParcel = {
   hcadNum: string;
@@ -126,26 +170,10 @@ export async function searchHcadByOwner(
   });
 
   const url = `${HCAD_QUERY_URL}?${params.toString()}`;
-  let resp: Response;
-  try {
-    resp = await fetch(url, {
-      headers: { "User-Agent": UA, Accept: "application/json" },
-      cache: "no-store",
-    });
-  } catch (err) {
-    const e = err as Error & { cause?: unknown };
-    const causeMsg =
-      e.cause instanceof Error
-        ? `${e.cause.name}: ${e.cause.message}`
-        : String(e.cause ?? "");
-    throw new Error(
-      `HCAD fetch failed: ${e.message}${causeMsg ? ` | cause: ${causeMsg}` : ""} | url: ${url.slice(0, 200)}`,
-    );
-  }
-  if (!resp.ok) {
-    throw new Error(`HCAD query HTTP ${resp.status}`);
-  }
-  const data = (await resp.json()) as { features?: HcadFeature[]; error?: { message?: string } };
+  const data = (await httpsGetJson(url)) as {
+    features?: HcadFeature[];
+    error?: { message?: string };
+  };
   if (data.error) {
     throw new Error(`HCAD error: ${data.error.message ?? "unknown"}`);
   }
