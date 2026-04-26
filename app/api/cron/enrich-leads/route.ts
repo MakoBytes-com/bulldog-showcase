@@ -58,6 +58,7 @@ export async function GET(req: Request) {
   let enriched = 0;
   let stillUnknown = 0;
   let errors = 0;
+  const errorSamples: string[] = [];
 
   for (const lead of candidates) {
     // Subdivision hint sits on the original metadata.description from
@@ -102,9 +103,11 @@ export async function GET(req: Request) {
       enriched++;
     } catch (err) {
       errors++;
+      const msg = err instanceof Error ? err.message : String(err);
+      if (errorSamples.length < 3) errorSamples.push(`${lead.name}: ${msg}`);
       logWarn("cron/enrich-leads", `lookup failed for lead ${lead.id}`, {
         name: lead.name,
-        err: err instanceof Error ? err.message : String(err),
+        err: msg,
       });
     }
   }
@@ -115,5 +118,6 @@ export async function GET(req: Request) {
     enriched,
     stillUnknown,
     errors,
+    errorSamples,
   });
 }
