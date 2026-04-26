@@ -22,11 +22,12 @@ const CONTENT_NAV: NavItem[] = [
   { href: "/admin/media", label: "Media", icon: "▣" },
 ];
 
-/** Operations nav — analytics, errors, review campaign. */
+/** Operations nav — analytics, errors, review campaign, sales pipeline. */
 const OPS_NAV: NavItem[] = [
   { href: "/admin/analytics", label: "Analytics", icon: "▲" },
   { href: "/admin/errors", label: "Errors", icon: "⚠" },
   { href: "/admin/review-campaign", label: "Reviews", icon: "★" },
+  { href: "/admin/sales", label: "Sales", icon: "$" },
 ];
 
 /** Admin-only nav — user management, settings later. */
