@@ -37,9 +37,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  // Pull leads that need enrichment: home-sale source, no street-style
-  // address yet (we treat the descriptions stored as address as a
-  // placeholder — if it doesn't contain a digit, it's not a street).
+  // Pull leads that need enrichment OR re-enrichment:
+  //   1. Address is null / not street-formatted (unresolved)
+  //   2. Address is fine but metadata.hcad.apprVal is missing
+  //      (resolved before we started capturing property value)
   const candidates = await db
     .select()
     .from(schema.salesLeads)
@@ -48,8 +49,8 @@ export async function GET(req: Request) {
         eq(schema.salesLeads.source, "home-sale"),
         or(
           isNull(schema.salesLeads.address),
-          // No leading digit = not a street address
           sql`${schema.salesLeads.address} !~ '^[0-9]'`,
+          sql`(metadata->'hcad'->>'apprVal') IS NULL`,
         ),
       ),
     )
