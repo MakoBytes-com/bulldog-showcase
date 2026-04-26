@@ -17,12 +17,31 @@ export async function listLeadsBySource(
   source: "home-sale" | "business-filing",
   limit = 100,
 ) {
-  return db
+  // Pull more than `limit` raw rows so that after collapsing duplicate
+  // addresses we still have ~limit distinct mailable leads.
+  const raw = await db
     .select()
     .from(schema.salesLeads)
     .where(and(eq(schema.salesLeads.source, source), HAS_ADDRESS))
     .orderBy(desc(schema.salesLeads.scrapedAt))
-    .limit(limit);
+    .limit(limit * 3);
+
+  // Collapse by mailing address — multiple deeds can land on the same
+  // property in the same window (corrective deed, related parcel,
+  // refinance, etc). Each row is a real Clerk filing but for mail
+  // purposes one postcard per address is what matters. Keep the most
+  // recently scraped row per address (it'll be the first hit since
+  // the SELECT was ordered by scrapedAt DESC).
+  const seen = new Set<string>();
+  const out: typeof raw = [];
+  for (const lead of raw) {
+    const key = (lead.address ?? "").toUpperCase().trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(lead);
+    if (out.length >= limit) break;
+  }
+  return out;
 }
 
 /** Saved + active workflow leads. Excludes 'new' (not yet triaged) and
@@ -43,11 +62,13 @@ export async function listActiveLeads(limit = 200) {
 }
 
 export async function getLeadCounts() {
+  // Count distinct addresses (not raw rows) so the overview matches
+  // what the list view shows after duplicate-address collapsing.
   const rows = await db
     .select({
       source: schema.salesLeads.source,
       status: schema.salesLeads.status,
-      withAddress: sql<number>`count(*) filter (where address ~ '^[0-9]')::int`,
+      withAddress: sql<number>`count(distinct upper(address)) filter (where address ~ '^[0-9]')::int`,
       pending: sql<number>`count(*) filter (where address is null or address !~ '^[0-9]')::int`,
     })
     .from(schema.salesLeads)
