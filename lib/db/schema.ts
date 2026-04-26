@@ -11,7 +11,9 @@
  */
 
 import {
+  bigserial,
   boolean,
+  index,
   integer,
   jsonb,
   numeric,
@@ -187,6 +189,28 @@ export const errorAlerts = pgTable("error_alerts", {
   lastAlertedAt: timestamp("last_alerted_at", { withTimezone: true }).notNull().defaultNow(),
   alertCount: integer("alert_count").notNull(),
 });
+
+// Distributed rate-limiter store. One row per attempt; checked by
+// COUNT(*) within a window for a given bucket_key (e.g.
+// "login:ip:1.2.3.4", "login:email:foo@bar.com"). Rows older than the
+// longest-relevant window are pruned probabilistically by the limiter.
+// Replaces the previous in-memory Map limiter which was bypassable on
+// a multi-instance Vercel deploy by distributing attempts across cold
+// starts.
+export const rateLimitAttempts = pgTable(
+  "rate_limit_attempts",
+  {
+    id: bigserial("id", { mode: "number" }).primaryKey(),
+    bucketKey: varchar("bucket_key", { length: 200 }).notNull(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("idx_rl_bucket_time").on(t.bucketKey, t.occurredAt.desc()),
+    index("idx_rl_occurred_at").on(t.occurredAt),
+  ],
+);
 
 export const media = pgTable("media", {
   id: serial("id").primaryKey(),
