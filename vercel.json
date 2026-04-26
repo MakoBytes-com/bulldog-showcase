@@ -10,6 +10,10 @@
       "schedule": "30 14 * * *"
     },
     {
+      "path": "/api/cron/scrape-competitors",
+      "schedule": "0 14 * * 1"
+    },
+    {
       "path": "/api/cron/error-alerts",
       "schedule": "*/5 * * * *"
     }

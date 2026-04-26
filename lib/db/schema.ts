@@ -293,6 +293,35 @@ export const rateLimitAttempts = pgTable(
   ],
 );
 
+// Competitor Intel — aggregated public reputation stats per competitor
+// from BBB Business Profiles. Powers the Competitor Intel tab in the
+// sales panel; used to write canvasser scripts and ad copy that
+// honestly addresses pain points customers report about competitors.
+// Not used for individual targeting — that's pretexting and we don't
+// do it (see /admin/sales/about for the rationale).
+export const competitorIntel = pgTable("competitor_intel", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 80 }).notNull().unique(),
+  name: varchar("name", { length: 200 }).notNull(),
+  bbbUrl: varchar("bbb_url", { length: 500 }).notNull(),
+
+  bbbRating: varchar("bbb_rating", { length: 8 }), // A+, B, etc
+  bbbAccredited: boolean("bbb_accredited"),
+  accreditedSince: varchar("accredited_since", { length: 32 }),
+  totalComplaints: integer("total_complaints"),
+  totalReviews: integer("total_reviews"),
+  averageReviewRating: numeric("average_review_rating"), // 1.0-5.0
+  yearsInBusiness: integer("years_in_business"),
+
+  // Editable notes — Russell can write the "what to say" angle for each
+  // competitor based on their complaint patterns.
+  pitchNotes: text("pitch_notes"),
+
+  scrapedAt: timestamp("scraped_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const media = pgTable("media", {
   id: serial("id").primaryKey(),
   alt: varchar("alt"),
@@ -323,3 +352,5 @@ export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type NewAnalyticsEvent = typeof analyticsEvents.$inferInsert;
 export type SalesLead = typeof salesLeads.$inferSelect;
 export type NewSalesLead = typeof salesLeads.$inferInsert;
+export type CompetitorIntel = typeof competitorIntel.$inferSelect;
+export type NewCompetitorIntel = typeof competitorIntel.$inferInsert;
