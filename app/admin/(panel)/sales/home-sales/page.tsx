@@ -23,6 +23,11 @@ export default async function HomeSalesPage({
       basePath="/admin/sales/home-sales"
       emptyTitle="No home-sale leads with addresses yet"
       emptyBody="Once the daily Harris County scrape + HCAD enrichment runs, mailable residential transfers will land here."
+      coverage={{
+        label: "Harris County (Houston)",
+        counties: ["Harris"],
+        note: "Surrounding counties (Montgomery, Fort Bend, Brazoria, Galveston) on roadmap.",
+      }}
     />
   );
 }

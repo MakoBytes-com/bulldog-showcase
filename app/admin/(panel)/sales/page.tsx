@@ -22,8 +22,9 @@ export default async function SalesOverviewPage() {
       total: sourceTotal(homeSales),
       newCount: homeSales.new ?? 0,
       pending: pendingByKey["home-sale"] ?? 0,
+      coverage: "Harris County (Houston).",
       caption:
-        "Address-confirmed residential transfers in Harris County. Pending = awaiting HCAD address resolution (resolves over 30-60 days).",
+        "Address-confirmed residential transfers. Pending = awaiting HCAD address resolution (resolves over 30-60 days).",
     },
     {
       label: "New Businesses",
@@ -31,8 +32,10 @@ export default async function SalesOverviewPage() {
       total: sourceTotal(businesses),
       newCount: businesses.new ?? 0,
       pending: pendingByKey["business-filing"] ?? 0,
+      coverage:
+        "Houston metro 9-county area: Harris, Fort Bend, Montgomery, Brazoria, Galveston, Waller, Liberty, Chambers, San Jacinto.",
       caption:
-        "Brand-new Houston-area businesses with mailable street addresses. Source: Texas Comptroller — New Sales Tax Permits dataset, daily refresh.",
+        "Brand-new businesses with mailable street addresses. Source: Texas Comptroller — New Sales Tax Permits, daily refresh.",
     },
   ];
 
@@ -77,6 +80,12 @@ export default async function SalesOverviewPage() {
                 )}
               </div>
               <p className="mt-2 text-sm text-[#cfd9e5]">{t.caption}</p>
+              <div className="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2 text-[11px] text-[#cfd9e5]">
+                <span className="mr-1 font-semibold uppercase tracking-widest text-emerald-300">
+                  Coverage:
+                </span>
+                {t.coverage}
+              </div>
             </Card>
           </Link>
         ))}

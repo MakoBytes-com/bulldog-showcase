@@ -60,6 +60,7 @@ export function SelectableLeadsTable({
   basePath,
   emptyTitle,
   emptyBody,
+  coverage,
 }: {
   leads: SalesLead[];
   source: LeadSource;
@@ -69,6 +70,7 @@ export function SelectableLeadsTable({
   basePath: string;
   emptyTitle: string;
   emptyBody: string;
+  coverage: { label: string; counties: string[]; note?: string };
 }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [isPending, startTransition] = useTransition();
@@ -143,6 +145,17 @@ export function SelectableLeadsTable({
         </a>
         .
       </p>
+
+      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-5 py-3 text-xs text-[#cfd9e5]">
+        <span className="mr-2 font-semibold uppercase tracking-widest text-emerald-300">
+          Coverage:
+        </span>
+        <strong className="text-white">{coverage.label}</strong> &mdash;{" "}
+        {coverage.counties.join(", ")} {coverage.counties.length === 1 ? "county" : "counties"}.
+        {coverage.note ? (
+          <span className="ml-1 text-[#7a8aa0]">{coverage.note}</span>
+        ) : null}
+      </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#1d3554] bg-[#0e2b5c] px-5 py-3">
         <div className="text-sm text-[#cfd9e5]">

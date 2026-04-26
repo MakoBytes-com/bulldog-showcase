@@ -16,6 +16,40 @@ export default function SalesAboutPage() {
         </p>
       </Card>
 
+      <Card className="border-emerald-500/30 bg-emerald-500/5 p-6">
+        <h3 className="text-base font-semibold text-white">
+          Geographic coverage today
+        </h3>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-emerald-300">
+              New Home Sales
+            </div>
+            <p className="mt-1 text-sm text-[#cfd9e5]">
+              <strong className="text-white">Harris County only</strong>{" "}
+              (Houston). Surrounding counties (Montgomery, Fort Bend,
+              Brazoria, Galveston) are on the roadmap &mdash; each
+              county clerk uses different software so each is a
+              separate scraper build.
+            </p>
+          </div>
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-emerald-300">
+              New Businesses
+            </div>
+            <p className="mt-1 text-sm text-[#cfd9e5]">
+              <strong className="text-white">9-county Houston metro</strong>{" "}
+              &mdash; Harris, Fort Bend, Montgomery, Brazoria,
+              Galveston, Waller, Liberty, Chambers, San Jacinto.
+              Filtered from the statewide Texas Comptroller dataset
+              by zip prefix (770&ndash;778). Trivial to expand to
+              other Texas metros (Dallas/Austin/SA/Fort Worth) by
+              adding their zip prefixes.
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <Card className="p-6">
         <h3 className="text-base font-semibold text-white">
           Step 1 &mdash; Scrape Harris County Clerk daily
