@@ -1,7 +1,8 @@
 import Link from "next/link";
 
 import { Card } from "../../_components/ui";
-import { getLeadCounts } from "@/lib/db/salesQueries";
+import { getLeadCounts, getPipelineFreshness } from "@/lib/db/salesQueries";
+import { fetchScrapingBeeUsage } from "@/lib/scrapers/scrapingBeeUsage";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +11,64 @@ function sourceTotal(by: Record<string, number> | undefined) {
   return Object.values(by).reduce((s, n) => s + n, 0);
 }
 
+function formatAge(
+  d: Date | string | null,
+  staleMs = 36 * 60 * 60 * 1000,
+): { text: string; isStale: boolean } {
+  if (!d) return { text: "never", isStale: true };
+  const date = typeof d === "string" ? new Date(d) : d;
+  const ageMs = Date.now() - date.getTime();
+  const min = Math.floor(ageMs / 60_000);
+  const hr = Math.floor(min / 60);
+  const day = Math.floor(hr / 24);
+  let text: string;
+  if (min < 1) text = "just now";
+  else if (min < 60) text = `${min}m ago`;
+  else if (hr < 24) text = `${hr}h ago`;
+  else text = `${day}d ago`;
+  // Stale if older than the per-source threshold (default 36h for daily
+  // crons -- one missed run and we're stale).
+  return { text, isStale: ageMs > staleMs };
+}
+
+function FreshnessTile({
+  label,
+  age,
+  stale,
+}: {
+  label: string;
+  age: string;
+  stale: boolean;
+}) {
+  return (
+    <Card className="p-4">
+      <div className="text-[10px] uppercase tracking-widest text-[#7a8aa0]">
+        {label}
+      </div>
+      <div className="mt-1 flex items-baseline gap-2">
+        <span className={stale ? "text-amber-300" : "text-emerald-300"}>●</span>
+        <span className="text-sm font-medium text-white">{age}</span>
+      </div>
+      <div className="mt-1 text-[10px] text-[#7a8aa0]">
+        {stale ? "stale — check cron" : "healthy"}
+      </div>
+    </Card>
+  );
+}
+
 export default async function SalesOverviewPage() {
-  const { byKey, pendingByKey, total, pendingTotal } = await getLeadCounts();
+  const [{ byKey, pendingByKey, total, pendingTotal }, freshness, sbUsage] =
+    await Promise.all([
+      getLeadCounts(),
+      getPipelineFreshness(),
+      fetchScrapingBeeUsage(),
+    ]);
   const homeSales = byKey["home-sale"] ?? {};
   const businesses = byKey["business-filing"] ?? {};
+  const homeFresh = formatAge(freshness["home-sale"]);
+  const bizFresh = formatAge(freshness["business-filing"]);
+  // Competitor cron is weekly, so the staleness threshold is wider.
+  const compFresh = formatAge(freshness.competitor, 8 * 24 * 60 * 60 * 1000);
 
   const tiles = [
     {
@@ -49,6 +104,61 @@ export default async function SalesOverviewPage() {
             : `${total.toLocaleString()} address-confirmed lead${total === 1 ? "" : "s"} ready to mail. ${pendingTotal.toLocaleString()} more awaiting HCAD address resolution.`}
         </p>
       </Card>
+
+      {/* Live system health: last successful run per source + ScrapingBee budget */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <FreshnessTile
+          label="Home Sales"
+          age={homeFresh.text}
+          stale={homeFresh.isStale}
+        />
+        <FreshnessTile
+          label="New Businesses"
+          age={bizFresh.text}
+          stale={bizFresh.isStale}
+        />
+        <FreshnessTile
+          label="Competitor Intel"
+          age={compFresh.text}
+          stale={compFresh.isStale}
+        />
+        <Card className="p-4">
+          <div className="text-[10px] uppercase tracking-widest text-[#7a8aa0]">
+            ScrapingBee
+          </div>
+          {sbUsage ? (
+            <>
+              <div className="mt-1 font-mono text-lg text-white">
+                {sbUsage.used.toLocaleString()}{" "}
+                <span className="text-xs text-[#7a8aa0]">
+                  / {sbUsage.max.toLocaleString()} credits
+                </span>
+              </div>
+              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-[#0b1a2e]">
+                <div
+                  className={`h-full ${
+                    sbUsage.used / sbUsage.max > 0.85
+                      ? "bg-rose-400"
+                      : sbUsage.used / sbUsage.max > 0.6
+                        ? "bg-amber-400"
+                        : "bg-emerald-400"
+                  }`}
+                  style={{
+                    width: `${Math.min(100, (sbUsage.used / Math.max(1, sbUsage.max)) * 100)}%`,
+                  }}
+                />
+              </div>
+              <div className="mt-1 text-[10px] text-[#7a8aa0]">
+                {sbUsage.remaining.toLocaleString()} remaining this month
+              </div>
+            </>
+          ) : (
+            <div className="mt-1 text-xs text-[#7a8aa0]">
+              SCRAPINGBEE_API_KEY not set
+            </div>
+          )}
+        </Card>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         {tiles.map((t) => (

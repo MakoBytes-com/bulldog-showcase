@@ -89,6 +89,34 @@ export async function listActiveLeads(limit = 200) {
     .limit(limit);
 }
 
+export async function getPipelineFreshness() {
+  // Most-recent scraped_at per source. Tells the user whether the
+  // pipeline is alive or stale.
+  const rows = await db
+    .select({
+      source: schema.salesLeads.source,
+      lastScraped: sql<Date | null>`max(${schema.salesLeads.scrapedAt})`,
+    })
+    .from(schema.salesLeads)
+    .groupBy(schema.salesLeads.source);
+
+  const competitor = await db
+    .select({
+      lastScraped: sql<Date | null>`max(${schema.competitorIntel.scrapedAt})`,
+    })
+    .from(schema.competitorIntel);
+
+  const out: Record<string, Date | null> = {
+    "home-sale": null,
+    "business-filing": null,
+    competitor: competitor[0]?.lastScraped ?? null,
+  };
+  for (const r of rows) {
+    out[r.source] = r.lastScraped;
+  }
+  return out;
+}
+
 export async function getLeadCounts() {
   // Count distinct addresses (not raw rows) so the overview matches
   // what the list view shows after duplicate-address collapsing.
