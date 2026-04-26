@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Card } from "../../_components/ui";
 import { getLeadCounts } from "@/lib/db/salesQueries";
 
@@ -11,15 +13,26 @@ function sourceTotal(by: Record<string, number> | undefined) {
 export default async function SalesOverviewPage() {
   const { byKey, pendingByKey, total, pendingTotal } = await getLeadCounts();
   const homeSales = byKey["home-sale"] ?? {};
+  const businesses = byKey["business-filing"] ?? {};
 
   const tiles = [
     {
       label: "New Home Sales",
+      href: "/admin/sales/home-sales",
       total: sourceTotal(homeSales),
       newCount: homeSales.new ?? 0,
       pending: pendingByKey["home-sale"] ?? 0,
       caption:
         "Address-confirmed residential transfers in Harris County. Pending = awaiting HCAD address resolution (resolves over 30-60 days).",
+    },
+    {
+      label: "New Businesses",
+      href: "/admin/sales/businesses",
+      total: sourceTotal(businesses),
+      newCount: businesses.new ?? 0,
+      pending: pendingByKey["business-filing"] ?? 0,
+      caption:
+        "Brand-new Houston-area businesses with mailable street addresses. Source: Texas Comptroller — New Sales Tax Permits dataset, daily refresh.",
     },
   ];
 
@@ -36,28 +49,36 @@ export default async function SalesOverviewPage() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         {tiles.map((t) => (
-          <Card key={t.label} className="p-6">
-            <div className="text-xs uppercase tracking-widest text-[#7a8aa0]">
-              {t.label}
-            </div>
-            <div className="mt-1 flex flex-wrap items-baseline gap-3">
-              <span className="text-3xl font-semibold text-white">
-                {t.total.toLocaleString()}
-              </span>
-              <span className="text-xs text-[#7a8aa0]">address-confirmed</span>
-              {t.newCount > 0 && (
-                <span className="rounded-full bg-[#3a94d6]/20 px-2 py-0.5 text-xs font-medium text-[#3a94d6]">
-                  {t.newCount} new
+          <Link
+            key={t.label}
+            href={t.href}
+            className="group block"
+          >
+            <Card className="p-6 transition group-hover:-translate-y-0.5 group-hover:border-[#3a94d6]/60">
+              <div className="text-xs uppercase tracking-widest text-[#7a8aa0]">
+                {t.label}
+              </div>
+              <div className="mt-1 flex flex-wrap items-baseline gap-3">
+                <span className="text-3xl font-semibold text-white">
+                  {t.total.toLocaleString()}
                 </span>
-              )}
-              {t.pending > 0 && (
-                <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-300">
-                  +{t.pending} pending
+                <span className="text-xs text-[#7a8aa0]">
+                  address-confirmed
                 </span>
-              )}
-            </div>
-            <p className="mt-2 text-sm text-[#cfd9e5]">{t.caption}</p>
-          </Card>
+                {t.newCount > 0 && (
+                  <span className="rounded-full bg-[#3a94d6]/20 px-2 py-0.5 text-xs font-medium text-[#3a94d6]">
+                    {t.newCount} new
+                  </span>
+                )}
+                {t.pending > 0 && (
+                  <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-300">
+                    +{t.pending} pending
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-sm text-[#cfd9e5]">{t.caption}</p>
+            </Card>
+          </Link>
         ))}
       </div>
 
