@@ -1,20 +1,17 @@
-import { Card } from "../../../_components/ui";
+import { listLeadsBySource } from "@/lib/db/salesQueries";
 
-export default function HomeSalesPage() {
+import { LeadsTable } from "../LeadsTable";
+
+export const dynamic = "force-dynamic";
+
+export default async function HomeSalesPage() {
+  const leads = await listLeadsBySource("home-sale");
+
   return (
-    <Card className="p-6">
-      <h2 className="text-lg font-semibold text-white">New Home Sales</h2>
-      <p className="mt-2 text-sm text-[#cfd9e5]">
-        Scraper not wired yet. Once configured, residential property
-        transfers within Bulldog&rsquo;s service zip codes will land here
-        with sale date, address, buyer name, and (where available)
-        contact info.
-      </p>
-      <p className="mt-4 text-xs text-[#7a8aa0]">
-        Planned source: county recorder of deeds (Harris, Dallas,
-        Tarrant, Bexar, Travis, Orange, Hillsborough). Public records,
-        free, daily updates.
-      </p>
-    </Card>
+    <LeadsTable
+      leads={leads}
+      emptyTitle="No home-sale leads yet"
+      emptyBody="Once the county-recorder scraper is wired and runs, residential property transfers within Bulldog's service zip codes will land here automatically. Planned source: Harris, Dallas, Tarrant, Bexar, Travis, Orange, and Hillsborough counties."
+    />
   );
 }

@@ -190,6 +190,85 @@ export const errorAlerts = pgTable("error_alerts", {
   alertCount: integer("alert_count").notNull(),
 });
 
+// ── Sales leads (scraped prospects) ───────────────────────────────────
+//
+// Single row per scraped prospect. `source` distinguishes home sales
+// from business filings; `external_id` is the source's unique key
+// (e.g. county doc number, SOS file number) so we can dedupe across
+// reruns of the scraper.
+//
+// Compliance flags live on every row so the panel can refuse to wire
+// up a "Call" button for a lead that hasn't been DNC-scrubbed, or
+// that's been internally marked Do Not Contact (anyone who told a
+// previous Bulldog rep "stop"). dnc_scrubbed_at is null until a real
+// DNC scrub has been run; null means "do not call yet."
+
+export const leadSource = pgEnum("enum_sales_leads_source", [
+  "home-sale",
+  "business-filing",
+]);
+
+export const leadStatus = pgEnum("enum_sales_leads_status", [
+  "new",
+  "saved",
+  "mailed",
+  "contacted",
+  "quoted",
+  "won",
+  "dead",
+]);
+
+export const salesLeads = pgTable(
+  "sales_leads",
+  {
+    id: serial("id").primaryKey(),
+    source: leadSource("source").notNull(),
+    externalId: varchar("external_id", { length: 200 }).notNull(),
+
+    // Person / business name + mailing address. Address is the property
+    // for home sales (since the buyer just moved in) or the registered
+    // agent / principal office for businesses.
+    name: varchar("name", { length: 200 }).notNull(),
+    address: varchar("address", { length: 200 }),
+    city: varchar("city", { length: 80 }),
+    state: varchar("state", { length: 4 }),
+    zip: varchar("zip", { length: 12 }),
+
+    // Optional contact data — almost always null at scrape time.
+    // Populated later via skip-trace, web-form opt-in, or manual lookup.
+    contactPhone: varchar("contact_phone", { length: 32 }),
+    contactEmail: varchar("contact_email", { length: 200 }),
+
+    // Source-specific payload (sale price, deed type, business type,
+    // filing date, principal officer name, etc.). Exact shape depends
+    // on the scraper that wrote the row.
+    metadata: jsonb("metadata"),
+
+    // Compliance gates. Both must be reviewed before any phone outreach.
+    dncScrubbedAt: timestamp("dnc_scrubbed_at", { withTimezone: true }),
+    dncFlagged: boolean("dnc_flagged").notNull().default(false),
+    internalDoNotContact: boolean("internal_do_not_contact").notNull().default(false),
+    consentToCall: boolean("consent_to_call").notNull().default(false),
+
+    // Workflow
+    status: leadStatus("status").notNull().default("new"),
+    notes: text("notes"),
+    assignedToUserId: integer("assigned_to_user_id"),
+    nextActionAt: timestamp("next_action_at", { withTimezone: true }),
+
+    scrapedAt: timestamp("scraped_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    // Dedupe key — a single source row can never appear twice.
+    index("idx_sales_leads_source_extid").on(t.source, t.externalId),
+    // Sorting by recency for the list views.
+    index("idx_sales_leads_scraped_at").on(t.scrapedAt.desc()),
+    // Status filter for the saved-leads + pipeline tabs.
+    index("idx_sales_leads_status").on(t.status),
+  ],
+);
+
 // Distributed rate-limiter store. One row per attempt; checked by
 // COUNT(*) within a window for a given bucket_key (e.g.
 // "login:ip:1.2.3.4", "login:email:foo@bar.com"). Rows older than the
@@ -240,3 +319,5 @@ export type ErrorEvent = typeof errorEvents.$inferSelect;
 export type NewErrorEvent = typeof errorEvents.$inferInsert;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type NewAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+export type SalesLead = typeof salesLeads.$inferSelect;
+export type NewSalesLead = typeof salesLeads.$inferInsert;
