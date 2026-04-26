@@ -26,22 +26,32 @@ const PER_PAGE = 100;
 export async function listLeadsBySource(
   source: "home-sale" | "business-filing",
   page = 1,
+  filters: { minValue?: number } = {},
 ): Promise<LeadsPage> {
   const safePage = Math.max(1, Math.floor(page));
+  const minValue = filters.minValue && filters.minValue > 0 ? filters.minValue : 0;
 
   // Pull ALL address-having rows for this source, then collapse
   // duplicates (multiple filings on the same property), then paginate
   // the deduplicated set. Done in JS because the dedupe is by
   // UPPER(address) which doesn't index cleanly with offset/limit.
-  const raw = await db
+  // Property-value filter applied as an extra JSON predicate.
+  const conditions = [eq(schema.salesLeads.source, source), HAS_ADDRESS];
+  if (source === "home-sale" && minValue > 0) {
+    conditions.push(
+      sql`((metadata->'hcad'->>'apprVal')::numeric >= ${minValue})`,
+    );
+  }
+
+  const rawList = await db
     .select()
     .from(schema.salesLeads)
-    .where(and(eq(schema.salesLeads.source, source), HAS_ADDRESS))
+    .where(and(...conditions))
     .orderBy(desc(schema.salesLeads.scrapedAt));
 
   const seen = new Set<string>();
-  const deduped: typeof raw = [];
-  for (const lead of raw) {
+  const deduped: typeof rawList = [];
+  for (const lead of rawList) {
     const key = (lead.address ?? "").toUpperCase().trim();
     if (!key || seen.has(key)) continue;
     seen.add(key);

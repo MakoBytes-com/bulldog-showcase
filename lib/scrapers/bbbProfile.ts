@@ -88,7 +88,10 @@ export async function fetchBbbStats(bbbUrl: string): Promise<BbbStats> {
   }
   const html = await resp.text();
 
-  const bbbRating = pluck(html, /"bbbRating"\s*:\s*"([A-F][+-]?|NR)"/);
+  // ADT (and possibly others) embed the rating as "A " with trailing
+  // whitespace — `"bbbRating":"A "`. Allow that, then trim.
+  const bbbRating =
+    pluck(html, /"bbbRating"\s*:\s*"\s*([A-F][+-]?|NR)\s*"/)?.trim() ?? null;
   const totalComplaints = pluckInt(html, /"complaintsTotal"\s*:\s*(\d+)/);
   const totalReviews = pluckInt(html, /"reviewsTotal"\s*:\s*(\d+)/);
   const yearsInBusiness = pluckInt(html, /"yearsInBusiness"\s*:\s*(\d+)/);

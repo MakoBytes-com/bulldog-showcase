@@ -85,6 +85,9 @@ export type HcadParcel = {
   address: string;
   city: string | null;
   zip: string | null;
+  apprVal: number | null; // appraised value $
+  mktVal: number | null; // market value $
+  matchSource: "owner-name" | "legal-description"; // confidence indicator
 };
 
 type HcadFeature = {
@@ -96,6 +99,8 @@ type HcadFeature = {
     city?: string | null;
     zip?: string | null;
     legal_lines?: string | null;
+    appr_val?: number | null;
+    mkt_val?: number | null;
   };
 };
 
@@ -164,7 +169,7 @@ export async function searchHcadByOwner(
 
   const params = new URLSearchParams({
     where: `owner LIKE '${safe}%'`,
-    outFields: "HCAD_NUM,owner,subdivision,address,city,zip",
+    outFields: "HCAD_NUM,owner,subdivision,address,city,zip,appr_val,mkt_val",
     resultRecordCount: String(limit),
     f: "json",
     returnGeometry: "false",
@@ -189,6 +194,9 @@ export async function searchHcadByOwner(
       address: a.address!,
       city: a.city ?? null,
       zip: a.zip ?? null,
+      apprVal: typeof a.appr_val === "number" ? a.appr_val : null,
+      mktVal: typeof a.mkt_val === "number" ? a.mkt_val : null,
+      matchSource: "owner-name" as const,
     }))
     // Skip parcels whose address starts with "0 " — HCAD uses that for
     // unimproved tracts / right-of-way / common areas, not delivery
@@ -230,7 +238,8 @@ export async function searchHcadByLegalDescription(opts: {
   const firstTok = subTokens[0].replace(/'/g, "''");
   const params = new URLSearchParams({
     where: `UPPER(subdivision) LIKE '${firstTok}%'`,
-    outFields: "HCAD_NUM,owner,subdivision,address,city,zip,legal_lines",
+    outFields:
+      "HCAD_NUM,owner,subdivision,address,city,zip,legal_lines,appr_val,mkt_val",
     resultRecordCount: String(limit),
     f: "json",
     returnGeometry: "false",
@@ -256,12 +265,30 @@ export async function searchHcadByLegalDescription(opts: {
       city: a.city ?? null,
       zip: a.zip ?? null,
       legalLines: a.legal_lines ?? "",
+      apprVal: typeof a.appr_val === "number" ? a.appr_val : null,
+      mktVal: typeof a.mkt_val === "number" ? a.mkt_val : null,
+      matchSource: "legal-description" as const,
     }))
     .filter((p) => !/^0\s/.test(p.address));
 
+  // Strip the internal-only legalLines field for the public return shape.
+  function strip(p: typeof all[number]): HcadParcel {
+    return {
+      hcadNum: p.hcadNum,
+      owner: p.owner,
+      subdivision: p.subdivision,
+      address: p.address,
+      city: p.city,
+      zip: p.zip,
+      apprVal: p.apprVal,
+      mktVal: p.mktVal,
+      matchSource: p.matchSource,
+    };
+  }
+
   // Now narrow by lot+block embedded in legal_lines.
   if (!lot && !block) {
-    return all;
+    return all.map(strip);
   }
 
   const lotPatterns = lot
@@ -277,12 +304,16 @@ export async function searchHcadByLegalDescription(opts: {
       ]
     : [];
 
-  return all.filter((p) => {
-    const ll = (p.legalLines || "").toUpperCase();
-    const lotOk = lotPatterns.length === 0 || lotPatterns.some((re) => re.test(ll));
-    const blockOk = blockPatterns.length === 0 || blockPatterns.some((re) => re.test(ll));
-    return lotOk && blockOk;
-  });
+  return all
+    .filter((p) => {
+      const ll = (p.legalLines || "").toUpperCase();
+      const lotOk =
+        lotPatterns.length === 0 || lotPatterns.some((re) => re.test(ll));
+      const blockOk =
+        blockPatterns.length === 0 || blockPatterns.some((re) => re.test(ll));
+      return lotOk && blockOk;
+    })
+    .map(strip);
 }
 
 /**

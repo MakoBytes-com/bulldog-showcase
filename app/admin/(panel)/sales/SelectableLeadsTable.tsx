@@ -39,6 +39,23 @@ function filingDate(lead: SalesLead, source: LeadSource): string | null {
   return typeof v === "string" ? v : null;
 }
 
+function hcadInfo(lead: SalesLead): {
+  apprVal: number | null;
+  matchSource: string | null;
+} {
+  const meta = (lead.metadata ?? {}) as Record<string, unknown>;
+  const hcad = (meta.hcad ?? {}) as Record<string, unknown>;
+  const apprVal = typeof hcad.apprVal === "number" ? hcad.apprVal : null;
+  const matchSource =
+    typeof hcad.matchSource === "string" ? hcad.matchSource : null;
+  return { apprVal, matchSource };
+}
+
+function formatMoney(n: number | null): string {
+  if (n === null) return "—";
+  return `$${n.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+}
+
 function downloadCsv(filename: string, csv: string) {
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -61,6 +78,7 @@ export function SelectableLeadsTable({
   emptyTitle,
   emptyBody,
   coverage,
+  minValue = 0,
 }: {
   leads: SalesLead[];
   source: LeadSource;
@@ -71,11 +89,15 @@ export function SelectableLeadsTable({
   emptyTitle: string;
   emptyBody: string;
   coverage: { label: string; counties: string[]; note?: string };
+  minValue?: number;
 }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [lastExport, setLastExport] = useState<string | null>(null);
+  const [filterInput, setFilterInput] = useState<string>(
+    minValue > 0 ? String(minValue) : "",
+  );
 
   const allIds = useMemo(() => leads.map((l) => l.id), [leads]);
   const allSelected = selected.size > 0 && allIds.every((id) => selected.has(id));
@@ -157,6 +179,50 @@ export function SelectableLeadsTable({
         ) : null}
       </div>
 
+      {isHome ? (
+        <form
+          method="get"
+          action={basePath}
+          className="flex flex-wrap items-center gap-3 rounded-xl border border-[#1d3554] bg-[#0b1a2e] px-5 py-3 text-sm"
+        >
+          <label htmlFor="minValue" className="text-[#cfd9e5]">
+            Min property value:
+          </label>
+          <div className="flex items-center gap-1">
+            <span className="text-[#7a8aa0]">$</span>
+            <input
+              id="minValue"
+              name="minValue"
+              type="number"
+              min={0}
+              step={50000}
+              value={filterInput}
+              onChange={(e) => setFilterInput(e.target.value)}
+              placeholder="0 (any)"
+              className="w-32 rounded-md border border-[#1d3554] bg-[#0e2b5c] px-3 py-1.5 text-sm text-white placeholder:text-[#7a8aa0] focus:border-[#3a94d6] focus:outline-none"
+            />
+          </div>
+          <button
+            type="submit"
+            className="rounded-md border border-[#3a94d6] bg-[#006fb9] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#3a94d6]"
+          >
+            Apply
+          </button>
+          {minValue > 0 ? (
+            <a
+              href={basePath}
+              className="text-xs text-[#4fa8e0] underline-offset-4 hover:underline"
+            >
+              Clear
+            </a>
+          ) : null}
+          <span className="ml-auto text-xs text-[#7a8aa0]">
+            Filters by HCAD appraised value. Useful for targeting
+            premium-security prospects (e.g. $500K+).
+          </span>
+        </form>
+      ) : null}
+
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#1d3554] bg-[#0e2b5c] px-5 py-3">
         <div className="text-sm text-[#cfd9e5]">
           {selected.size === 0 ? (
@@ -207,6 +273,9 @@ export function SelectableLeadsTable({
               </th>
               <th className="px-5 py-3 font-medium">{nameLabel}</th>
               <th className="px-5 py-3 font-medium">Address</th>
+              {isHome ? (
+                <th className="px-5 py-3 text-right font-medium">Value</th>
+              ) : null}
               <th className="px-5 py-3 font-medium">{dateLabel}</th>
               <th className="px-5 py-3 font-medium">Status</th>
               <th className="px-5 py-3 font-medium">Compliance</th>
@@ -216,6 +285,7 @@ export function SelectableLeadsTable({
             {leads.map((lead) => {
               const isSelected = selected.has(lead.id);
               const fdate = filingDate(lead, source);
+              const { apprVal, matchSource } = hcadInfo(lead);
               return (
                 <tr
                   key={lead.id}
@@ -250,7 +320,25 @@ export function SelectableLeadsTable({
                         {[lead.city, lead.state, lead.zip].filter(Boolean).join(", ")}
                       </div>
                     ) : null}
+                    {isHome && matchSource ? (
+                      <div className="mt-1 text-[10px] uppercase tracking-wider">
+                        {matchSource === "owner-name" ? (
+                          <span className="text-emerald-300/80">
+                            ✓ Owner-name match
+                          </span>
+                        ) : (
+                          <span className="text-amber-300/80">
+                            ◇ Subdivision+lot match
+                          </span>
+                        )}
+                      </div>
+                    ) : null}
                   </td>
+                  {isHome ? (
+                    <td className="px-5 py-3 text-right font-mono text-[13px] text-[#cfd9e5]">
+                      {formatMoney(apprVal)}
+                    </td>
+                  ) : null}
                   <td className="px-5 py-3 text-xs text-[#cfd9e5]">
                     {fdate ?? <span className="text-[#7a8aa0]">—</span>}
                   </td>
@@ -284,37 +372,42 @@ export function SelectableLeadsTable({
       </Card>
 
       {totalPages > 1 ? (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-[#1d3554] bg-[#0e2b5c]/40 px-5 py-2.5 text-sm">
-          <span className="text-[#cfd9e5]">
-            Page {page} of {totalPages}
-          </span>
-          <div className="flex items-center gap-2">
-            {page > 1 ? (
-              <a
-                href={`${basePath}?page=${page - 1}`}
-                className="rounded-md border border-[#1d3554] bg-[#0b1a2e] px-3 py-1.5 text-xs font-medium text-[#cfd9e5] transition hover:border-[#3a94d6] hover:text-white"
-              >
-                ← Prev
-              </a>
-            ) : (
-              <span className="rounded-md border border-[#1d3554]/40 bg-[#0b1a2e]/40 px-3 py-1.5 text-xs text-[#7a8aa0]">
-                ← Prev
+        (() => {
+          const filterQs = minValue > 0 ? `&minValue=${minValue}` : "";
+          return (
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-[#1d3554] bg-[#0e2b5c]/40 px-5 py-2.5 text-sm">
+              <span className="text-[#cfd9e5]">
+                Page {page} of {totalPages}
               </span>
-            )}
-            {page < totalPages ? (
-              <a
-                href={`${basePath}?page=${page + 1}`}
-                className="rounded-md border border-[#1d3554] bg-[#0b1a2e] px-3 py-1.5 text-xs font-medium text-[#cfd9e5] transition hover:border-[#3a94d6] hover:text-white"
-              >
-                Next →
-              </a>
-            ) : (
-              <span className="rounded-md border border-[#1d3554]/40 bg-[#0b1a2e]/40 px-3 py-1.5 text-xs text-[#7a8aa0]">
-                Next →
-              </span>
-            )}
-          </div>
-        </div>
+              <div className="flex items-center gap-2">
+                {page > 1 ? (
+                  <a
+                    href={`${basePath}?page=${page - 1}${filterQs}`}
+                    className="rounded-md border border-[#1d3554] bg-[#0b1a2e] px-3 py-1.5 text-xs font-medium text-[#cfd9e5] transition hover:border-[#3a94d6] hover:text-white"
+                  >
+                    ← Prev
+                  </a>
+                ) : (
+                  <span className="rounded-md border border-[#1d3554]/40 bg-[#0b1a2e]/40 px-3 py-1.5 text-xs text-[#7a8aa0]">
+                    ← Prev
+                  </span>
+                )}
+                {page < totalPages ? (
+                  <a
+                    href={`${basePath}?page=${page + 1}${filterQs}`}
+                    className="rounded-md border border-[#1d3554] bg-[#0b1a2e] px-3 py-1.5 text-xs font-medium text-[#cfd9e5] transition hover:border-[#3a94d6] hover:text-white"
+                  >
+                    Next →
+                  </a>
+                ) : (
+                  <span className="rounded-md border border-[#1d3554]/40 bg-[#0b1a2e]/40 px-3 py-1.5 text-xs text-[#7a8aa0]">
+                    Next →
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })()
       ) : null}
 
     </div>
