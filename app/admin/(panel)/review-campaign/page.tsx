@@ -1,4 +1,4 @@
-import Image from "next/image";
+import qrcode from "qrcode";
 import { Card, PageHeader } from "../../_components/ui";
 import { getGoogleReviewStats } from "@/lib/googleReviews";
 import { getReviewClicksBySource } from "@/lib/analytics/queries";
@@ -16,57 +16,55 @@ const REVIEW_GOAL = 50;
 // so the attribution chart can tell us which channel is actually
 // driving clicks.
 const REVIEW_URLS = {
-  postProject: `${REVIEW_URL}?src=email-post-project`,
+  postInstall: `${REVIEW_URL}?src=email-post-install`,
   longTerm: `${REVIEW_URL}?src=email-long-term`,
   sms: `${REVIEW_URL}?src=sms`,
   invoice: `${REVIEW_URL}?src=invoice`,
   qr: `${REVIEW_URL}?src=qr`,
 };
 
-const EMAIL_POST_PROJECT = `Subject: Quick favor — would you leave us a Google review?
+const EMAIL_POST_INSTALL = `Subject: Quick favor — would you leave us a Google review?
 
 Hi {{firstName}},
 
-Thanks again for letting Bulldog handle {{project}}. Running this for you has been a pleasure.
+Thanks again for trusting Bulldog Security Service with {{project}} at your {{property}}. The crew really enjoyed working with you.
 
-One quick favor: if the work has felt as good on your end as it has on ours, would you leave us a Google review? It genuinely helps other Houston businesses find us — and right now we're actively trying to close the review-volume gap with the bigger MSPs in the area.
+Would you take two minutes to leave us a Google review? It's the single biggest thing that helps neighbors and other local businesses find us when they're searching for someone they can trust to protect their home or office.
 
 Link (opens straight to the review screen):
-${REVIEW_URLS.postProject}
+${REVIEW_URLS.postInstall}
 
-Appreciate it — and call anytime.
+Thanks again — and call anytime, day or night.
 
-— Russell
-Bulldog Security Service
+— The Bulldog Security Team
 (832) 585-0725`;
 
 const EMAIL_LONG_TERM_CLIENT = `Subject: A Google review for Bulldog — would you?
 
 Hi {{firstName}},
 
-You've been with us for {{years}} years — longer than most marriages last. So I'll keep this short.
+You've trusted us to monitor your {{property}} for {{years}} years now. That kind of long relationship means the world to us.
 
-We're working on our visibility in the Houston search results. The single biggest lever is Google reviews. If you'd take two minutes to leave one, it would mean a lot.
+We're working on growing Bulldog's visibility in local search, and Google reviews are by far the biggest lever. If you'd take two minutes to leave one, it would help families and businesses in your area find us when they need a trustworthy security partner.
 
 ${REVIEW_URLS.longTerm}
 
-Whatever you write — even one sentence — is perfect. Thank you.
+Whatever you write — even one sentence — is perfect. Thank you for being with us all these years.
 
-— Russell
-Bulldog Security Service
+— The Bulldog Security Team
 (832) 585-0725`;
 
-const SMS_SHORT = `Hey {{firstName}}, quick favor — would you leave Bulldog a Google review when you get a sec? Takes ~2 min, link here: ${REVIEW_URLS.sms}  Thanks! — Russell`;
+const SMS_SHORT = `Hi {{firstName}}, this is Bulldog Security. Quick favor — would you mind leaving us a Google review when you have a sec? Takes ~2 min: ${REVIEW_URLS.sms}  Thank you!`;
 
-const INVOICE_FOOTER = `Happy with the work? A Google review would mean the world.
+const INVOICE_FOOTER = `Happy with the work? A Google review would mean a lot to us.
 ${REVIEW_URLS.invoice} (or scan the QR code on the right)`;
 
 // Human labels for the attribution chart. Unknown `?src=` values fall
 // through to their raw string so new campaigns show up without a code
 // change.
 const SOURCE_LABELS: Record<string, string> = {
-  "email-post-project": "Post-project email",
-  "email-long-term": "Long-term-client email",
+  "email-post-install": "Post-install email",
+  "email-long-term": "Long-term-customer email",
   sms: "Text / SMS",
   invoice: "Invoice footer",
   qr: "QR card",
@@ -82,21 +80,21 @@ type Template = {
 
 const TEMPLATES: Template[] = [
   {
-    id: "post-project",
-    label: "Post-project email",
-    when: "Send 2-3 days after wrapping a specific piece of work — install, migration, recovery, anything the client remembers clearly.",
-    body: EMAIL_POST_PROJECT,
+    id: "post-install",
+    label: "Post-install email",
+    when: "Send 2-3 days after wrapping a fresh install or service call — when the work is still top-of-mind for the customer.",
+    body: EMAIL_POST_INSTALL,
   },
   {
-    id: "long-term-client",
-    label: "Long-term client email",
-    when: "Send to clients who've been with Bulldog multi-year. Reference the tenure — they know the work.",
+    id: "long-term-customer",
+    label: "Long-term customer email",
+    when: "Send to monitoring customers who've been with Bulldog multiple years. Reference the tenure — they know the work.",
     body: EMAIL_LONG_TERM_CLIENT,
   },
   {
     id: "sms-short",
     label: "Text / SMS (short)",
-    when: "For clients you text casually. Drop it in after a call or in-person visit.",
+    when: "For customers comfortable with text. Drop in after a service call or in-person visit.",
     body: SMS_SHORT,
   },
   {
@@ -108,19 +106,28 @@ const TEMPLATES: Template[] = [
 ];
 
 export default async function ReviewCampaignPage() {
-  const [stats, clicksBySource] = await Promise.all([
+  const [stats, clicksBySource, qrDataUrl] = await Promise.all([
     getGoogleReviewStats(),
     getReviewClicksBySource(),
+    qrcode.toDataURL(REVIEW_URLS.qr, {
+      errorCorrectionLevel: "M",
+      margin: 1,
+      width: 440,
+      color: { dark: "#0b1a2e", light: "#ffffff" },
+    }),
   ]);
   const remaining = Math.max(0, REVIEW_GOAL - stats.count);
   const progressPct = Math.min(100, Math.round((stats.count / REVIEW_GOAL) * 100));
   const totalClicks = clicksBySource.reduce((sum, r) => sum + r.count, 0);
+  const placeWired =
+    Boolean(process.env.GOOGLE_PLACES_API_KEY) &&
+    Boolean(process.env.GOOGLE_PLACES_PLACE_ID);
 
   return (
     <div>
       <PageHeader
         title="Review Campaign"
-        subtitle="Close the Google-review gap. Ask templates, trackable link, QR card."
+        subtitle="Grow the Google-review count. Ask templates, trackable link, QR card."
       />
 
       {/* Progress tile */}
@@ -135,10 +142,13 @@ export default async function ReviewCampaignPage() {
               <span className="text-[#7a8aa0]">/ {REVIEW_GOAL}</span>
             </div>
             <div className="mt-1 text-sm text-[#cfd9e5]">
-              {stats.rating.toFixed(1)} / 5.0 ·{" "}
-              {remaining === 0
-                ? "Goal hit."
-                : `${remaining} reviews to hit ${REVIEW_GOAL}.`}
+              {placeWired
+                ? `${stats.rating.toFixed(1)} / 5.0 · ${
+                    remaining === 0
+                      ? "Goal hit."
+                      : `${remaining} reviews to hit ${REVIEW_GOAL}.`
+                  }`
+                : "Not yet wired to Google Places — set GOOGLE_PLACES_API_KEY + GOOGLE_PLACES_PLACE_ID in Vercel env to pull live stats."}
             </div>
           </div>
           <a
@@ -157,10 +167,10 @@ export default async function ReviewCampaignPage() {
           />
         </div>
         <p className="mt-4 text-xs text-[#7a8aa0]">
-          Why 50: competitors like Braintek have 351+ Google reviews. 50 is the
-          floor where AggregateRating star snippets start materially lifting
-          organic CTR. Pace target: ~8-10 asks per week, ~30% conversion rate
-          on long-term happy clients.
+          Why 50: that&rsquo;s roughly the floor where Google&rsquo;s
+          AggregateRating star snippets start materially lifting organic
+          click-through. Pace target: ~8&ndash;10 asks per week, ~30%
+          conversion rate on long-term happy customers.
         </p>
       </Card>
 
@@ -228,8 +238,9 @@ export default async function ReviewCampaignPage() {
             The short link
           </h3>
           <p className="mb-4 text-xs text-[#7a8aa0]">
-            Click it yourself to test. Sends visitors straight to Google&rsquo;s
-            write-review screen for Bulldog Security Service. We track every click as a{" "}
+            Click it yourself to test. Sends visitors straight to
+            Google&rsquo;s write-review screen for Bulldog Security
+            Service. We track every click as a{" "}
             <code className="rounded bg-[#0b1a2e] px-1 py-0.5 font-mono text-[11px] text-[#4fa8e0]">
               Review Link Clicked
             </code>{" "}
@@ -250,22 +261,25 @@ export default async function ReviewCampaignPage() {
 
         <Card className="flex flex-col items-center p-6">
           <h3 className="mb-3 text-sm font-semibold text-white">QR card</h3>
-          <Image
-            src="/review/qr.png"
-            alt="Scannable QR code that opens the Bulldog review link"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={qrDataUrl}
+            alt="Scannable QR code that opens the Bulldog Security review link"
             width={220}
             height={220}
-            unoptimized
             className="rounded-lg bg-white p-3"
           />
           <a
-            href="/review/qr.png"
-            download="mako-review-qr.png"
+            href={qrDataUrl}
+            download="bulldog-review-qr.png"
             className="mt-4 text-sm text-[#4fa8e0] underline-offset-4 hover:underline"
           >
             Download PNG ↓
           </a>
-          <p className="mt-2 text-[11px] text-[#7a8aa0]">Print on business cards, drop at the front desk, or add to an email signature.</p>
+          <p className="mt-2 max-w-[220px] text-center text-[11px] text-[#7a8aa0]">
+            Print on business cards, leave at the front desk, or add to
+            an email signature.
+          </p>
         </Card>
       </div>
 
@@ -282,6 +296,10 @@ export default async function ReviewCampaignPage() {
           ,{" "}
           <code className="rounded bg-[#0b1a2e] px-1 py-0.5 font-mono text-[11px] text-[#4fa8e0]">
             {"{{project}}"}
+          </code>
+          ,{" "}
+          <code className="rounded bg-[#0b1a2e] px-1 py-0.5 font-mono text-[11px] text-[#4fa8e0]">
+            {"{{property}}"}
           </code>
           , and{" "}
           <code className="rounded bg-[#0b1a2e] px-1 py-0.5 font-mono text-[11px] text-[#4fa8e0]">

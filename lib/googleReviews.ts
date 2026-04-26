@@ -12,20 +12,21 @@ export type GoogleReview = {
   publishedAtIso: string | null;
 };
 
+// Honest empty state when GOOGLE_PLACES_API_KEY + GOOGLE_PLACES_PLACE_ID
+// aren't set yet — show 0 reviews and a Google Maps search link rather
+// than fake numbers. Real stats land once the env vars are wired.
 const FALLBACK: GoogleReviewStats = {
-  rating: 5.0,
-  count: 6,
+  rating: 0,
+  count: 0,
   mapsUrl:
-    "https://www.google.com/maps/search/?api=1&query=Mako+Logics+Montgomery+TX",
+    "https://www.google.com/maps/search/?api=1&query=Bulldog+Security+Service",
   stale: true,
 };
 
 /**
- * Fetches the most recent Google reviews (up to 5) for the Mako Logics
- * place. Currently used by GoogleReviewBadge to surface the rating +
- * count on /, /why-mako, /contact. Review TEXT is only present on the
- * Places API's larger field mask, but we no longer surface review
- * bodies (the testimonials feature was retired 2026-04-25).
+ * Fetches the most recent Google reviews (up to 5) for the Bulldog
+ * Security Service place. Review TEXT is only present on the Places
+ * API's larger field mask. Returns [] when env vars aren't configured.
  */
 export async function fetchGoogleReviews(): Promise<GoogleReview[]> {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
