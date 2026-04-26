@@ -4,8 +4,10 @@ import { useMemo, useState, useTransition } from "react";
 
 import type { SalesLead } from "@/lib/db/schema";
 
-import { Card } from "../../../_components/ui";
+import { Card } from "../../_components/ui";
 import { exportSelectedAction } from "./actions";
+
+type LeadSource = "home-sale" | "business-filing";
 
 const STATUS_COLORS: Record<string, string> = {
   new: "bg-[#3a94d6]/20 text-[#3a94d6]",
@@ -27,6 +29,16 @@ function formatDate(d: Date | string | null) {
   });
 }
 
+function filingDate(lead: SalesLead, source: LeadSource): string | null {
+  const meta = (lead.metadata ?? {}) as Record<string, unknown>;
+  if (source === "home-sale") {
+    const v = meta.fileDate;
+    return typeof v === "string" ? v : null;
+  }
+  const v = meta.permitIssueDate;
+  return typeof v === "string" ? v : null;
+}
+
 function downloadCsv(filename: string, csv: string) {
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -39,16 +51,36 @@ function downloadCsv(filename: string, csv: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export function HomeSalesTable({ leads }: { leads: SalesLead[] }) {
+export function SelectableLeadsTable({
+  leads,
+  source,
+  page,
+  totalPages,
+  totalDistinct,
+  basePath,
+  emptyTitle,
+  emptyBody,
+}: {
+  leads: SalesLead[];
+  source: LeadSource;
+  page: number;
+  totalPages: number;
+  totalDistinct: number;
+  basePath: string;
+  emptyTitle: string;
+  emptyBody: string;
+}) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [lastExport, setLastExport] = useState<string | null>(null);
 
   const allIds = useMemo(() => leads.map((l) => l.id), [leads]);
-  const allSelected =
-    selected.size > 0 && allIds.every((id) => selected.has(id));
+  const allSelected = selected.size > 0 && allIds.every((id) => selected.has(id));
   const someSelected = selected.size > 0 && !allSelected;
+  const isHome = source === "home-sale";
+  const nameLabel = isHome ? "Buyer" : "Business";
+  const dateLabel = isHome ? "Sale" : "Formed";
 
   function toggle(id: number) {
     setSelected((prev) => {
@@ -60,18 +92,15 @@ export function HomeSalesTable({ leads }: { leads: SalesLead[] }) {
   }
 
   function toggleAll() {
-    if (allSelected) {
-      setSelected(new Set());
-    } else {
-      setSelected(new Set(allIds));
-    }
+    if (allSelected) setSelected(new Set());
+    else setSelected(new Set(allIds));
   }
 
   function handleExport() {
     if (selected.size === 0) return;
     setError(null);
     startTransition(async () => {
-      const result = await exportSelectedAction([...selected]);
+      const result = await exportSelectedAction([...selected], source);
       if (!result.ok) {
         setError(result.error);
         return;
@@ -85,31 +114,28 @@ export function HomeSalesTable({ leads }: { leads: SalesLead[] }) {
   if (leads.length === 0) {
     return (
       <Card className="p-8 text-center">
-        <h3 className="text-base font-semibold text-white">
-          No home-sale leads with addresses yet
-        </h3>
-        <p className="mt-2 text-sm text-[#cfd9e5]">
-          Once the daily Harris County scrape + HCAD enrichment runs,
-          mailable residential transfers will land here.
-        </p>
+        <h3 className="text-base font-semibold text-white">{emptyTitle}</h3>
+        <p className="mt-2 text-sm text-[#cfd9e5]">{emptyBody}</p>
       </Card>
     );
   }
 
+  const start = (page - 1) * 100 + 1;
+  const end = start + leads.length - 1;
+  const noun = isHome ? "lead" : "business";
+
   return (
     <div className="space-y-3">
-      {/* Action bar */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#1d3554] bg-[#0e2b5c] px-5 py-3">
         <div className="text-sm text-[#cfd9e5]">
           {selected.size === 0 ? (
             <span>
-              {leads.length} mailable lead{leads.length === 1 ? "" : "s"}.
-              Select rows to export.
+              Showing {start}&ndash;{end} of {totalDistinct.toLocaleString()}{" "}
+              {noun}
+              {totalDistinct === 1 ? "" : "s"}. Select rows to export.
             </span>
           ) : (
-            <span className="font-medium text-white">
-              {selected.size} selected
-            </span>
+            <span className="font-medium text-white">{selected.size} selected</span>
           )}
           {lastExport ? (
             <span className="ml-3 text-xs text-emerald-300">{lastExport}</span>
@@ -148,23 +174,22 @@ export function HomeSalesTable({ leads }: { leads: SalesLead[] }) {
                   className="h-4 w-4 cursor-pointer accent-[#3a94d6]"
                 />
               </th>
-              <th className="px-5 py-3 font-medium">Buyer</th>
+              <th className="px-5 py-3 font-medium">{nameLabel}</th>
               <th className="px-5 py-3 font-medium">Address</th>
+              <th className="px-5 py-3 font-medium">{dateLabel}</th>
               <th className="px-5 py-3 font-medium">Status</th>
               <th className="px-5 py-3 font-medium">Compliance</th>
-              <th className="px-5 py-3 font-medium">Scraped</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#1d3554]">
             {leads.map((lead) => {
               const isSelected = selected.has(lead.id);
+              const fdate = filingDate(lead, source);
               return (
                 <tr
                   key={lead.id}
                   className={`cursor-pointer text-[#cfd9e5] transition ${
-                    isSelected
-                      ? "bg-[#0e2b5c]/60"
-                      : "hover:bg-[#0e2b5c]/40"
+                    isSelected ? "bg-[#0e2b5c]/60" : "hover:bg-[#0e2b5c]/40"
                   }`}
                   onClick={() => toggle(lead.id)}
                 >
@@ -195,6 +220,9 @@ export function HomeSalesTable({ leads }: { leads: SalesLead[] }) {
                       </div>
                     ) : null}
                   </td>
+                  <td className="px-5 py-3 text-xs text-[#cfd9e5]">
+                    {fdate ?? <span className="text-[#7a8aa0]">—</span>}
+                  </td>
                   <td className="px-5 py-3">
                     <span
                       className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium uppercase tracking-wider ${
@@ -217,9 +245,6 @@ export function HomeSalesTable({ leads }: { leads: SalesLead[] }) {
                       <span className="text-[#7a8aa0]">Mail-only</span>
                     )}
                   </td>
-                  <td className="px-5 py-3 text-xs text-[#7a8aa0]">
-                    {formatDate(lead.scrapedAt)}
-                  </td>
                 </tr>
               );
             })}
@@ -227,16 +252,53 @@ export function HomeSalesTable({ leads }: { leads: SalesLead[] }) {
         </table>
       </Card>
 
+      {totalPages > 1 ? (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-[#1d3554] bg-[#0e2b5c]/40 px-5 py-2.5 text-sm">
+          <span className="text-[#cfd9e5]">
+            Page {page} of {totalPages}
+          </span>
+          <div className="flex items-center gap-2">
+            {page > 1 ? (
+              <a
+                href={`${basePath}?page=${page - 1}`}
+                className="rounded-md border border-[#1d3554] bg-[#0b1a2e] px-3 py-1.5 text-xs font-medium text-[#cfd9e5] transition hover:border-[#3a94d6] hover:text-white"
+              >
+                ← Prev
+              </a>
+            ) : (
+              <span className="rounded-md border border-[#1d3554]/40 bg-[#0b1a2e]/40 px-3 py-1.5 text-xs text-[#7a8aa0]">
+                ← Prev
+              </span>
+            )}
+            {page < totalPages ? (
+              <a
+                href={`${basePath}?page=${page + 1}`}
+                className="rounded-md border border-[#1d3554] bg-[#0b1a2e] px-3 py-1.5 text-xs font-medium text-[#cfd9e5] transition hover:border-[#3a94d6] hover:text-white"
+              >
+                Next →
+              </a>
+            ) : (
+              <span className="rounded-md border border-[#1d3554]/40 bg-[#0b1a2e]/40 px-3 py-1.5 text-xs text-[#7a8aa0]">
+                Next →
+              </span>
+            )}
+          </div>
+        </div>
+      ) : null}
+
       <p className="text-xs text-[#7a8aa0]">
         Tip: click anywhere on a row to select it. The CSV is the
         universal format every print-and-mail house accepts (Click2Mail,
         MailMyStatements, Lob, your local printer) and is{" "}
         <strong className="text-[#cfd9e5]">Salesforce-import-ready</strong>{" "}
         &mdash; the columns map directly to Lead fields (name, street,
-        city, state, postal code) via Data Loader or the Setup &rarr;
-        Data Import Wizard. Once exported, leads are marked as
+        city, state, postal code) via Data Loader or Setup &rarr; Data
+        Import Wizard. Once exported, leads are marked as
         &ldquo;mailed&rdquo; and move into{" "}
-        <a href="/admin/sales/saved" className="text-[#4fa8e0] underline-offset-4 hover:underline">
+        <a
+          href="/admin/sales/saved"
+          className="text-[#4fa8e0] underline-offset-4 hover:underline"
+        >
           Saved Leads
         </a>
         .

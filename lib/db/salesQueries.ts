@@ -13,35 +13,53 @@ import { db, schema } from "./index";
 // sales team only sees actionable rows.
 const HAS_ADDRESS = sql`${schema.salesLeads.address} ~ '^[0-9]'`;
 
+export type LeadsPage = {
+  leads: typeof schema.salesLeads.$inferSelect[];
+  page: number;
+  perPage: number;
+  totalDistinct: number;
+  totalPages: number;
+};
+
+const PER_PAGE = 100;
+
 export async function listLeadsBySource(
   source: "home-sale" | "business-filing",
-  limit = 100,
-) {
-  // Pull more than `limit` raw rows so that after collapsing duplicate
-  // addresses we still have ~limit distinct mailable leads.
+  page = 1,
+): Promise<LeadsPage> {
+  const safePage = Math.max(1, Math.floor(page));
+
+  // Pull ALL address-having rows for this source, then collapse
+  // duplicates (multiple filings on the same property), then paginate
+  // the deduplicated set. Done in JS because the dedupe is by
+  // UPPER(address) which doesn't index cleanly with offset/limit.
   const raw = await db
     .select()
     .from(schema.salesLeads)
     .where(and(eq(schema.salesLeads.source, source), HAS_ADDRESS))
-    .orderBy(desc(schema.salesLeads.scrapedAt))
-    .limit(limit * 3);
+    .orderBy(desc(schema.salesLeads.scrapedAt));
 
-  // Collapse by mailing address — multiple deeds can land on the same
-  // property in the same window (corrective deed, related parcel,
-  // refinance, etc). Each row is a real Clerk filing but for mail
-  // purposes one postcard per address is what matters. Keep the most
-  // recently scraped row per address (it'll be the first hit since
-  // the SELECT was ordered by scrapedAt DESC).
   const seen = new Set<string>();
-  const out: typeof raw = [];
+  const deduped: typeof raw = [];
   for (const lead of raw) {
     const key = (lead.address ?? "").toUpperCase().trim();
     if (!key || seen.has(key)) continue;
     seen.add(key);
-    out.push(lead);
-    if (out.length >= limit) break;
+    deduped.push(lead);
   }
-  return out;
+
+  const totalDistinct = deduped.length;
+  const totalPages = Math.max(1, Math.ceil(totalDistinct / PER_PAGE));
+  const start = (safePage - 1) * PER_PAGE;
+  const end = start + PER_PAGE;
+
+  return {
+    leads: deduped.slice(start, end),
+    page: safePage,
+    perPage: PER_PAGE,
+    totalDistinct,
+    totalPages,
+  };
 }
 
 /** Saved + active workflow leads. Excludes 'new' (not yet triaged) and
