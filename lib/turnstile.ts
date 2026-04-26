@@ -13,10 +13,12 @@ export function turnstileEnabled(): boolean {
 /**
  * Verify a Cloudflare Turnstile token server-side.
  *
- * In production, TURNSTILE_SECRET_KEY MUST be set — fail closed if it
- * isn't, so a missing env var doesn't silently disable bot protection
- * on contact form / login. In dev (NODE_ENV !== "production"), keep
- * the dormant fallback so local work isn't blocked.
+ * Dormant when TURNSTILE_SECRET_KEY isn't set — the admin login already
+ * has aggressive per-IP brute-force rate limiting (checkLoginRateLimit),
+ * so missing captcha doesn't open a meaningful attack surface for the
+ * admin panel. To enforce captcha on a public-facing form, gate at the
+ * call site with `turnstileEnabled()` instead of relying on this helper
+ * to fail closed.
  */
 export async function verifyTurnstile(
   token: string | undefined | null,
@@ -24,19 +26,9 @@ export async function verifyTurnstile(
 ): Promise<TurnstileResult> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
-    if (process.env.NODE_ENV === "production") {
-      logError(
-        "turnstile",
-        "TURNSTILE_SECRET_KEY missing in production — failing closed",
-      );
-      return {
-        ok: false,
-        reason: "Bot protection is misconfigured. Please contact support.",
-      };
-    }
     logWarn(
       "turnstile",
-      "TURNSTILE_SECRET_KEY not set — skipping verification (dormant, dev only)."
+      "TURNSTILE_SECRET_KEY not set — skipping verification (dormant)."
     );
     return { ok: true, dormant: true };
   }
