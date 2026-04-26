@@ -295,6 +295,63 @@ export const salesLeadEvents = pgTable(
   ],
 );
 
+// Mail batches — every CSV export creates a row here. The printer's
+// version of the postcard carries the batch's `code` (in the CTA URL
+// /quote?b=<code> and as a printed reference), so any response that
+// comes through the /quote landing can be attributed back to the
+// batch that drove it. This closes the ROI loop: which mail drop
+// produced which leads.
+export const mailBatches = pgTable(
+  "mail_batches",
+  {
+    id: serial("id").primaryKey(),
+    code: varchar("code", { length: 32 }).notNull().unique(),
+    source: leadSource("source").notNull(),
+    leadCount: integer("lead_count").notNull(),
+    exportedByUserId: integer("exported_by_user_id").notNull(),
+    filename: varchar("filename", { length: 200 }).notNull(),
+    notes: text("notes"),
+    exportedAt: timestamp("exported_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("idx_mail_batches_exported_at").on(t.exportedAt.desc())],
+);
+
+// Quote responses — public-facing /quote form submissions. If the URL
+// carried ?b=<batchCode>, that's recorded here so the admin batch
+// detail page can show "of 23 mailed, N responded". leadId is null
+// at write time and back-filled if the panel matches the response to
+// an existing lead by phone or address.
+export const quoteResponses = pgTable(
+  "quote_responses",
+  {
+    id: serial("id").primaryKey(),
+    batchCode: varchar("batch_code", { length: 32 }),
+    leadId: integer("lead_id"),
+    name: varchar("name", { length: 200 }).notNull(),
+    email: varchar("email", { length: 200 }),
+    phone: varchar("phone", { length: 32 }),
+    address: varchar("address", { length: 200 }),
+    city: varchar("city", { length: 80 }),
+    state: varchar("state", { length: 4 }),
+    zip: varchar("zip", { length: 12 }),
+    currentProvider: varchar("current_provider", { length: 80 }),
+    message: text("message"),
+    ip: varchar("ip", { length: 64 }),
+    userAgent: varchar("user_agent", { length: 400 }),
+    handled: boolean("handled").notNull().default(false),
+    handledNotes: text("handled_notes"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("idx_quote_responses_batch").on(t.batchCode),
+    index("idx_quote_responses_created").on(t.createdAt.desc()),
+  ],
+);
+
 // Distributed rate-limiter store. One row per attempt; checked by
 // COUNT(*) within a window for a given bucket_key (e.g.
 // "login:ip:1.2.3.4", "login:email:foo@bar.com"). Rows older than the
@@ -406,3 +463,7 @@ export type CompetitorComplaint = typeof competitorComplaints.$inferSelect;
 export type NewCompetitorComplaint = typeof competitorComplaints.$inferInsert;
 export type SalesLeadEvent = typeof salesLeadEvents.$inferSelect;
 export type NewSalesLeadEvent = typeof salesLeadEvents.$inferInsert;
+export type MailBatch = typeof mailBatches.$inferSelect;
+export type NewMailBatch = typeof mailBatches.$inferInsert;
+export type QuoteResponse = typeof quoteResponses.$inferSelect;
+export type NewQuoteResponse = typeof quoteResponses.$inferInsert;

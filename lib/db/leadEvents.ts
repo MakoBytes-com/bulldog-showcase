@@ -20,7 +20,8 @@ export type LeadEventKind =
   | "dnc_set"
   | "dnc_cleared"
   | "exported"
-  | "bulk_status_change";
+  | "bulk_status_change"
+  | "quote_response";
 
 export async function logLeadEvent(input: {
   leadId: number;

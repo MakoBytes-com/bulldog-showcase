@@ -151,7 +151,9 @@ export function SelectableLeadsTable({
         return;
       }
       downloadCsv(result.filename, result.csv);
-      setLastExport(`Exported ${result.count} lead${result.count === 1 ? "" : "s"} → marked as Mailed`);
+      setLastExport(
+        `Exported ${result.count} lead${result.count === 1 ? "" : "s"} → marked as Mailed (batch ${result.batchCode})`,
+      );
       setSelected(new Set());
     });
   }

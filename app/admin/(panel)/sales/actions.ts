@@ -8,8 +8,28 @@ import { requireAdminUserId } from "@/lib/auth/requireAdmin";
 import { logLeadEventsBulk } from "@/lib/db/leadEvents";
 
 export type ExportResult =
-  | { ok: true; csv: string; filename: string; count: number }
+  | {
+      ok: true;
+      csv: string;
+      filename: string;
+      count: number;
+      batchCode: string;
+    }
   | { ok: false; error: string };
+
+// Generate a short batch code like `bd-20260425-a3f9` -- date prefix
+// makes it human-scannable in the admin and short enough to fit on a
+// postcard alongside a QR code without crowding the layout.
+function generateBatchCode(): string {
+  const now = new Date();
+  const yyyy = now.getUTCFullYear();
+  const mm = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(now.getUTCDate()).padStart(2, "0");
+  const rand = Math.floor(Math.random() * 0xffff)
+    .toString(16)
+    .padStart(4, "0");
+  return `bd-${yyyy}${mm}${dd}-${rand}`;
+}
 
 export type BulkStatusResult =
   | { ok: true; count: number; status: string }
@@ -67,11 +87,14 @@ export async function exportSelectedAction(
   // Different column set per source so each export carries the right
   // context for follow-up. Both shapes still slot cleanly into
   // Salesforce Lead fields (Company / FirstName/LastName / Street /
-  // City / State / PostalCode).
+  // City / State / PostalCode). batch_code rides on every row so the
+  // print-and-mail house can imprint the tracking code on each piece
+  // (or use it as the QR-code URL: /quote?b=<code>).
   const isHome = source === "home-sale";
+  const batchCode = generateBatchCode();
   const headers = isHome
-    ? ["name", "address", "city", "state", "zip", "subdivision", "sale_date", "file_number"]
-    : ["business_name", "address", "city", "state", "zip", "permit_issue_date", "first_sales_date", "taxpayer_name", "taxpayer_id"];
+    ? ["name", "address", "city", "state", "zip", "subdivision", "sale_date", "file_number", "batch_code"]
+    : ["business_name", "address", "city", "state", "zip", "permit_issue_date", "first_sales_date", "taxpayer_name", "taxpayer_id", "batch_code"];
 
   function csvCell(v: unknown): string {
     const s = v == null ? "" : String(v);
@@ -95,6 +118,7 @@ export async function exportSelectedAction(
           csvCell(subdivision),
           csvCell(saleDate),
           csvCell(r.externalId),
+          csvCell(batchCode),
         ].join(","),
       );
     } else {
@@ -113,6 +137,7 @@ export async function exportSelectedAction(
           csvCell(firstSalesDate),
           csvCell(taxpayerName),
           csvCell(taxpayerNumber),
+          csvCell(batchCode),
         ].join(","),
       );
     }
@@ -127,25 +152,42 @@ export async function exportSelectedAction(
 
   const today = new Date().toISOString().slice(0, 10);
   const tag = isHome ? "homes" : "businesses";
-  const filename = `bulldog-${tag}-${today}-${rows.length}.csv`;
+  const filename = `bulldog-${tag}-${today}-${rows.length}-${batchCode}.csv`;
+
+  // Persist the batch row so the admin can see ROI later. If this
+  // insert fails the export still succeeds (the CSV download is the
+  // critical path) but we log so the gap is visible.
+  try {
+    await db.insert(schema.mailBatches).values({
+      code: batchCode,
+      source,
+      leadCount: rows.length,
+      exportedByUserId: userId,
+      filename,
+    });
+  } catch (err) {
+    console.error("[exportSelectedAction] batch insert failed", err);
+  }
 
   await logLeadEventsBulk({
     leadIds: exportedIds,
     userId,
     kind: "exported",
-    detail: { batchSize: rows.length, filename },
+    detail: { batchSize: rows.length, filename, batchCode },
   });
 
   revalidatePath("/admin/sales/home-sales");
   revalidatePath("/admin/sales/businesses");
   revalidatePath("/admin/sales/saved");
   revalidatePath("/admin/sales");
+  revalidatePath("/admin/sales/batches");
 
   return {
     ok: true,
     csv,
     filename,
     count: rows.length,
+    batchCode,
   };
 }
 

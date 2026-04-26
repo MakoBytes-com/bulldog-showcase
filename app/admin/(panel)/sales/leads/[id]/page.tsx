@@ -308,6 +308,20 @@ function describeEvent(e: LeadEventWithUser): ReactNode {
           </span>
         </>
       );
+    case "quote_response":
+      return (
+        <span className="text-emerald-300">
+          ★ Responded via /quote form
+          {detail.batchCode ? (
+            <>
+              {" "}
+              <span className="font-mono text-[11px] text-[#cfd9e5]">
+                (batch {String(detail.batchCode)})
+              </span>
+            </>
+          ) : null}
+        </span>
+      );
     default:
       return e.kind;
   }
