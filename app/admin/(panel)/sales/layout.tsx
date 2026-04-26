@@ -8,6 +8,7 @@ const TABS = [
   { href: "/admin/sales/home-sales", label: "New Home Sales" },
   { href: "/admin/sales/businesses", label: "New Businesses" },
   { href: "/admin/sales/saved", label: "Saved Leads" },
+  { href: "/admin/sales/about", label: "How It Works" },
 ] as const;
 
 export const metadata = { title: "Sales" };

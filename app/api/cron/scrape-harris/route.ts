@@ -54,17 +54,39 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
+  // Harris County's portal caps results at ~200 per query regardless
+  // of date range. To beat the cap we run one query per day in our
+  // lookback window with instrument=DEED — each day gets its own 200
+  // ceiling, which covers the actual daily DEED volume in Harris.
+  const LOOKBACK_DAYS = 7;
   const today = new Date();
-  const fromDate = new Date(today);
-  fromDate.setUTCDate(today.getUTCDate() - 5);
-  const toDate = new Date(today);
-  toDate.setUTCDate(today.getUTCDate() - 1); // exclude today (rarely indexed yet)
+  const dayStarts: Date[] = [];
+  for (let i = LOOKBACK_DAYS; i >= 1; i--) {
+    const d = new Date(today);
+    d.setUTCDate(today.getUTCDate() - i);
+    dayStarts.push(d);
+  }
 
   try {
-    const { records, bytes, elapsedMs } = await scrapeHarrisCountyDeeds({
-      fromDate,
-      toDate,
-    });
+    let totalRaw = 0;
+    let totalBytes = 0;
+    const startedAt = Date.now();
+    const allRecords: Awaited<ReturnType<typeof scrapeHarrisCountyDeeds>>["records"] = [];
+
+    for (const day of dayStarts) {
+      const { records: dayRecs, bytes: dayBytes } = await scrapeHarrisCountyDeeds({
+        fromDate: day,
+        toDate: day,
+        instrumentType: "DEED",
+      });
+      totalRaw += dayRecs.length;
+      totalBytes += dayBytes;
+      allRecords.push(...dayRecs);
+    }
+
+    const records = allRecords;
+    const bytes = totalBytes;
+    const elapsedMs = Date.now() - startedAt;
 
     let inserted = 0;
     let skippedDuplicate = 0;
@@ -144,10 +166,11 @@ export async function GET(req: Request) {
     return NextResponse.json({
       ok: true,
       window: {
-        from: fromDate.toISOString().slice(0, 10),
-        to: toDate.toISOString().slice(0, 10),
+        from: dayStarts[0].toISOString().slice(0, 10),
+        to: dayStarts[dayStarts.length - 1].toISOString().slice(0, 10),
+        days: LOOKBACK_DAYS,
       },
-      raw: records.length,
+      raw: totalRaw,
       inserted,
       skippedDuplicate,
       skippedFiltered,
