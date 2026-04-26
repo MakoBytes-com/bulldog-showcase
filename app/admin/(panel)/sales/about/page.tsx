@@ -16,6 +16,93 @@ export default function SalesAboutPage() {
         </p>
       </Card>
 
+      <Card className="border-amber-500/30 bg-amber-500/5 p-6">
+        <h3 className="text-base font-semibold text-white">
+          Volume &mdash; how many leads to expect
+        </h3>
+        <p className="mt-3 text-sm text-[#cfd9e5]">
+          The pipeline is <strong className="text-white">accumulating</strong>{" "}
+          &mdash; new leads land daily as cron runs scrape fresh data.
+          There&rsquo;s no hard daily cap; the only constraint is what
+          the source actually publishes.
+        </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-300">
+              Home Sales
+            </div>
+            <ul className="mt-2 space-y-1.5 text-sm text-[#cfd9e5]">
+              <li>
+                <span className="text-amber-300">●</span> Harris County
+                Clerk caps each search query at ~200 records. We work
+                around it by querying <strong className="text-white">one day at a time</strong> &mdash;
+                up to <strong className="text-white">1,400 raw records per cron run</strong>{" "}
+                across the 7-day lookback window.
+              </li>
+              <li>
+                <span className="text-amber-300">●</span> Typical Houston
+                volume after the residential filter: <strong className="text-white">30&ndash;50 mailable leads/day</strong>.
+                That&rsquo;s well under the 200 cap, so we&rsquo;re
+                getting all the residential transfers the Clerk records.
+              </li>
+              <li>
+                <span className="text-amber-300">●</span> Over 30 days
+                of cron runs you accumulate ~900&ndash;1,500 mailable
+                leads. Over 90 days: ~2,700&ndash;4,500. Old leads stay
+                in the DB; new ones add daily.
+              </li>
+              <li>
+                <span className="text-amber-300">●</span> A new lead can
+                start as &ldquo;pending&rdquo; (no street address yet)
+                and graduate to &ldquo;mailable&rdquo; weeks later as
+                HCAD catches up to the new owner. The pending backfill
+                queue keeps shrinking on its own.
+              </li>
+            </ul>
+          </div>
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-amber-300">
+              New Businesses
+            </div>
+            <ul className="mt-2 space-y-1.5 text-sm text-[#cfd9e5]">
+              <li>
+                <span className="text-amber-300">●</span> Texas
+                Comptroller publishes new sales-tax-permit holders
+                statewide. Across the 9-county Houston metro filter
+                (zip 770&ndash;778), typical volume is{" "}
+                <strong className="text-white">20&ndash;100 new businesses/day</strong>.
+              </li>
+              <li>
+                <span className="text-amber-300">●</span> Each cron run
+                pulls the last 14 days, so backfill is automatic if a
+                day&rsquo;s cron is missed. Dedupe on
+                taxpayer+outlet number means no duplicates ever.
+              </li>
+              <li>
+                <span className="text-amber-300">●</span> Address is
+                built into the dataset (no enrichment lag) &mdash;
+                every business is mailable on day one.
+              </li>
+              <li>
+                <span className="text-amber-300">●</span> Over 30 days:
+                ~600&ndash;3,000 leads. Over 90 days: ~1,800&ndash;9,000.
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p className="mt-4 text-xs text-[#7a8aa0]">
+          Live freshness times for both crons + the ScrapingBee credit
+          budget are visible on the{" "}
+          <a
+            href="/admin/sales"
+            className="text-[#4fa8e0] underline-offset-4 hover:underline"
+          >
+            Overview tab
+          </a>
+          .
+        </p>
+      </Card>
+
       <Card className="border-emerald-500/30 bg-emerald-500/5 p-6">
         <h3 className="text-base font-semibold text-white">
           Geographic coverage today
