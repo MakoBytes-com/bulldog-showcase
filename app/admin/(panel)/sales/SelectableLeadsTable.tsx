@@ -126,6 +126,24 @@ export function SelectableLeadsTable({
 
   return (
     <div className="space-y-3">
+      <p className="rounded-xl border border-[#1d3554] bg-[#0b1a2e] px-5 py-3 text-xs text-[#cfd9e5]">
+        Tip: click anywhere on a row to select it. The CSV is the
+        universal format every print-and-mail house accepts (Click2Mail,
+        MailMyStatements, Lob, your local printer) and is{" "}
+        <strong className="text-white">Salesforce-import-ready</strong>{" "}
+        &mdash; the columns map directly to Lead fields (name, street,
+        city, state, postal code) via Data Loader or Setup &rarr; Data
+        Import Wizard. Once exported, leads are marked as
+        &ldquo;mailed&rdquo; and move into{" "}
+        <a
+          href="/admin/sales/saved"
+          className="text-[#4fa8e0] underline-offset-4 hover:underline"
+        >
+          Saved Leads
+        </a>
+        .
+      </p>
+
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#1d3554] bg-[#0e2b5c] px-5 py-3">
         <div className="text-sm text-[#cfd9e5]">
           {selected.size === 0 ? (
@@ -286,23 +304,6 @@ export function SelectableLeadsTable({
         </div>
       ) : null}
 
-      <p className="text-xs text-[#7a8aa0]">
-        Tip: click anywhere on a row to select it. The CSV is the
-        universal format every print-and-mail house accepts (Click2Mail,
-        MailMyStatements, Lob, your local printer) and is{" "}
-        <strong className="text-[#cfd9e5]">Salesforce-import-ready</strong>{" "}
-        &mdash; the columns map directly to Lead fields (name, street,
-        city, state, postal code) via Data Loader or Setup &rarr; Data
-        Import Wizard. Once exported, leads are marked as
-        &ldquo;mailed&rdquo; and move into{" "}
-        <a
-          href="/admin/sales/saved"
-          className="text-[#4fa8e0] underline-offset-4 hover:underline"
-        >
-          Saved Leads
-        </a>
-        .
-      </p>
     </div>
   );
 }
