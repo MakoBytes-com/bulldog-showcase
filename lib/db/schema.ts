@@ -22,6 +22,7 @@ import {
   serial,
   text,
   timestamp,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -260,8 +261,9 @@ export const salesLeads = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
-    // Dedupe key — a single source row can never appear twice.
-    index("idx_sales_leads_source_extid").on(t.source, t.externalId),
+    // Dedupe key — a single source row can never appear twice. UNIQUE
+    // index so onConflictDoNothing in the scraper can target it.
+    uniqueIndex("uniq_sales_leads_source_extid").on(t.source, t.externalId),
     // Sorting by recency for the list views.
     index("idx_sales_leads_scraped_at").on(t.scrapedAt.desc()),
     // Status filter for the saved-leads + pipeline tabs.
