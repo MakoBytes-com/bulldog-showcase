@@ -10,7 +10,12 @@ export const metadata = { title: "Review Campaign" };
 export const revalidate = 300;
 
 const REVIEW_URL = "https://bulldogsecurityservice.com/review";
-const REVIEW_GOAL = 50;
+
+// Bulldog already has 2,500+ reviews and a 4.5 rating. The volume game
+// is won; the panel's job is to (a) keep the rating from drifting and
+// (b) source recent reviews so the listing stays "active" in Google's
+// freshness ranking. Aim for ~12 fresh reviews/month.
+const FRESH_REVIEWS_TARGET = 12;
 
 // Channel-specific tracking URLs — each template uses its own ?src=
 // so the attribution chart can tell us which channel is actually
@@ -116,12 +121,14 @@ export default async function ReviewCampaignPage() {
       color: { dark: "#0b1a2e", light: "#ffffff" },
     }),
   ]);
-  const remaining = Math.max(0, REVIEW_GOAL - stats.count);
-  const progressPct = Math.min(100, Math.round((stats.count / REVIEW_GOAL) * 100));
   const totalClicks = clicksBySource.reduce((sum, r) => sum + r.count, 0);
   const placeWired =
     Boolean(process.env.GOOGLE_PLACES_API_KEY) &&
     Boolean(process.env.GOOGLE_PLACES_PLACE_ID);
+  // Rough freshness signal: monthly review pace if asks land at the
+  // target rate. Bulldog's review volume is already huge, so the panel
+  // is about maintaining the rating, not chasing volume.
+  const monthlyAskTarget = FRESH_REVIEWS_TARGET;
 
   return (
     <div>
@@ -130,25 +137,38 @@ export default async function ReviewCampaignPage() {
         subtitle="Grow the Google-review count. Ask templates, trackable link, QR card."
       />
 
-      {/* Progress tile */}
+      {/* Live Google rating + count */}
       <Card className="mb-6 p-6">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
+        <div className="flex flex-wrap items-start justify-between gap-6">
+          <div className="flex-1 min-w-[200px]">
             <div className="text-xs uppercase tracking-widest text-[#7a8aa0]">
-              Current vs. goal
+              Google rating
             </div>
-            <div className="mt-1 text-3xl font-semibold text-white">
-              {stats.count}{" "}
-              <span className="text-[#7a8aa0]">/ {REVIEW_GOAL}</span>
+            <div className="mt-1 flex items-baseline gap-2">
+              <span className="text-4xl font-semibold text-white">
+                {placeWired ? stats.rating.toFixed(1) : "—"}
+              </span>
+              <span className="text-sm text-[#7a8aa0]">/ 5.0</span>
             </div>
             <div className="mt-1 text-sm text-[#cfd9e5]">
               {placeWired
-                ? `${stats.rating.toFixed(1)} / 5.0 · ${
-                    remaining === 0
-                      ? "Goal hit."
-                      : `${remaining} reviews to hit ${REVIEW_GOAL}.`
-                  }`
-                : "Not yet wired to Google Places — set GOOGLE_PLACES_API_KEY + GOOGLE_PLACES_PLACE_ID in Vercel env to pull live stats."}
+                ? `${stats.count.toLocaleString()} total reviews`
+                : "Set GOOGLE_PLACES_API_KEY + GOOGLE_PLACES_PLACE_ID in Vercel env to pull live stats."}
+            </div>
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <div className="text-xs uppercase tracking-widest text-[#7a8aa0]">
+              Monthly ask target
+            </div>
+            <div className="mt-1 flex items-baseline gap-2">
+              <span className="text-4xl font-semibold text-white">
+                {monthlyAskTarget}
+              </span>
+              <span className="text-sm text-[#7a8aa0]">fresh / mo</span>
+            </div>
+            <div className="mt-1 text-sm text-[#cfd9e5]">
+              ~3 asks per week keeps the listing &ldquo;active&rdquo; in
+              Google&rsquo;s freshness ranking.
             </div>
           </div>
           <a
@@ -160,17 +180,12 @@ export default async function ReviewCampaignPage() {
             View on Google Maps ↗
           </a>
         </div>
-        <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#0b1a2e]">
-          <div
-            className="h-full bg-[#3a94d6] transition-[width] duration-500"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-        <p className="mt-4 text-xs text-[#7a8aa0]">
-          Why 50: that&rsquo;s roughly the floor where Google&rsquo;s
-          AggregateRating star snippets start materially lifting organic
-          click-through. Pace target: ~8&ndash;10 asks per week, ~30%
-          conversion rate on long-term happy customers.
+        <p className="mt-5 text-xs text-[#7a8aa0]">
+          Volume is already strong &mdash; the panel&rsquo;s job from
+          here is to (a) hold the rating by capturing happy-customer
+          asks and intercepting unhappy ones before they post, and (b)
+          keep a steady drip of recent reviews so the listing stays
+          fresh. Use the templates below.
         </p>
       </Card>
 
