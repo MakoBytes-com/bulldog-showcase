@@ -48,34 +48,33 @@ function pluckFloat(html: string, pattern: RegExp): number | null {
 }
 
 export async function fetchBbbStats(bbbUrl: string): Promise<BbbStats> {
-  // Full browser-mimic header set. BBB is behind Cloudflare bot
-  // management which blocks bare fetch() from Vercel's outbound IPs.
-  // The Sec-CH-UA / Sec-Fetch-* headers + standard browser Accept and
-  // Accept-Language make the request look like a Chrome navigation.
-  const resp = await fetch(bbbUrl, {
-    headers: {
-      "User-Agent": UA,
-      Accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-      "Accept-Language": "en-US,en;q=0.9",
-      "Accept-Encoding": "gzip, deflate, br",
-      "Cache-Control": "no-cache",
-      Pragma: "no-cache",
-      "Sec-Ch-Ua":
-        '"Not.A/Brand";v="99", "Chromium";v="121", "Google Chrome";v="121"',
-      "Sec-Ch-Ua-Mobile": "?0",
-      "Sec-Ch-Ua-Platform": '"Windows"',
-      "Sec-Fetch-Dest": "document",
-      "Sec-Fetch-Mode": "navigate",
-      "Sec-Fetch-Site": "none",
-      "Sec-Fetch-User": "?1",
-      "Upgrade-Insecure-Requests": "1",
-    },
+  // BBB is behind Cloudflare bot management which blocks Vercel's
+  // data-center IPs. We route through ScrapingBee's residential
+  // proxy network. Free tier = 1000 credits/month; CF-bypass calls
+  // cost ~10 credits each. 6 competitors × weekly cron = ~240/mo.
+  const apiKey = process.env.SCRAPINGBEE_API_KEY;
+  if (!apiKey) {
+    throw new Error("SCRAPINGBEE_API_KEY not set");
+  }
+
+  const proxyUrl = new URL("https://app.scrapingbee.com/api/v1/");
+  proxyUrl.searchParams.set("api_key", apiKey);
+  proxyUrl.searchParams.set("url", bbbUrl);
+  proxyUrl.searchParams.set("premium_proxy", "true"); // residential IPs for CF bypass
+  proxyUrl.searchParams.set("country_code", "us");
+  // We don't need JS rendering — BBB embeds the stats we want as
+  // string literals in the initial HTML response. Cheaper credits.
+  proxyUrl.searchParams.set("render_js", "false");
+
+  const resp = await fetch(proxyUrl.toString(), {
+    headers: { "User-Agent": UA, Accept: "text/html,*/*;q=0.8" },
     cache: "no-store",
-    redirect: "follow",
   });
   if (!resp.ok) {
-    throw new Error(`BBB HTTP ${resp.status} for ${bbbUrl}`);
+    const body = await resp.text().catch(() => "");
+    throw new Error(
+      `ScrapingBee HTTP ${resp.status} for ${bbbUrl}: ${body.slice(0, 200)}`,
+    );
   }
   const html = await resp.text();
 
