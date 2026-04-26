@@ -119,6 +119,14 @@ export default async function BatchDetailPage({
             response is auto-attributed back to this batch.
           </span>
         </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            href={`/admin/sales/batches/${batch.code}/postcards`}
+            className="inline-flex items-center rounded-lg bg-[#006fb9] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#3a94d6]"
+          >
+            Open print-ready postcards →
+          </Link>
+        </div>
       </Card>
 
       <Card className="p-6">
