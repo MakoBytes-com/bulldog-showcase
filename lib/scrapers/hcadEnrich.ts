@@ -126,10 +126,22 @@ export async function searchHcadByOwner(
   });
 
   const url = `${HCAD_QUERY_URL}?${params.toString()}`;
-  const resp = await fetch(url, {
-    headers: { "User-Agent": UA, Accept: "application/json" },
-    cache: "no-store",
-  });
+  let resp: Response;
+  try {
+    resp = await fetch(url, {
+      headers: { "User-Agent": UA, Accept: "application/json" },
+      cache: "no-store",
+    });
+  } catch (err) {
+    const e = err as Error & { cause?: unknown };
+    const causeMsg =
+      e.cause instanceof Error
+        ? `${e.cause.name}: ${e.cause.message}`
+        : String(e.cause ?? "");
+    throw new Error(
+      `HCAD fetch failed: ${e.message}${causeMsg ? ` | cause: ${causeMsg}` : ""} | url: ${url.slice(0, 200)}`,
+    );
+  }
   if (!resp.ok) {
     throw new Error(`HCAD query HTTP ${resp.status}`);
   }
