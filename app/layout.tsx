@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Mulish, Baskervville, Frank_Ruhl_Libre } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
@@ -95,21 +96,34 @@ export const metadata: Metadata = {
   formatDetection: { telephone: true, address: true, email: true },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Skip the public-site chrome (TopBar / Header / Footer / JSON-LD /
+  // Umami) on /admin/* — admins shouldn't see the customer-facing
+  // header bar around their dashboard. The pathname comes from the
+  // x-pathname header set by middleware.ts.
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const isAdmin = pathname.startsWith("/admin");
+
   return (
     <html
       lang="en"
       className={`${mulish.variable} ${baskervville.variable} ${frank.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white text-ink">
-        <JsonLd data={[organizationSchema(), localBusinessSchema(), websiteSchema()]} />
-        <TopBar />
-        <Header />
-        <main className="flex-1 flex flex-col">{children}</main>
-        <Footer />
-        <UmamiAnalytics />
+        {isAdmin ? (
+          <main className="flex-1 flex flex-col">{children}</main>
+        ) : (
+          <>
+            <JsonLd data={[organizationSchema(), localBusinessSchema(), websiteSchema()]} />
+            <TopBar />
+            <Header />
+            <main className="flex-1 flex flex-col">{children}</main>
+            <Footer />
+            <UmamiAnalytics />
+          </>
+        )}
         <Analytics />
         <SpeedInsights />
       </body>
