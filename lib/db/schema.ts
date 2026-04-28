@@ -427,6 +427,32 @@ export const competitorComplaints = pgTable(
   ],
 );
 
+// Cron run audit log. One row per run of every daily/weekly cron.
+// Distinguishes "ran successfully but nothing new" (status='ok',
+// inserted=0) from "didn't run at all" (no row in the expected
+// window). Without this, a quiet weekend on the data.texas.gov feed
+// looked identical to a broken cron — both produced a stale
+// MAX(scraped_at) on sales_leads.
+export const cronRuns = pgTable(
+  "cron_runs",
+  {
+    id: serial("id").primaryKey(),
+    name: varchar("name", { length: 80 }).notNull(),
+    status: varchar("status", { length: 16 }).notNull(), // 'ok' | 'error'
+    rawCount: integer("raw_count"),
+    insertedCount: integer("inserted_count"),
+    updatedCount: integer("updated_count"),
+    elapsedMs: integer("elapsed_ms"),
+    detail: jsonb("detail"),
+    errorMessage: text("error_message"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+    finishedAt: timestamp("finished_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("idx_cron_runs_name_finished").on(t.name, t.finishedAt.desc())],
+);
+
 export const media = pgTable("media", {
   id: serial("id").primaryKey(),
   alt: varchar("alt"),
@@ -467,3 +493,5 @@ export type MailBatch = typeof mailBatches.$inferSelect;
 export type NewMailBatch = typeof mailBatches.$inferInsert;
 export type QuoteResponse = typeof quoteResponses.$inferSelect;
 export type NewQuoteResponse = typeof quoteResponses.$inferInsert;
+export type CronRun = typeof cronRuns.$inferSelect;
+export type NewCronRun = typeof cronRuns.$inferInsert;

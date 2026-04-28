@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Card } from "../../_components/ui";
 import { getLeadCounts, getPipelineFreshness } from "@/lib/db/salesQueries";
+import type { CronStatusRow } from "@/lib/db/cronRuns";
 import { fetchScrapingBeeUsage } from "@/lib/scrapers/scrapingBeeUsage";
 
 export const dynamic = "force-dynamic";
@@ -11,47 +12,71 @@ function sourceTotal(by: Record<string, number> | undefined) {
   return Object.values(by).reduce((s, n) => s + n, 0);
 }
 
-function formatAge(
-  d: Date | string | null,
-  staleMs = 36 * 60 * 60 * 1000,
-): { text: string; isStale: boolean } {
-  if (!d) return { text: "never", isStale: true };
-  const date = typeof d === "string" ? new Date(d) : d;
-  const ageMs = Date.now() - date.getTime();
+function relativeTime(d: Date): string {
+  const ageMs = Date.now() - d.getTime();
   const min = Math.floor(ageMs / 60_000);
   const hr = Math.floor(min / 60);
   const day = Math.floor(hr / 24);
-  let text: string;
-  if (min < 1) text = "just now";
-  else if (min < 60) text = `${min}m ago`;
-  else if (hr < 24) text = `${hr}h ago`;
-  else text = `${day}d ago`;
-  // Stale if older than the per-source threshold (default 36h for daily
-  // crons -- one missed run and we're stale).
-  return { text, isStale: ageMs > staleMs };
+  if (min < 1) return "just now";
+  if (min < 60) return `${min}m ago`;
+  if (hr < 24) return `${hr}h ago`;
+  return `${day}d ago`;
+}
+
+type Health = "healthy" | "stale" | "errored" | "never";
+
+function classifyRun(
+  run: CronStatusRow | null,
+  staleMs: number,
+): { health: Health; ageText: string; ageMs: number } {
+  if (!run) return { health: "never", ageText: "never", ageMs: Infinity };
+  const ageMs = Date.now() - run.lastRunAt.getTime();
+  const ageText = relativeTime(run.lastRunAt);
+  if (run.status === "error") return { health: "errored", ageText, ageMs };
+  if (ageMs > staleMs) return { health: "stale", ageText, ageMs };
+  return { health: "healthy", ageText, ageMs };
 }
 
 function FreshnessTile({
   label,
-  age,
-  stale,
+  run,
+  staleMs,
 }: {
   label: string;
-  age: string;
-  stale: boolean;
+  run: CronStatusRow | null;
+  staleMs: number;
 }) {
+  const { health, ageText } = classifyRun(run, staleMs);
+  const dotClass =
+    health === "healthy"
+      ? "text-emerald-300"
+      : health === "stale"
+        ? "text-amber-300"
+        : "text-rose-300";
+  // Subline reads "ran successfully — N new" so a quiet day reads as
+  // "ran — 0 new" rather than the misleading "stale — check cron".
+  const subline =
+    health === "never"
+      ? "no run yet"
+      : health === "errored"
+        ? "errored — see logs"
+        : health === "stale"
+          ? "didn't fire — check cron"
+          : run?.insertedCount === 0
+            ? "ran — 0 new"
+            : run?.insertedCount != null
+              ? `ran — ${run.insertedCount.toLocaleString()} new`
+              : "ran";
   return (
     <Card className="p-4">
       <div className="text-[10px] uppercase tracking-widest text-[#7a8aa0]">
         {label}
       </div>
       <div className="mt-1 flex items-baseline gap-2">
-        <span className={stale ? "text-amber-300" : "text-emerald-300"}>●</span>
-        <span className="text-sm font-medium text-white">{age}</span>
+        <span className={dotClass}>●</span>
+        <span className="text-sm font-medium text-white">{ageText}</span>
       </div>
-      <div className="mt-1 text-[10px] text-[#7a8aa0]">
-        {stale ? "stale — check cron" : "healthy"}
-      </div>
+      <div className="mt-1 text-[10px] text-[#7a8aa0]">{subline}</div>
     </Card>
   );
 }
@@ -65,10 +90,8 @@ export default async function SalesOverviewPage() {
     ]);
   const homeSales = byKey["home-sale"] ?? {};
   const businesses = byKey["business-filing"] ?? {};
-  const homeFresh = formatAge(freshness["home-sale"]);
-  const bizFresh = formatAge(freshness["business-filing"]);
-  // Competitor cron is weekly, so the staleness threshold is wider.
-  const compFresh = formatAge(freshness.competitor, 8 * 24 * 60 * 60 * 1000);
+  const dailyStaleMs = 36 * 60 * 60 * 1000;
+  const weeklyStaleMs = 8 * 24 * 60 * 60 * 1000;
 
   const tiles = [
     {
@@ -109,18 +132,18 @@ export default async function SalesOverviewPage() {
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <FreshnessTile
           label="Home Sales"
-          age={homeFresh.text}
-          stale={homeFresh.isStale}
+          run={freshness["scrape-harris"]}
+          staleMs={dailyStaleMs}
         />
         <FreshnessTile
           label="New Businesses"
-          age={bizFresh.text}
-          stale={bizFresh.isStale}
+          run={freshness["scrape-tx-permits"]}
+          staleMs={dailyStaleMs}
         />
         <FreshnessTile
           label="Competitor Intel"
-          age={compFresh.text}
-          stale={compFresh.isStale}
+          run={freshness["scrape-competitors"]}
+          staleMs={weeklyStaleMs}
         />
         <Card className="p-4">
           <div className="text-[10px] uppercase tracking-widest text-[#7a8aa0]">

@@ -15,6 +15,7 @@ import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 
 import { db, schema } from "@/lib/db";
+import { recordCronRun } from "@/lib/db/cronRuns";
 import { logError, logWarn } from "@/lib/log";
 import {
   scrapeHarrisCountyDeeds,
@@ -67,10 +68,11 @@ export async function GET(req: Request) {
     dayStarts.push(d);
   }
 
+  const startedAt = new Date();
   try {
     let totalRaw = 0;
     let totalBytes = 0;
-    const startedAt = Date.now();
+    const scrapeStartedMs = Date.now();
     const allRecords: Awaited<ReturnType<typeof scrapeHarrisCountyDeeds>>["records"] = [];
 
     for (const day of dayStarts) {
@@ -86,9 +88,10 @@ export async function GET(req: Request) {
 
     const records = allRecords;
     const bytes = totalBytes;
-    const elapsedMs = Date.now() - startedAt;
+    const elapsedMs = Date.now() - scrapeStartedMs;
 
     let inserted = 0;
+    let updated = 0;
     let skippedDuplicate = 0;
     let skippedFiltered = 0;
 
@@ -154,14 +157,36 @@ export async function GET(req: Request) {
             metadata: sql`coalesce(${schema.salesLeads.metadata}, '{}'::jsonb) || ${JSON.stringify(clerkMetadata)}::jsonb`,
           },
         })
-        .returning({ id: schema.salesLeads.id });
+        // xmax = 0 distinguishes a fresh INSERT from an ON CONFLICT
+        // UPDATE — without this both paths return a row and we can't
+        // tell new leads from metadata-refreshes of existing ones.
+        .returning({
+          id: schema.salesLeads.id,
+          isNew: sql<boolean>`(xmax = 0)`,
+        });
 
       if (result.length > 0) {
-        inserted++;
+        if (result[0].isNew) inserted++;
+        else updated++;
       } else {
         skippedDuplicate++;
       }
     }
+
+    await recordCronRun({
+      name: "scrape-harris",
+      status: "ok",
+      startedAt,
+      rawCount: totalRaw,
+      insertedCount: inserted,
+      updatedCount: updated,
+      detail: {
+        windowDays: LOOKBACK_DAYS,
+        skippedDuplicate,
+        skippedFiltered,
+        bytes,
+      },
+    });
 
     return NextResponse.json({
       ok: true,
@@ -172,16 +197,21 @@ export async function GET(req: Request) {
       },
       raw: totalRaw,
       inserted,
+      updated,
       skippedDuplicate,
       skippedFiltered,
       bytes,
       elapsedMs,
     });
   } catch (err) {
+    const message = err instanceof Error ? err.message : "unknown";
+    await recordCronRun({
+      name: "scrape-harris",
+      status: "error",
+      startedAt,
+      errorMessage: message,
+    });
     logError("cron/scrape-harris", "scrape failed", err);
-    return NextResponse.json(
-      { ok: false, error: err instanceof Error ? err.message : "unknown" },
-      { status: 500 },
-    );
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

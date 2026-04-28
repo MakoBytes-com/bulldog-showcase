@@ -14,6 +14,7 @@ import { NextResponse } from "next/server";
 import { and, eq, isNull, or, sql } from "drizzle-orm";
 
 import { db, schema } from "@/lib/db";
+import { recordCronRun } from "@/lib/db/cronRuns";
 import { logError, logWarn } from "@/lib/log";
 import { enrichLead } from "@/lib/scrapers/hcadEnrich";
 
@@ -37,6 +38,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
+  const startedAt = new Date();
+
+  try {
   // Pull leads that need enrichment OR re-enrichment:
   //   1. Address is null / not street-formatted (unresolved)
   //   2. Address is fine but metadata.hcad.apprVal is missing
@@ -113,6 +117,15 @@ export async function GET(req: Request) {
     }
   }
 
+  await recordCronRun({
+    name: "enrich-leads",
+    status: "ok",
+    startedAt,
+    rawCount: candidates.length,
+    insertedCount: enriched, // # of leads that gained new address/value
+    detail: { stillUnknown, errors, errorSamples },
+  });
+
   return NextResponse.json({
     ok: true,
     candidates: candidates.length,
@@ -121,4 +134,15 @@ export async function GET(req: Request) {
     errors,
     errorSamples,
   });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "unknown";
+    await recordCronRun({
+      name: "enrich-leads",
+      status: "error",
+      startedAt,
+      errorMessage: message,
+    });
+    logError("cron/enrich-leads", "enrich failed", err);
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+  }
 }

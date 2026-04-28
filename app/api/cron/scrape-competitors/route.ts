@@ -7,6 +7,7 @@
 import { NextResponse } from "next/server";
 
 import { db, schema } from "@/lib/db";
+import { recordCronRun } from "@/lib/db/cronRuns";
 import { logError, logWarn } from "@/lib/log";
 import {
   COMPETITOR_SEED,
@@ -30,6 +31,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
+  const startedAt = new Date();
   const results: Array<{ slug: string; ok: boolean; err?: string; newComplaints?: number }> = [];
 
   for (const c of COMPETITOR_SEED) {
@@ -106,11 +108,32 @@ export async function GET(req: Request) {
     }
   }
 
+  const succeeded = results.filter((r) => r.ok).length;
+  const failed = results.filter((r) => !r.ok).length;
+  const newComplaintsTotal = results.reduce(
+    (sum, r) => sum + (r.newComplaints ?? 0),
+    0,
+  );
+
+  // The cron is "ok" overall as long as the per-competitor try/catch
+  // didn't throw out of the for loop. Per-competitor failures are
+  // surfaced in `results` and counted in `failed`; we still record the
+  // run as 'ok' so the freshness tile reflects "the cron fired" rather
+  // than treating any single BBB profile flake as a pipeline outage.
+  await recordCronRun({
+    name: "scrape-competitors",
+    status: "ok",
+    startedAt,
+    rawCount: results.length,
+    insertedCount: newComplaintsTotal,
+    detail: { succeeded, failed, results },
+  });
+
   return NextResponse.json({
     ok: true,
     competitors: results.length,
-    succeeded: results.filter((r) => r.ok).length,
-    failed: results.filter((r) => !r.ok).length,
+    succeeded,
+    failed,
     results,
   });
 }

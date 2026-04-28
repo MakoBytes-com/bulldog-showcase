@@ -13,6 +13,7 @@
 import { NextResponse } from "next/server";
 
 import { db, schema } from "@/lib/db";
+import { recordCronRun } from "@/lib/db/cronRuns";
 import { logError } from "@/lib/log";
 import { fetchTexasNewPermits } from "@/lib/scrapers/texasSalesPermits";
 
@@ -38,6 +39,7 @@ export async function GET(req: Request) {
   const since = new Date();
   since.setUTCDate(since.getUTCDate() - 14);
 
+  const startedAt = new Date();
   try {
     const permits = await fetchTexasNewPermits({ since });
 
@@ -83,6 +85,15 @@ export async function GET(req: Request) {
       else skippedDuplicate++;
     }
 
+    await recordCronRun({
+      name: "scrape-tx-permits",
+      status: "ok",
+      startedAt,
+      rawCount: permits.length,
+      insertedCount: inserted,
+      detail: { skippedDuplicate, since: since.toISOString().slice(0, 10) },
+    });
+
     return NextResponse.json({
       ok: true,
       since: since.toISOString().slice(0, 10),
@@ -91,10 +102,14 @@ export async function GET(req: Request) {
       skippedDuplicate,
     });
   } catch (err) {
+    const message = err instanceof Error ? err.message : "unknown";
+    await recordCronRun({
+      name: "scrape-tx-permits",
+      status: "error",
+      startedAt,
+      errorMessage: message,
+    });
     logError("cron/scrape-tx-permits", "scrape failed", err);
-    return NextResponse.json(
-      { ok: false, error: err instanceof Error ? err.message : "unknown" },
-      { status: 500 },
-    );
+    return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }

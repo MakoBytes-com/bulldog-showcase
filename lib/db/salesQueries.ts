@@ -6,6 +6,7 @@
 import { and, desc, eq, isNotNull, ne, sql } from "drizzle-orm";
 
 import { db, schema } from "./index";
+import { getLatestCronRuns, type CronName, type CronStatusRow } from "./cronRuns";
 import { scoreLead } from "@/lib/leadScoring";
 import type { SalesLead } from "@/lib/db/schema";
 
@@ -118,32 +119,30 @@ export async function listActiveLeads(limit = 200) {
     .limit(limit);
 }
 
-export async function getPipelineFreshness() {
-  // Most-recent scraped_at per source. Tells the user whether the
-  // pipeline is alive or stale.
-  const rows = await db
-    .select({
-      source: schema.salesLeads.source,
-      lastScraped: sql<Date | null>`max(${schema.salesLeads.scrapedAt})`,
-    })
-    .from(schema.salesLeads)
-    .groupBy(schema.salesLeads.source);
+export type PipelineFreshness = Record<CronName, CronStatusRow | null>;
 
-  const competitor = await db
-    .select({
-      lastScraped: sql<Date | null>`max(${schema.competitorIntel.scrapedAt})`,
-    })
-    .from(schema.competitorIntel);
-
-  const out: Record<string, Date | null> = {
-    "home-sale": null,
-    "business-filing": null,
-    competitor: competitor[0]?.lastScraped ?? null,
+/**
+ * Per-cron run status keyed by cron name. Reads from the cron_runs
+ * audit table — every daily/weekly cron records one row at the end of
+ * each run. This lets the admin tile distinguish "ran successfully —
+ * source had nothing new today" from "didn't fire," which the previous
+ * MAX(scraped_at) approach couldn't see (a quiet weekend on the TX
+ * Comptroller feed looked identical to a broken cron).
+ */
+export async function getPipelineFreshness(): Promise<PipelineFreshness> {
+  const names: CronName[] = [
+    "scrape-harris",
+    "enrich-leads",
+    "scrape-tx-permits",
+    "scrape-competitors",
+  ];
+  const map = await getLatestCronRuns(names);
+  return {
+    "scrape-harris": map.get("scrape-harris") ?? null,
+    "enrich-leads": map.get("enrich-leads") ?? null,
+    "scrape-tx-permits": map.get("scrape-tx-permits") ?? null,
+    "scrape-competitors": map.get("scrape-competitors") ?? null,
   };
-  for (const r of rows) {
-    out[r.source] = r.lastScraped;
-  }
-  return out;
 }
 
 export async function getLeadCounts() {
