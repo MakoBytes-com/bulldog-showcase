@@ -68,6 +68,12 @@ export async function getLatestCronRuns(
   const out = new Map<CronName, CronStatusRow>();
   if (names.length === 0) return out;
 
+  // Note: we deliberately don't `WHERE name = ANY(${names})` — drizzle's
+  // sql template expands a JS array into separate placeholders
+  // (`($1, $2, ...)`) which Postgres rejects as a tuple, not an array.
+  // The table holds one row per cron-run per day so DISTINCT ON keeps
+  // at most a few rows; filtering by name in JS afterwards is cheaper
+  // than the workaround.
   const rows = await db.execute<{
     name: string;
     status: string;
@@ -81,7 +87,6 @@ export async function getLatestCronRuns(
       name, status, finished_at AS last_run_at,
       raw_count, inserted_count, updated_count, error_message
     FROM cron_runs
-    WHERE name = ANY(${names})
     ORDER BY name, finished_at DESC
   `);
 
