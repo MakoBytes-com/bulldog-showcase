@@ -9,6 +9,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { JsonLd } from "@/components/JsonLd";
 import { UmamiAnalytics } from "@/components/UmamiAnalytics";
+import { DemoPill } from "@/components/DemoPill";
 import { SITE } from "@/lib/site";
 import { organizationSchema, localBusinessSchema, websiteSchema } from "@/lib/schema";
 
@@ -82,15 +83,10 @@ export const metadata: Metadata = {
       "30,000+ homes protected. Smart security, life safety, automation and 24/7 ADT monitoring across Texas and Florida.",
   },
   robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: { index: false, follow: false },
   },
   alternates: { canonical: SITE.url },
   formatDetection: { telephone: true, address: true, email: true },
@@ -116,6 +112,7 @@ export default async function RootLayout({
           <main className="flex-1 flex flex-col">{children}</main>
         ) : (
           <>
+            <DemoPill realUrl="https://bulldogsecurityservice.com" />
             <JsonLd data={[organizationSchema(), localBusinessSchema(), websiteSchema()]} />
             <TopBar />
             <Header />
