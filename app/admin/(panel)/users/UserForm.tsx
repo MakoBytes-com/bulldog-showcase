@@ -50,7 +50,7 @@ export function UserForm({
             name="name"
             required
             defaultValue={initial?.name ?? ""}
-            placeholder="Russell Sailors"
+            placeholder="Jane Doe"
             autoComplete="name"
           />
         </Field>
