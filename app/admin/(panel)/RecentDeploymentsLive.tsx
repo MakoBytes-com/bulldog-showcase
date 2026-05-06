@@ -52,7 +52,7 @@ export function RecentDeploymentsLive({
       }
     } catch {
       // Ignore — keep showing the previous data; "Updated Xs ago" tells
-      // Russell we haven't fetched recently, which is enough signal.
+      // Mako Admin we haven't fetched recently, which is enough signal.
     } finally {
       inFlight.current = false;
       setRefreshing(false);
@@ -70,7 +70,7 @@ export function RecentDeploymentsLive({
     return () => clearInterval(tick);
   }, []);
 
-  // Refresh on window focus — if Russell switches tabs and comes back,
+  // Refresh on window focus — if Mako Admin switches tabs and comes back,
   // catch up immediately rather than waiting up to 30s for the next tick.
   useEffect(() => {
     function onFocus() {

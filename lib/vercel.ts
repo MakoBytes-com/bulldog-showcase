@@ -108,7 +108,7 @@ export async function getRecentDeployments(
 }
 
 /**
- * Human-readable relative time, plain English (matches Russell's
+ * Human-readable relative time, plain English (matches Mako Admin's
  * dashboard preference). e.g. "3 minutes ago", "2 hours ago",
  * "Yesterday", "3 days ago".
  */

@@ -418,7 +418,7 @@ function formatDuration(seconds: number): string {
 
 // Core Web Vitals thresholds per web.dev (good / needs-improvement / poor).
 // CLS is stored ×1000 by WebVitals.tsx so we divide on display. Plain-
-// English descriptions are for the admin dashboard — Russell shouldn't
+// English descriptions are for the admin dashboard — Mako Admin shouldn't
 // have to remember what LCP stands for to read the card.
 const VITAL_META: Record<
   WebVitalMetric,

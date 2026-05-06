@@ -9,7 +9,7 @@ export type Post = {
 
 // 10 most-recent posts mirrored from /news/ (captured 2026-04-22).
 // Full post bodies are not ported in this first pass — the /news/[slug]
-// page renders excerpt + CTA back to the homepage for now. Russell can
+// page renders excerpt + CTA back to the homepage for now. Mako Admin can
 // add full bodies in a later content pass.
 export const POSTS: Post[] = [
   {

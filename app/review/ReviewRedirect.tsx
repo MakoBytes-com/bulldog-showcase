@@ -8,7 +8,7 @@ import { track } from "@/lib/track";
  * Fires the channel-attribution event then bounces to Google.
  *
  * Client-side intentionally — `track()` honors the admin self-exclude
- * flag set by AdminShell, so Russell's own review-page hits don't
+ * flag set by AdminShell, so Mako Admin's own review-page hits don't
  * pollute the channel attribution chart.
  */
 export function ReviewRedirect({

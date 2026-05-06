@@ -7,7 +7,7 @@
  *
  * Self-exclusion: any browser that has `mako_no_track=1` in localStorage
  * silently drops every page view and event. The flag is set by
- * AdminShell the moment an authenticated admin loads /admin, so Russell
+ * AdminShell the moment an authenticated admin loads /admin, so Mako Admin
  * (and anyone else who can log in) never contaminates his own traffic
  * numbers. Persists forever in that browser until cleared; robust
  * across IP changes, VPNs, mobile hotspots, coffee shops.

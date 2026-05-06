@@ -12,7 +12,7 @@ export const maxDuration = 60;
  * Error-spike alert cron.
  *
  * Scans `error_events` from the last LOOKBACK_MIN minutes, groups by
- * fingerprint, and emails Russell for any group whose count >=
+ * fingerprint, and emails Mako Admin for any group whose count >=
  * SPIKE_THRESHOLD that we haven't already alerted on within
  * COOLDOWN_MIN. Sent alerts are recorded in `error_alerts` so we don't
  * re-page on the same fingerprint while it's still firing.

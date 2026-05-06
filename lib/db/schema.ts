@@ -394,7 +394,7 @@ export const competitorIntel = pgTable("competitor_intel", {
   averageReviewRating: numeric("average_review_rating"), // 1.0-5.0
   yearsInBusiness: integer("years_in_business"),
 
-  // Editable notes — Russell can write the "what to say" angle for each
+  // Editable notes — Mako Admin can write the "what to say" angle for each
   // competitor based on their complaint patterns.
   pitchNotes: text("pitch_notes"),
 

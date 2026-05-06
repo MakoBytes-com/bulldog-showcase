@@ -263,7 +263,7 @@ export async function getEventCounts(limit = 10): Promise<EventCount[]> {
  * Top visitor countries (ISO-3166 alpha-2 codes from Vercel's
  * x-vercel-ip-country header, captured at insert time). Populated only
  * on production behind Vercel's edge; local dev rows stay null. The
- * tiny name map covers the common hits so Russell sees "United States"
+ * tiny name map covers the common hits so Mako Admin sees "United States"
  * instead of just "US"; anything else falls back to the raw code.
  */
 const COUNTRY_NAMES: Record<string, string> = {
@@ -469,7 +469,7 @@ export async function getWebVitals(): Promise<WebVitalStat[]> {
 
 /**
  * Per-path breakdown of Core Web Vitals P75 over the last 30 days. Lets
- * Russell spot which specific page is dragging a site-wide metric into
+ * Mako Admin spot which specific page is dragging a site-wide metric into
  * the red. Groups by `path` (the event-level path, written by
  * PageViewTracker / track() when the vital fired) and by metric name.
  *
@@ -532,7 +532,7 @@ export async function getWebVitalsByPath(
 
 /**
  * Count of "Review Link Clicked" events by the `source` field in the
- * event's JSON data payload — lets Russell see which channel (email
+ * event's JSON data payload — lets Mako Admin see which channel (email
  * template, SMS, QR card, invoice footer) is actually driving clicks.
  * Populated from /review?src=<channel> hits.
  */
@@ -562,7 +562,7 @@ export async function getReviewClicksBySource(): Promise<ReviewClicksBySource[]>
 /**
  * CTA-placement comparison: how many Phone Call vs Schedule Click events
  * fired from each location (Header / Sticky Mobile Bar / Footer / Page
- * Body). Uses the event-name suffix Russell sees in ConversionEvents.tsx
+ * Body). Uses the event-name suffix Mako Admin sees in ConversionEvents.tsx
  * so we don't need to parse the JSON payload.
  */
 export async function getCtaByLocation(): Promise<LocationCount[]> {

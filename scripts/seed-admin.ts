@@ -2,7 +2,7 @@
  * Seed the first admin user for the Bulldog admin panel.
  *
  * Usage:
- *   npm run db:seed-admin -- --email russell.sailors@gmail.com --name "Russell Sailors"
+ *   npm run db:seed-admin -- --email admin@bulldogsecurityservice.com --name "Mako Admin"
  *   npm run db:seed-admin -- --email <email> --name "<name>" --password <plaintext>
  *
  * If --password is omitted, generates a 16-char temp password and prints it.
