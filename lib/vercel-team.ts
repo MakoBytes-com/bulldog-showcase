@@ -13,6 +13,6 @@
 export const VERCEL_TEAM_ID = "team_TkkoMwEd3Iu2Hv4Ybic1JAMD";
 
 export const VERCEL_TEAM_SLUG =
-  process.env.NEXT_PUBLIC_VERCEL_TEAM_SLUG ?? "mako-studi";
+  process.env.NEXT_PUBLIC_VERCEL_TEAM_SLUG ?? "makoai-studio";
 
 export const VERCEL_DASHBOARD_BASE = `https://vercel.com/${VERCEL_TEAM_SLUG}`;
