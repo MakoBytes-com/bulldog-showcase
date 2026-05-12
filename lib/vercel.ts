@@ -10,17 +10,18 @@
  * different name keeps our admin-dashboard token isolated from the
  * CLI's auth flow.
  *
- * Token: create at https://vercel.com/account/tokens scoped to the
- * mako-studi team (read scope is sufficient — we never mutate).
- * Project + team IDs are hardcoded as defaults below.
+ * Token: create at https://vercel.com/account/tokens scoped to our
+ * Vercel team (read scope is sufficient — we never mutate). Team ID
+ * is hardcoded in `./vercel-team` and is immutable across renames.
  */
+
+import { VERCEL_TEAM_ID } from "./vercel-team";
 
 const VERCEL_API = "https://api.vercel.com";
 
 // bulldogsecurityservice-com on Vercel — public identifiers, safe to hardcode.
-// Override via env if the project is ever moved or the team is renamed.
+// Override via env if the project is ever moved.
 const DEFAULT_PROJECT_ID = "prj_dnOD9ClmUUk362EXku5KSeGqAHMf";
-const DEFAULT_TEAM_SLUG = "mako-studi";
 
 export type VercelDeployment = {
   uid: string;
@@ -46,16 +47,15 @@ export async function getRecentDeployments(
     return {
       ok: false,
       reason:
-        "ADMIN_VERCEL_TOKEN env var not set. Create a token at https://vercel.com/account/tokens (read scope, mako-studi team), then add it as ADMIN_VERCEL_TOKEN (NOT VERCEL_TOKEN — that name collides with Vercel CLI auth).",
+        "ADMIN_VERCEL_TOKEN env var not set. Create a token at https://vercel.com/account/tokens (read scope, scoped to our team), then add it as ADMIN_VERCEL_TOKEN (NOT VERCEL_TOKEN — that name collides with Vercel CLI auth).",
     };
   }
 
   const projectId = process.env.VERCEL_PROJECT_ID ?? DEFAULT_PROJECT_ID;
-  const teamSlug = process.env.VERCEL_TEAM_SLUG ?? DEFAULT_TEAM_SLUG;
 
   const url = new URL(`${VERCEL_API}/v6/deployments`);
   url.searchParams.set("projectId", projectId);
-  url.searchParams.set("slug", teamSlug);
+  url.searchParams.set("teamId", VERCEL_TEAM_ID);
   url.searchParams.set("limit", String(limit));
   url.searchParams.set("target", "production");
 

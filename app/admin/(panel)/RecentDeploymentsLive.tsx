@@ -7,6 +7,7 @@ import {
   type RecentDeploymentsResult,
   type VercelDeployment,
 } from "@/lib/vercel";
+import { VERCEL_DASHBOARD_BASE } from "@/lib/vercel-team";
 
 const POLL_MS = 30_000;
 
@@ -102,7 +103,7 @@ export function RecentDeploymentsLive({
             ↻ Refresh
           </button>
           <a
-            href="https://vercel.com/mako-studi/bulldogsecurityservice-com/deployments"
+            href={`${VERCEL_DASHBOARD_BASE}/bulldogsecurityservice-com/deployments`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-[#3a94d6] transition hover:text-white"
@@ -127,7 +128,7 @@ export function RecentDeploymentsLive({
             const color = stateColor(d.state);
             const inspector =
               d.inspectorUrl ??
-              `https://vercel.com/mako-studi/bulldogsecurityservice-com/${d.uid}`;
+              `${VERCEL_DASHBOARD_BASE}/bulldogsecurityservice-com/${d.uid}`;
             return (
               <li key={d.uid} className="py-3">
                 <div className="flex items-start gap-3">
