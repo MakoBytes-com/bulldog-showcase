@@ -27,13 +27,13 @@ export interface MakoSession {
   pendingExpiresAt?: number; // epoch ms
 }
 
-const secret = process.env.SESSION_SECRET;
-if (!secret) {
-  throw new Error("SESSION_SECRET env var is not set");
-}
+// SESSION_SECRET deferred to use-time (see lib/db/index.ts for full
+// rationale). iron-session needs >=32-char password — placeholder is
+// long enough.
+const SECRET_PLACEHOLDER = "__SESSION_SECRET_NOT_SET_BUILD_TIME_ONLY_PLACEHOLDER_DO_NOT_USE__";
 
 export const sessionOptions: SessionOptions = {
-  password: secret,
+  password: process.env.SESSION_SECRET ?? SECRET_PLACEHOLDER,
   cookieName: "mako_session",
   cookieOptions: {
     httpOnly: true,
@@ -51,5 +51,8 @@ export const sessionOptions: SessionOptions = {
 };
 
 export async function getSession() {
+  if (!process.env.SESSION_SECRET) {
+    throw new Error("SESSION_SECRET env var is not set");
+  }
   return getIronSession<MakoSession>(await cookies(), sessionOptions);
 }

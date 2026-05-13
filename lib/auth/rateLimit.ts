@@ -18,11 +18,18 @@ import "server-only";
 import { neon } from "@neondatabase/serverless";
 import { logError } from "@/lib/log";
 
-const connectionString = process.env.DATABASE_URI;
-if (!connectionString) {
-  throw new Error("DATABASE_URI is not set");
+// DATABASE_URI check deferred to use-time via lazy neon() instantiation.
+// Module-load throw was crashing Vercel Preview builds where prod env
+// vars aren't scoped. neon() validates URL format at construction time
+// so we can't use a sentinel; instead lazily create on first call.
+let _sql: ReturnType<typeof neon> | null = null;
+function getSql() {
+  if (_sql) return _sql;
+  const connectionString = process.env.DATABASE_URI;
+  if (!connectionString) throw new Error("DATABASE_URI is not set");
+  _sql = neon(connectionString);
+  return _sql;
 }
-const sql = neon(connectionString);
 
 const PRUNE_PROBABILITY = 0.01; // 1% of checks trigger a window-wide prune
 const PRUNE_OLDER_THAN_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -50,7 +57,7 @@ export async function checkRateLimit({
   try {
     const cutoff = new Date(Date.now() - windowMs);
 
-    const rows = await sql`
+    const rows = await getSql()`
       SELECT COUNT(*)::int AS n,
              MIN(occurred_at) AS oldest
       FROM rate_limit_attempts
@@ -68,14 +75,14 @@ export async function checkRateLimit({
       };
     }
 
-    await sql`
+    await getSql()`
       INSERT INTO rate_limit_attempts (bucket_key) VALUES (${key})
     `;
 
     if (Math.random() < PRUNE_PROBABILITY) {
       const pruneCutoff = new Date(Date.now() - PRUNE_OLDER_THAN_MS);
       // Fire-and-forget — don't block the caller on cleanup.
-      void sql`
+      void getSql()`
         DELETE FROM rate_limit_attempts
         WHERE occurred_at < ${pruneCutoff.toISOString()}::timestamptz
       `.catch(() => {
@@ -94,7 +101,7 @@ export async function checkRateLimit({
  * out users who mistyped their password once. */
 export async function clearRateLimit(key: string): Promise<void> {
   try {
-    await sql`DELETE FROM rate_limit_attempts WHERE bucket_key = ${key}`;
+    await getSql()`DELETE FROM rate_limit_attempts WHERE bucket_key = ${key}`;
   } catch (err) {
     logError("rateLimit", "DB rate-limit clear failed", err);
   }
