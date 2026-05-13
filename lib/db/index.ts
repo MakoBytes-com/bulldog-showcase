@@ -19,11 +19,29 @@ import { drizzle } from "drizzle-orm/neon-http";
 
 import * as schema from "./schema";
 
-const connectionString = process.env.DATABASE_URI;
-if (!connectionString) {
-  throw new Error("DATABASE_URI env var is not set");
+// DATABASE_URI check deferred to first query via a lazy Proxy.
+// Module-load throw was crashing Vercel Preview builds for Dependabot
+// PRs where prod env vars aren't scoped. neon() validates URL format
+// at construction time (won't accept a placeholder), so we lazily
+// initialize on first property access. The real connection error
+// surfaces at use-time if DATABASE_URI is missing.
+type DbClient = ReturnType<typeof drizzle<typeof schema>>;
+let _db: DbClient | null = null;
+
+function getDb(): DbClient {
+  if (_db) return _db;
+  const connectionString = process.env.DATABASE_URI;
+  if (!connectionString) {
+    throw new Error("DATABASE_URI env var is not set");
+  }
+  const sql = neon(connectionString);
+  _db = drizzle(sql, { schema });
+  return _db;
 }
 
-const sql = neon(connectionString);
-export const db = drizzle(sql, { schema });
+export const db = new Proxy({} as DbClient, {
+  get(_target, prop) {
+    return Reflect.get(getDb() as object, prop);
+  },
+});
 export { schema };
