@@ -27,7 +27,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^1.14.0",
     "marked": "^18.0.3",
-    "next": "16.2.11",
+    "next": "^16.2.11",
     "otplib": "^13.4.0",
     "qrcode": "^1.5.4",
     "react": "19.2.6",
@@ -53,5 +53,10 @@
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^6"
+  },
+  "overrides": {
+    "sharp": "^0.35.3",
+    "postcss": "^8.5.15",
+    "esbuild": "^0.25.0"
   }
 }
