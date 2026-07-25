@@ -2,11 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// NOTE: Do NOT import "@/lib/log" here. This is a client component, and
-// logError() transitively imports lib/db (Drizzle + Neon connection),
-// which throws "DATABASE_URI env var is not set" the moment the chunk
-// loads in the browser. Use console.error directly instead — these are
-// turnstile diagnostics from the user's browser anyway.
+// Local logError instead of importing "@/lib/log" — this is a client
+// component, and these are turnstile diagnostics from the user's browser
+// anyway, so a plain console.error is all that's needed.
 function logError(scope: string, message: string, err?: unknown) {
   console.error(`[${scope}] ${message}`, err);
 }

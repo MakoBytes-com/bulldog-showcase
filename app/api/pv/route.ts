@@ -1,5 +1,3 @@
-import { db, schema } from "@/lib/db";
-import { logError } from "@/lib/log";
 import { readMeta, shouldAccept } from "@/lib/analytics/gatekeep";
 
 export const runtime = "nodejs";
@@ -11,21 +9,18 @@ type PvBody = {
   sessionId?: unknown;
 };
 
-// Trim the path early so a giant malformed URL can't blow out the index.
-// 512 is comfortably above anything we'd actually route to.
-const MAX_PATH = 512;
-const MAX_REFERRER = 2048;
-const MAX_UA = 2048;
-const MAX_SESSION = 64;
-
-function clamp(s: string, max: number): string {
-  return s.length > max ? s.slice(0, max) : s;
-}
-
 function asStr(v: unknown): string | null {
   return typeof v === "string" && v.length > 0 ? v : null;
 }
 
+/**
+ * Page-view beacon. This is a pure static/public demo fork with no
+ * database — the original insert into `page_views` (read by the
+ * /admin/analytics dashboard) was removed along with the rest of the
+ * admin panel. The endpoint still validates + bot-filters the payload
+ * and returns 204 so the client tracker (lib/track.ts) never sees a
+ * failure, but nothing is persisted.
+ */
 export async function POST(req: Request) {
   const meta = readMeta(req);
   if (!shouldAccept(meta)) {
@@ -43,23 +38,6 @@ export async function POST(req: Request) {
   const sessionId = asStr(body.sessionId);
   if (!path || !sessionId) {
     return new Response(null, { status: 400 });
-  }
-
-  const referrer = asStr(body.referrer);
-
-  try {
-    await db.insert(schema.pageViews).values({
-      path: clamp(path, MAX_PATH),
-      referrer: referrer ? clamp(referrer, MAX_REFERRER) : null,
-      userAgent: meta.userAgent ? clamp(meta.userAgent, MAX_UA) : null,
-      sessionId: clamp(sessionId, MAX_SESSION),
-      ip: meta.ip,
-      country: meta.country,
-    });
-  } catch (err) {
-    // Never let analytics break the page. Log and silently accept so the
-    // client tracker doesn't retry-storm on a DB hiccup.
-    logError("pv", "insert failed", err);
   }
 
   return new Response(null, { status: 204 });
