@@ -25,6 +25,7 @@ export function QuoteForm({ initialBatchCode = "" }: Props) {
     const params = new URLSearchParams(window.location.search);
     const b = params.get("b");
     if (b && /^[a-z0-9-]{4,32}$/i.test(b)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Deliberate. Turnstile tokens are SINGLE-USE: after a failed submit the widget must be reset and remounted, or the next attempt replays a spent token and fails forever. Synchronising with an external widget is the documented exception to this rule; removing this effect would lock users out.
       setBatchCode(b.toLowerCase());
     }
   }, []);
