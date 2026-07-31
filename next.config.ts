@@ -12,7 +12,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://challenges.cloudflare.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://va.vercel-scripts.com https://vitals.vercel-insights.com https://cloud.umami.is https://challenges.cloudflare.com",
+  "connect-src 'self' https://va.vercel-scripts.com https://vitals.vercel-insights.com https://cloud.umami.is https://gateway.umami.is https://challenges.cloudflare.com",
   "media-src 'self'",
   "frame-src 'self' https://challenges.cloudflare.com https://www.youtube-nocookie.com",
   "form-action 'self'",
