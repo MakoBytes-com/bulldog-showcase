@@ -10,16 +10,16 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@marsidev/react-turnstile": "^1.5.3",
+    "@marsidev/react-turnstile": "^1.5.4",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "clsx": "^2.1.1",
     "isbot": "^5.2.1",
-    "lucide-react": "^1.27.0",
+    "lucide-react": "^1.28.0",
     "next": "^16.2.12",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "resend": "^6.18.0",
+    "resend": "^6.18.1",
     "tailwind-merge": "^3.6.0",
     "web-vitals": "^5.2.0"
   },
