@@ -23,5 +23,17 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      # Mirror the npm pattern: batch minor+patch action bumps into ONE PR so
+      # they auto-merge together instead of opening a separate PR per action
+      # every cycle. Majors stay individual and wait for a human, since a major
+      # action bump (e.g. setup-node 4->7) can be breaking.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
     commit-message:
       prefix: ci
+    labels:
+      - dependencies
