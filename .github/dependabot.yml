@@ -8,6 +8,30 @@ updates:
       time: "08:00"
       timezone: America/Chicago
     open-pull-requests-limit: 5
+    ignore:
+      # ESLint 10 CRASHES with eslint-config-next 16 — eslint-plugin-react calls
+      # a rule API that ESLint 10 removed:
+      #   "TypeError: Error while loading rule 'react/display-name':
+      #    contextOrFilename.getFilename is not a function"
+      # Proven on THIS repo 2026-08-09: CI `build` job, Lint step, exit code 2.
+      # A crashed linter reports ZERO problems, which reads exactly like a clean
+      # pass — so this is pinned rather than merged-and-reverted.
+      # LIFT WHEN: eslint-config-next ships ESLint 10 support. Re-test with
+      # `npx eslint .` before merging — a green install proves nothing here.
+      - dependency-name: eslint
+        update-types:
+          - version-update:semver-major
+      # TypeScript 7 is the native/Go compiler. typescript-eslint refuses to
+      # load against it and aborts the lint step outright:
+      #   "Error: typescript-eslint does not support TS 7.0."
+      #   (eslint-config-next/node_modules/typescript-eslint/dist/index.js:52)
+      # Proven on THIS repo 2026-08-09. Upstream tracking issue:
+      # https://github.com/typescript-eslint/typescript-eslint/issues/10940
+      # LIFT WHEN: typescript-eslint supports TS >=7.1 AND eslint-config-next
+      # picks it up. Then delete this block.
+      - dependency-name: typescript
+        update-types:
+          - version-update:semver-major
     groups:
       minor-and-patch:
         update-types:
@@ -23,5 +47,19 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    open-pull-requests-limit: 5
+    # Mirror the npm pattern: batch minor+patch action bumps into ONE PR so they
+    # auto-merge together, instead of opening a separate PR per action every
+    # cycle. Without this a single monthly cycle opens one PR per action, each
+    # needing its own green CI run — which is how six accumulated here by
+    # 2026-08-09. Majors stay individual and wait for a human, because a major
+    # action bump can change runner behaviour silently.
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
     commit-message:
       prefix: ci
+    labels:
+      - dependencies
