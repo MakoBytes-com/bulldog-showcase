@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Turnstile } from "@marsidev/react-turnstile";
+import { CaptchaField } from "./CaptchaField";
 import { submitForm, INITIAL_STATE } from "@/app/actions/submit-form";
 import { CONSULT_CONSENT } from "@/lib/site";
 import { Honeypot } from "./Honeypot";
@@ -39,9 +39,8 @@ export function ConsultForm({ turnstileSiteKey }: Props) {
         <DarkField label="Preferred Time" name="preferredTime" type="time" />
       </div>
 
-      {turnstileSiteKey && (
-        <Turnstile siteKey={turnstileSiteKey} options={{ theme: "dark", size: "flexible" }} />
-      )}
+      {/* resetOn: a spent token must never be re-sent. See CaptchaField. */}
+      <CaptchaField siteKey={turnstileSiteKey} resetOn={state} theme="dark" />
 
       {state.status === "error" && (
         <p className="text-sm text-white bg-red-700/70 border border-red-500/50 rounded-md px-3 py-2">

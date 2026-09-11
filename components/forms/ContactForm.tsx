@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { Turnstile } from "@marsidev/react-turnstile";
+import { CaptchaField } from "./CaptchaField";
 import { submitForm, INITIAL_STATE } from "@/app/actions/submit-form";
 import { CONSULT_CONSENT } from "@/lib/site";
 import { Honeypot } from "./Honeypot";
@@ -42,9 +42,8 @@ export function ContactForm({ turnstileSiteKey }: Props) {
         />
       </div>
 
-      {turnstileSiteKey && (
-        <Turnstile siteKey={turnstileSiteKey} options={{ theme: "light", size: "flexible" }} />
-      )}
+      {/* resetOn: a spent token must never be re-sent. See CaptchaField. */}
+      <CaptchaField siteKey={turnstileSiteKey} resetOn={state} />
 
       {state.status === "error" && (
         <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-3 py-2">
