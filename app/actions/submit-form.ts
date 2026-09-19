@@ -5,14 +5,12 @@ import { headers } from "next/headers";
 import { SITE } from "@/lib/site";
 import { rateLimit } from "@/lib/rate-limit";
 
-export type FormType = "consult" | "contact" | "schedule" | "careers";
-
-export type FormState = {
-  status: "idle" | "success" | "error";
-  message: string;
-};
-
-export const INITIAL_STATE: FormState = { status: "idle", message: "" };
+/* FormType / FormState / INITIAL_STATE live in ./form-state — a "use
+   server" file must export ONLY async functions; a const exported from here
+   reaches the client as a callable server reference and crashed the site
+   the first time something treated it as a value. */
+import type { FormType, FormState } from "./form-state";
+export type { FormType, FormState };
 
 type Row = { label: string; value: string };
 

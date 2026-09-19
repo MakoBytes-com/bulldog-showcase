@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 import { CaptchaField } from "./CaptchaField";
-import { submitForm, INITIAL_STATE } from "@/app/actions/submit-form";
+import { submitForm } from "@/app/actions/submit-form";
+import { INITIAL_STATE } from "@/app/actions/form-state";
 import { Honeypot } from "./Honeypot";
 
 type Props = { turnstileSiteKey?: string };

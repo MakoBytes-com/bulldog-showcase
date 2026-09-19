@@ -38,9 +38,14 @@ export function CaptchaField({
   // Derived during render rather than in an effect, per
   // https://react.dev/learn/you-might-not-need-an-effect
   const [epoch, setEpoch] = useState(0);
-  const [prevReset, setPrevReset] = useState(resetOn);
+  /* Both useState and setState treat a FUNCTION argument as an updater and
+     CALL it — and resetOn is `unknown`, so it can be one (a server-function
+     reference from a "use server" export is how this site once 500'd on
+     every page). The arrow wrappers store the value without ever invoking
+     it. */
+  const [prevReset, setPrevReset] = useState<unknown>(() => resetOn);
   if (resetOn !== prevReset) {
-    setPrevReset(resetOn);
+    setPrevReset(() => resetOn);
     setEpoch((n) => n + 1);
   }
 
