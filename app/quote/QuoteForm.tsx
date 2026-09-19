@@ -2,11 +2,8 @@
 
 import { useActionState, useEffect, useState } from "react";
 
-import {
-  INITIAL_QUOTE_STATE,
-  submitQuoteAction,
-  type QuoteFormState,
-} from "./actions";
+import { submitQuoteAction } from "./actions";
+import { INITIAL_QUOTE_STATE, type QuoteFormState } from "./quote-state";
 
 type Props = { initialBatchCode?: string };
 

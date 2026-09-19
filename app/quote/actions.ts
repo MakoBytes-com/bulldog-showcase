@@ -4,15 +4,10 @@ import { headers } from "next/headers";
 
 import { rateLimit } from "@/lib/rate-limit";
 
-export type QuoteFormState = {
-  status: "idle" | "success" | "error";
-  message: string;
-};
-
-export const INITIAL_QUOTE_STATE: QuoteFormState = {
-  status: "idle",
-  message: "",
-};
+/* QuoteFormState / INITIAL_QUOTE_STATE live in ./quote-state — a "use
+   server" file must export ONLY async functions. */
+import type { QuoteFormState } from "./quote-state";
+export type { QuoteFormState };
 
 async function getClientIp(): Promise<string> {
   const h = await headers();
