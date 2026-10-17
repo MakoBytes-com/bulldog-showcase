@@ -128,8 +128,10 @@ export function Footer() {
         </Container>
       </div>
 
+      {/* pb-16 leaves room for the fixed Portfolio Demo pill (bottom-left)
+          so it never sits on the last line of the footer. */}
       <div className="border-t border-white/10">
-        <Container className="py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/55">
+        <Container className="pt-4 pb-16 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/55">
           <p>Copyright {currentYear} {SITE.legalName}. All rights reserved.</p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link>

@@ -1,7 +1,9 @@
+// Bottom-left at every width: top-right sat on the top bar's phone number and
+// Facebook/LinkedIn links and swallowed their clicks and taps.
 export function DemoPill({ realUrl }: { realUrl: string }) {
   return (
     <div
-      className="fixed top-3 right-3 z-[100] flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-3 py-1.5 text-[11px] font-medium text-black shadow-lg backdrop-blur-md"
+      className="fixed bottom-3 left-3 z-[100] flex items-center gap-2 rounded-full border border-black/10 bg-white/80 px-3 py-1.5 text-xs font-medium text-black shadow-lg backdrop-blur-md"
       style={{ WebkitBackdropFilter: "blur(10px)" }}
     >
       <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
